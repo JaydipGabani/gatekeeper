@@ -1,0 +1,261 @@
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/audit	0.043s
+?   	github.com/open-policy-agent/gatekeeper/pkg/controller	[no test files]
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/controller/config	5.332s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/controller/config/process	0.022s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/controller/constraint	0.041s
+?   	github.com/open-policy-agent/gatekeeper/pkg/controller/constraintstatus	[no test files]
+2022/12/01 18:50:37 STARTED
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/controller/constrainttemplate	5.094s
+2022/12/01 18:50:42 STARTED
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/controller/constrainttemplatestatus	5.210s
+?   	github.com/open-policy-agent/gatekeeper/pkg/controller/expansion	[no test files]
+2022/12/01 18:50:48 STARTED
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/controller/externaldata	5.073s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/controller/mutators	0.031s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/controller/mutators/core	4.628s
+?   	github.com/open-policy-agent/gatekeeper/pkg/controller/mutators/instances	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/pkg/controller/mutatorstatus	[no test files]
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/controller/sync	0.040s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/expansion	0.040s
+?   	github.com/open-policy-agent/gatekeeper/pkg/expansion/fixtures	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/pkg/externaldata	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/pkg/fakes	[no test files]
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/gator	0.043s
+?   	github.com/open-policy-agent/gatekeeper/pkg/gator/fixtures	[no test files]
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/gator/test	0.042s
+?   	github.com/open-policy-agent/gatekeeper/pkg/keys	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/pkg/logging	[no test files]
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/metrics	0.027s
+?   	github.com/open-policy-agent/gatekeeper/pkg/metrics/exporters/opencensus	[no test files]
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/metrics/exporters/prometheus	0.010s
+?   	github.com/open-policy-agent/gatekeeper/pkg/metrics/exporters/stackdriver	[no test files]
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/metrics/registry	0.015s
+goos: linux
+goarch: amd64
+pkg: github.com/open-policy-agent/gatekeeper/pkg/mutation
+cpu: Intel(R) Xeon(R) Platinum 8272CL CPU @ 2.60GHz
+BenchmarkSystem_Mutate-8   	  980412	      1226 ns/op
+BenchmarkSystem_Mutate-8   	  997095	      1231 ns/op
+BenchmarkSystem_Mutate-8   	  991002	      1240 ns/op
+BenchmarkSystem_Mutate-8   	  926508	      1234 ns/op
+BenchmarkSystem_Mutate-8   	  965122	      1228 ns/op
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation	6.129s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/match	0.021s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators	0.030s
+goos: linux
+goarch: amd64
+pkg: github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/assign
+cpu: Intel(R) Xeon(R) Platinum 8272CL CPU @ 2.60GHz
+BenchmarkAssignMutator_Mutate/always_mutate_1-depth-8         	 6062298	       195.6 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_1-depth-8         	 6138848	       198.7 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_1-depth-8         	 5948665	       195.0 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_1-depth-8         	 6162631	       196.2 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_1-depth-8         	 6096906	       195.2 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_2-depth-8         	 5566248	       215.8 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_2-depth-8         	 5628751	       212.9 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_2-depth-8         	 5664303	       212.6 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_2-depth-8         	 5610856	       214.0 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_2-depth-8         	 5603682	       217.5 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_5-depth-8         	 4055895	       296.2 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_5-depth-8         	 4005013	       294.4 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_5-depth-8         	 4023480	       292.7 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_5-depth-8         	 4089434	       294.3 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_5-depth-8         	 4037876	       296.3 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_10-depth-8        	 2549792	       451.0 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_10-depth-8        	 2667050	       450.1 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_10-depth-8        	 2654532	       474.6 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_10-depth-8        	 2529928	       446.3 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_10-depth-8        	 2707282	       447.3 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_20-depth-8        	 1487698	       796.8 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_20-depth-8        	 1488975	       792.3 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_20-depth-8        	 1505432	       806.4 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_20-depth-8        	 1505703	       825.5 ns/op
+BenchmarkAssignMutator_Mutate/always_mutate_20-depth-8        	 1477750	       793.5 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_1-depth-8          	 8124897	       149.0 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_1-depth-8          	 7983081	       148.0 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_1-depth-8          	 7994100	       148.7 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_1-depth-8          	 7840285	       148.5 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_1-depth-8          	 7913394	       148.3 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_2-depth-8          	 6760984	       174.2 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_2-depth-8          	 6712574	       173.0 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_2-depth-8          	 6757017	       176.0 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_2-depth-8          	 6796237	       177.3 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_2-depth-8          	 6897294	       175.1 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_5-depth-8          	 4958676	       241.1 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_5-depth-8          	 5005668	       241.8 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_5-depth-8          	 4999156	       240.0 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_5-depth-8          	 5016252	       240.5 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_5-depth-8          	 4939573	       243.1 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_10-depth-8         	 3313734	       364.7 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_10-depth-8         	 3297933	       360.1 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_10-depth-8         	 3287160	       362.9 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_10-depth-8         	 3250612	       362.0 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_10-depth-8         	 3299929	       361.4 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_20-depth-8         	 1917589	       626.3 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_20-depth-8         	 1917372	       624.0 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_20-depth-8         	 1928202	       628.9 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_20-depth-8         	 1923926	       649.6 ns/op
+BenchmarkAssignMutator_Mutate/never_mutate_20-depth-8         	 1919746	       625.5 ns/op
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/assign	77.968s
+goos: linux
+goarch: amd64
+pkg: github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/assignmeta
+cpu: Intel(R) Xeon(R) Platinum 8272CL CPU @ 2.60GHz
+BenchmarkAssignMetadataMutator_Always-8   	 1256649	       953.1 ns/op
+BenchmarkAssignMetadataMutator_Always-8   	 1225611	       970.1 ns/op
+BenchmarkAssignMetadataMutator_Always-8   	 1221472	       958.5 ns/op
+BenchmarkAssignMetadataMutator_Always-8   	 1238185	      1014 ns/op
+BenchmarkAssignMetadataMutator_Always-8   	 1204948	       965.4 ns/op
+BenchmarkAssignMetadataMutator_Never-8    	 5399691	       219.5 ns/op
+BenchmarkAssignMetadataMutator_Never-8    	 5470632	       222.1 ns/op
+BenchmarkAssignMetadataMutator_Never-8    	 5345610	       224.2 ns/op
+BenchmarkAssignMetadataMutator_Never-8    	 5360844	       219.4 ns/op
+BenchmarkAssignMetadataMutator_Never-8    	 5493806	       218.9 ns/op
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/assignmeta	17.888s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/core	0.032s
+goos: linux
+goarch: amd64
+pkg: github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/modifyset
+cpu: Intel(R) Xeon(R) Platinum 8272CL CPU @ 2.60GHz
+BenchmarkModifySetMutator_Mutate/always_mutate_1-depth-8         	 1331984	       893.4 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_1-depth-8         	 1337880	       894.2 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_1-depth-8         	 1329978	       895.1 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_1-depth-8         	 1322004	       894.8 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_1-depth-8         	 1341972	       899.6 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_2-depth-8         	 1278463	       935.8 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_2-depth-8         	 1276807	       937.2 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_2-depth-8         	 1261402	       939.6 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_2-depth-8         	 1272294	       939.4 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_2-depth-8         	 1281667	       951.4 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_5-depth-8         	 1000000	      1069 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_5-depth-8         	 1000000	      1040 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_5-depth-8         	 1000000	      1042 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_5-depth-8         	 1000000	      1047 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_5-depth-8         	 1000000	      1051 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_10-depth-8        	  870531	      1244 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_10-depth-8        	  966390	      1240 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_10-depth-8        	  838054	      1276 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_10-depth-8        	  911427	      1257 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_10-depth-8        	  903460	      1239 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_20-depth-8        	  696862	      1605 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_20-depth-8        	  699218	      1630 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_20-depth-8        	  700471	      1623 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_20-depth-8        	  645153	      1596 ns/op
+BenchmarkModifySetMutator_Mutate/always_mutate_20-depth-8        	  682852	      1602 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_1-depth-8          	 4269691	       271.3 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_1-depth-8          	 4349492	       271.7 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_1-depth-8          	 4399758	       271.2 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_1-depth-8          	 4394001	       271.8 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_1-depth-8          	 4413033	       274.0 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_2-depth-8          	 3871425	       297.8 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_2-depth-8          	 3999746	       297.9 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_2-depth-8          	 4012101	       313.6 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_2-depth-8          	 3715532	       297.2 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_2-depth-8          	 3983881	       295.2 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_5-depth-8          	 3294072	       362.0 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_5-depth-8          	 3274303	       365.8 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_5-depth-8          	 3286168	       362.8 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_5-depth-8          	 3302787	       361.4 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_5-depth-8          	 3299430	       363.3 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_10-depth-8         	 2454808	       484.9 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_10-depth-8         	 2460830	       483.4 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_10-depth-8         	 2506762	       491.0 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_10-depth-8         	 2470618	       485.0 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_10-depth-8         	 2482417	       488.5 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_20-depth-8         	 1587380	       748.8 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_20-depth-8         	 1588272	       747.5 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_20-depth-8         	 1594138	       751.3 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_20-depth-8         	 1586904	       752.6 ns/op
+BenchmarkModifySetMutator_Mutate/never_mutate_20-depth-8         	 1598350	       751.2 ns/op
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/modifyset	80.051s
+?   	github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/testhelpers	[no test files]
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/path/parser	0.003s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/path/tester	0.003s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/path/token	0.003s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/schema	0.022s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/mutation/types	0.023s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/operations	0.004s
+2022/12/01 18:53:59 STARTED
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/readiness	4.689s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/syncutil	0.005s
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/target	0.037s
+?   	github.com/open-policy-agent/gatekeeper/pkg/upgrade	[no test files]
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/util	0.023s
+?   	github.com/open-policy-agent/gatekeeper/pkg/version	[no test files]
+2022/12/01 18:54:04 STARTED
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/watch	4.327s
+goos: linux
+goarch: amd64
+pkg: github.com/open-policy-agent/gatekeeper/pkg/webhook
+cpu: Intel(R) Xeon(R) Platinum 8272CL CPU @ 2.60GHz
+BenchmarkValidationHandler/psp:_100%_violations-8         	     733	   1567875 ns/op
+BenchmarkValidationHandler/psp:_100%_violations-8         	     781	   1591997 ns/op
+BenchmarkValidationHandler/psp:_100%_violations-8         	     751	   1570981 ns/op
+BenchmarkValidationHandler/psp:_100%_violations-8         	     760	   1572313 ns/op
+BenchmarkValidationHandler/psp:_100%_violations-8         	     728	   1582230 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#01-8      	     619	   1994788 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#01-8      	     591	   1965056 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#01-8      	     603	   2150010 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#01-8      	     596	   1977046 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#01-8      	     597	   1976371 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#02-8      	     247	   4757149 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#02-8      	     238	   4903136 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#02-8      	     243	   4853059 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#02-8      	     244	   5051877 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#02-8      	     244	   4862720 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#03-8      	     140	   8227036 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#03-8      	     145	   8514712 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#03-8      	     141	   8378845 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#03-8      	     145	   8248844 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#03-8      	     145	   8124008 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#04-8      	      70	  15034141 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#04-8      	      79	  14962809 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#04-8      	      80	  14853792 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#04-8      	      79	  14934643 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#04-8      	      79	  14864180 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#05-8      	      16	  72782183 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#05-8      	      15	  71808547 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#05-8      	      16	  72967923 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#05-8      	      16	  73909147 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#05-8      	      16	  73413997 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#06-8      	       7	 147969931 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#06-8      	       7	 144909027 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#06-8      	       7	 146709319 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#06-8      	       7	 146831520 ns/op
+BenchmarkValidationHandler/psp:_100%_violations#06-8      	       7	 146489389 ns/op
+PASS
+ok  	github.com/open-policy-agent/gatekeeper/pkg/webhook	65.693s

@@ -116,6 +116,16 @@ github.com/containerd/containerd/remotes/docker/auth
 github.com/containerd/containerd/remotes/docker/schema1
 github.com/containerd/containerd/remotes/errors
 github.com/containerd/containerd/version
+# github.com/dapr/go-sdk v1.6.0
+## explicit; go 1.17
+github.com/dapr/go-sdk/actor
+github.com/dapr/go-sdk/actor/codec
+github.com/dapr/go-sdk/actor/codec/constant
+github.com/dapr/go-sdk/actor/codec/impl
+github.com/dapr/go-sdk/actor/config
+github.com/dapr/go-sdk/client
+github.com/dapr/go-sdk/dapr/proto/common/v1
+github.com/dapr/go-sdk/dapr/proto/runtime/v1
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
@@ -538,6 +548,9 @@ github.com/spf13/pflag
 # github.com/stoewer/go-strcase v1.2.0
 ## explicit; go 1.11
 github.com/stoewer/go-strcase
+# github.com/streadway/amqp v1.0.0
+## explicit; go 1.10
+github.com/streadway/amqp
 # github.com/stretchr/testify v1.8.1
 ## explicit; go 1.13
 github.com/stretchr/testify/assert
@@ -744,7 +757,7 @@ google.golang.org/appengine/internal/socket
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/socket
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20220502173005-c8bf987b8c21
+# google.golang.org/genproto v0.0.0-20220622171453-ea41d75dfa0f
 ## explicit; go 1.15
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations

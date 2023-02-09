@@ -2,9 +2,9 @@ package pubsub
 
 import (
 	"context"
-	
+
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-    logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 var log = logf.Log.WithName("pubsub")
@@ -30,15 +30,17 @@ func new(mgr manager.Manager) *runner {
 // Start implements the Runnable interface.
 func (r *runner) Start(ctx context.Context) error {
 	errCh := make(chan error)
-	tools := PubSubTools()
-    if len(tools) == 0 {
-        log.Info("No pub sub tool is enabled")
-        return nil
-    }
+	tools := Tools()
+	if len(tools) == 0 {
+		log.Info("No pub sub tool is enabled")
+		return nil
+	}
+	log.Info("initializing pub subs")
+	client := r.mgr.GetClient()
 	for i := range tools {
 		pubsub := tools[i]
 		go func() {
-			if err := pubsub.NewClient(); err != nil {
+			if err := pubsub.NewClient(ctx, client); err != nil {
 				errCh <- err
 			}
 		}()

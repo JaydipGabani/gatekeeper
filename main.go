@@ -45,6 +45,7 @@ import (
 	"github.com/open-policy-agent/gatekeeper/pkg/metrics"
 	"github.com/open-policy-agent/gatekeeper/pkg/mutation"
 	"github.com/open-policy-agent/gatekeeper/pkg/operations"
+	"github.com/open-policy-agent/gatekeeper/pkg/pubsub"
 	"github.com/open-policy-agent/gatekeeper/pkg/readiness"
 	"github.com/open-policy-agent/gatekeeper/pkg/target"
 	"github.com/open-policy-agent/gatekeeper/pkg/upgrade"
@@ -460,6 +461,12 @@ func setupControllers(mgr ctrl.Manager, sw *watch.ControllerSwitch, tracker *rea
 	if err := metrics.AddToManager(mgr); err != nil {
 		setupLog.Error(err, "unable to register metrics with the manager")
 		return err
+	}
+
+	setupLog.Info("setting up pubsub")
+	if err := pubsub.AddToManager(mgr); err != nil {
+		setupLog.Error(err, "unable to register pubsub to the manager")
+		os.Exit(1)
 	}
 	return nil
 }

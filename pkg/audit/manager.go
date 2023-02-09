@@ -18,6 +18,7 @@ import (
 	"github.com/open-policy-agent/gatekeeper/pkg/expansion"
 	"github.com/open-policy-agent/gatekeeper/pkg/logging"
 	mutationtypes "github.com/open-policy-agent/gatekeeper/pkg/mutation/types"
+	"github.com/open-policy-agent/gatekeeper/pkg/pubsub"
 	"github.com/open-policy-agent/gatekeeper/pkg/target"
 	"github.com/open-policy-agent/gatekeeper/pkg/util"
 	"github.com/pkg/errors"
@@ -758,6 +759,7 @@ func (am *Manager) addAuditResponsesToUpdateLists(
 		}
 
 		totalViolationsPerEnforcementAction[ea]++
+		pubsub.Publish(StatusViolation{Group: gvk.Group, Version: gvk.Version, Kind: gvk.Kind, Name: r.Constraint.GetName(), Namespace: r.Constraint.GetNamespace(), Message: r.Msg, EnforcementAction: string(ea)}, "audit-channel")
 		logViolation(am.log, r.Constraint, ea, gvk, namespace, name, r.Msg, details, r.obj.GetLabels())
 		if *emitAuditEvents {
 			emitEvent(r.Constraint, timestamp, ea, gvk, namespace, name, r.Msg, am.gkNamespace, am.eventRecorder)

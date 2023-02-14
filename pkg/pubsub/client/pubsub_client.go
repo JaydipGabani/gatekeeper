@@ -1,4 +1,4 @@
-package pubsub
+package client
 
 import (
 	"context"
@@ -7,15 +7,14 @@ import (
 	"strings"
 
 	"github.com/open-policy-agent/gatekeeper/pkg/pubsub/dapr"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func init() {
 	flag.Var(pubSubs, "pub-sub-tool", "Preferred pub-sub tool, e.g dapr, rabbitmq. This flag can be declared more than once. Omitting will default to not using any pub sub tool.")
 }
 
-var pubSubs = newPubSubSet(map[string]PubSub{
-	dapr.Name: &dapr.Dapr{},
+var pubSubs = newPubSubSet(map[string]InitiateClient{
+	dapr.Name: dapr.NewClient,
 },
 )
 
@@ -27,9 +26,6 @@ type PubSub interface {
 	// Publish a batch of messages over a specific topic/channel
 	PublishBatch(data interface{}, topic string) error
 
-	// Initiate the pub sub client
-	NewClient(ctx context.Context, client client.Client) error
-
 	// Get the name of pub sub tool
 	GetName() string
 
@@ -38,13 +34,15 @@ type PubSub interface {
 }
 
 type pubSubSet struct {
-	supportedPubSub map[string]PubSub
-	enabledPubSub   map[string]PubSub
+	supportedPubSub map[string]InitiateClient
+	enabledPubSub   map[string]InitiateClient
 }
 
-func newPubSubSet(pubSubs map[string]PubSub) *pubSubSet {
-	supported := make(map[string]PubSub)
-	enabled := make(map[string]PubSub)
+type InitiateClient func(context.Context, string) (interface{}, error)
+
+func newPubSubSet(pubSubs map[string]InitiateClient) *pubSubSet {
+	supported := make(map[string]InitiateClient)
+	enabled := make(map[string]InitiateClient)
 	set := &pubSubSet{
 		supportedPubSub: supported,
 		enabledPubSub:   enabled,
@@ -76,44 +74,20 @@ func (ps *pubSubSet) Set(s string) error {
 	return nil
 }
 
-func (ps *pubSubSet) AddSupportedTool(name string, new PubSub) {
+func (ps *pubSubSet) AddSupportedTool(name string, new InitiateClient) {
 	if _, ok := ps.supportedPubSub[name]; ok {
 		panic(fmt.Sprintf("pubsub %v registered twice", name))
 	}
 	ps.supportedPubSub[name] = new
 }
 
-func Tools() []PubSub {
+func Tools() map[string]InitiateClient {
 	if len(pubSubs.enabledPubSub) == 0 {
-		return []PubSub{}
+		return map[string]InitiateClient{}
 	}
-	ret := make([]PubSub, 0, len(pubSubs.enabledPubSub))
-	for _, new := range pubSubs.enabledPubSub {
-		ret = append(ret, new)
+	ret := make(map[string]InitiateClient)
+	for name, new := range pubSubs.enabledPubSub {
+		ret[name] = new
 	}
 	return ret
-}
-
-// Publish messages to appropriate endpoints using appropriate configure pubsub tool
-// input: interface to be published, topic/channel name to publish the message in, source/origin of the message (i.e Audit, Validation, etc)
-func Publish(data interface{}, topic string) {
-	pubSubs := Tools()
-	if len(pubSubs) > 0 {
-		for i := range pubSubs {
-			toolName := pubSubs[i].GetName()
-			log.Info(fmt.Sprintf("Publishing to %s tool", toolName))
-			var err error
-			if pubSubs[i].IsBatchingEnabled() {
-				err = pubSubs[i].PublishBatch(data, topic)
-			} else {
-				err = pubSubs[i].Publish(data, topic)
-			}
-
-			if err != nil {
-				log.Error(err, "Not able to publish the message")
-			}
-		}
-	} else {
-		log.Info("No pub sub tools are enabled")
-	}
 }

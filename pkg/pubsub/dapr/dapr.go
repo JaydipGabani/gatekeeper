@@ -9,11 +9,6 @@ import (
 	"github.com/open-policy-agent/gatekeeper/pkg/pubsub/common"
 )
 
-const (
-	Name = "dapr"
-	componentName = "pubsub"
-)
-
 type Endpoint struct {
 	// Name of the component to be used for pub sub messaging
 	Component string `json:"component"`
@@ -43,6 +38,11 @@ type Dapr struct {
 	// Enable, Disable batching per tool
 	batchingEnabled bool
 }
+
+const (
+	Name          = "dapr"
+	componentName = "pubsub"
+)
 
 func (r *Dapr) Publish(data interface{}, topic string) error {
 	jsonData, err := json.Marshal(data)

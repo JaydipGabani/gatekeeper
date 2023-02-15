@@ -18,6 +18,9 @@ type ClientConfig struct {
 	// Enable, Disable batching per tool
 	EnableBatching *bool `json:"enableBatching,omitempty"`
 
+	// batch size
+	Size int `json:"size"`
+
 	// Different endpoints to publish messages
 	Endpoints []Endpoint `json:"endpoints"`
 }
@@ -37,6 +40,9 @@ type Dapr struct {
 
 	// Enable, Disable batching per tool
 	batchingEnabled bool
+
+	// batch size
+	size int
 }
 
 const (
@@ -60,7 +66,20 @@ func (r *Dapr) Publish(data interface{}, topic string) error {
 	return nil
 }
 
+var batch []interface{}
+
 func (r *Dapr) PublishBatch(data interface{}, topic string) error {
+	batch = append(batch, data)
+	// replace placeholder logic of batch publishing with actual dapr batch publish logic
+	if len(batch) >= r.size {
+		for i := range batch {
+			msg := batch[i]
+			if err := r.Publish(msg, topic); err != nil {
+				return err
+			}
+		}
+		batch = []interface{}{}
+	}
 	return nil
 }
 
@@ -81,6 +100,7 @@ func getDefaultConfig() string {
 				Component: componentName,
 			},
 		},
+		Size: 5,
 	}
 	data, _ := json.Marshal(cfg)
 	return string(data)
@@ -98,14 +118,15 @@ func NewClient(ctx context.Context, data string) (interface{}, error) {
 	r := &Dapr{}
 	r.name = Name
 	r.batchingEnabled = common.GetBool(cfg.EnableBatching, true)
-	for _, ele := range cfg.Endpoints {
+	r.size = cfg.Size
+	for _, endpoint := range cfg.Endpoints {
 		tmp, err := client.NewClient()
 		if err != nil {
 			return nil, err
 		}
 		newClient := Client{
 			client:          tmp,
-			pubSubComponent: common.GetString(ele.Component, componentName),
+			pubSubComponent: common.GetString(endpoint.Component, componentName),
 		}
 		r.client = append(r.client, newClient)
 	}

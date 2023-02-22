@@ -38,6 +38,7 @@ type pubSubSet struct {
 	enabledPubSub   map[string]InitiateClient
 }
 
+// returns new client for pub sub tool
 type InitiateClient func(context.Context, string) (interface{}, error)
 
 func newPubSubSet(pubSubs map[string]InitiateClient) *pubSubSet {

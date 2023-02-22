@@ -3160,6 +3160,10 @@ spec:
         control-plane: audit-controller
         gatekeeper.sh/operation: audit
         gatekeeper.sh/system: "yes"
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "audit"
+        dapr.io/app-port: "3000"
     spec:
       automountServiceAccountToken: true
       containers:
@@ -3170,6 +3174,7 @@ spec:
         - --logtostderr
         - --disable-opa-builtin={http.send}
         - --disable-cert-rotation
+        - --dapr-pub-sub-name=pubsub
         command:
         - /manager
         env:
@@ -3189,8 +3194,8 @@ spec:
               fieldPath: metadata.namespace
         - name: CONTAINER_NAME
           value: manager
-        image: openpolicyagent/gatekeeper:v3.12.0-beta.0
-        imagePullPolicy: Always
+        image: openpolicyagent/gatekeeper:latest
+        imagePullPolicy: Never
         livenessProbe:
           httpGet:
             path: /healthz
@@ -3306,8 +3311,8 @@ spec:
               fieldPath: metadata.namespace
         - name: CONTAINER_NAME
           value: manager
-        image: openpolicyagent/gatekeeper:v3.12.0-beta.0
-        imagePullPolicy: Always
+        image: openpolicyagent/gatekeeper:latest
+        imagePullPolicy: Never
         livenessProbe:
           httpGet:
             path: /healthz

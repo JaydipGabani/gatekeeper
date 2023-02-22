@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dapr
+  namespace: gatekeeper-system
+data:
+  config: |
+    {
+      "enableBatching": false,  
+      "endpoints": [
+        {
+          "component": "pubsub"
+        }
+      ],
+      "size": 5
+    }

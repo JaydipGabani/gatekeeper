@@ -1,0 +1,36 @@
+name                                              old time/op  new time/op  delta
+pkg:github.com/open-policy-agent/gatekeeper/pkg/mutation goos:linux goarch:amd64
+System_Mutate-8                                   1.23µs ± 1%  1.23µs ± 1%   ~     (p=1.000 n=5+5)
+pkg:github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/assign goos:linux goarch:amd64
+AssignMutator_Mutate/always_mutate_1-depth-8       195ns ± 1%   195ns ± 1%   ~     (p=1.000 n=5+5)
+AssignMutator_Mutate/always_mutate_2-depth-8       211ns ± 1%   211ns ± 1%   ~     (p=1.000 n=5+5)
+AssignMutator_Mutate/always_mutate_5-depth-8       297ns ± 2%   297ns ± 2%   ~     (p=1.000 n=5+5)
+AssignMutator_Mutate/always_mutate_10-depth-8      445ns ± 1%   445ns ± 1%   ~     (p=1.000 n=5+5)
+AssignMutator_Mutate/always_mutate_20-depth-8      798ns ± 2%   798ns ± 2%   ~     (p=1.000 n=5+5)
+AssignMutator_Mutate/never_mutate_1-depth-8        149ns ± 4%   149ns ± 4%   ~     (p=1.000 n=5+5)
+AssignMutator_Mutate/never_mutate_2-depth-8        175ns ± 2%   175ns ± 2%   ~     (p=1.000 n=5+5)
+AssignMutator_Mutate/never_mutate_5-depth-8        240ns ± 1%   240ns ± 1%   ~     (p=1.000 n=5+5)
+AssignMutator_Mutate/never_mutate_10-depth-8       362ns ± 1%   362ns ± 1%   ~     (p=1.000 n=5+5)
+AssignMutator_Mutate/never_mutate_20-depth-8       620ns ± 0%   620ns ± 0%   ~     (p=1.000 n=4+4)
+pkg:github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/assignmeta goos:linux goarch:amd64
+AssignMetadataMutator_Always-8                     971ns ± 3%   971ns ± 3%   ~     (p=1.000 n=5+5)
+AssignMetadataMutator_Never-8                      219ns ± 1%   219ns ± 1%   ~     (p=1.000 n=5+5)
+pkg:github.com/open-policy-agent/gatekeeper/pkg/mutation/mutators/modifyset goos:linux goarch:amd64
+ModifySetMutator_Mutate/always_mutate_1-depth-8    891ns ± 1%   891ns ± 1%   ~     (p=1.000 n=4+4)
+ModifySetMutator_Mutate/always_mutate_2-depth-8    929ns ± 0%   929ns ± 0%   ~     (p=1.000 n=5+5)
+ModifySetMutator_Mutate/always_mutate_5-depth-8   1.03µs ± 1%  1.03µs ± 1%   ~     (p=1.000 n=5+5)
+ModifySetMutator_Mutate/always_mutate_10-depth-8  1.24µs ± 2%  1.24µs ± 2%   ~     (p=1.000 n=5+5)
+ModifySetMutator_Mutate/always_mutate_20-depth-8  1.60µs ± 1%  1.60µs ± 1%   ~     (p=1.000 n=5+5)
+ModifySetMutator_Mutate/never_mutate_1-depth-8     272ns ± 1%   272ns ± 1%   ~     (p=1.000 n=5+5)
+ModifySetMutator_Mutate/never_mutate_2-depth-8     297ns ± 1%   297ns ± 1%   ~     (p=1.000 n=5+5)
+ModifySetMutator_Mutate/never_mutate_5-depth-8     360ns ± 1%   360ns ± 1%   ~     (p=1.000 n=5+5)
+ModifySetMutator_Mutate/never_mutate_10-depth-8    490ns ± 2%   490ns ± 2%   ~     (p=1.000 n=5+5)
+ModifySetMutator_Mutate/never_mutate_20-depth-8    755ns ± 0%   755ns ± 0%   ~     (p=1.000 n=5+5)
+pkg:github.com/open-policy-agent/gatekeeper/pkg/webhook goos:linux goarch:amd64
+ValidationHandler/psp:_100%_violations-8          1.57ms ± 1%  1.57ms ± 1%   ~     (p=1.000 n=5+5)
+ValidationHandler/psp:_100%_violations#01-8       2.01ms ± 1%  2.01ms ± 1%   ~     (p=1.000 n=5+5)
+ValidationHandler/psp:_100%_violations#02-8       4.78ms ± 3%  4.78ms ± 3%   ~     (p=1.000 n=5+5)
+ValidationHandler/psp:_100%_violations#03-8       8.13ms ± 1%  8.13ms ± 1%   ~     (p=1.000 n=5+5)
+ValidationHandler/psp:_100%_violations#04-8       14.9ms ± 7%  14.9ms ± 7%   ~     (p=1.000 n=5+5)
+ValidationHandler/psp:_100%_violations#05-8       71.7ms ± 3%  71.7ms ± 3%   ~     (p=1.000 n=5+5)
+ValidationHandler/psp:_100%_violations#06-8        141ms ± 2%   141ms ± 2%   ~     (p=1.000 n=5+5)

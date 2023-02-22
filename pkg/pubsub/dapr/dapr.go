@@ -83,34 +83,19 @@ func (r *Dapr) PublishBatch(data interface{}, topic string) error {
 	return nil
 }
 
+// Get name of the tool
 func (r *Dapr) GetName() string {
 	return r.name
 }
 
+// Determines if batching is enabled or not
 func (r *Dapr) IsBatchingEnabled() bool {
 	return r.batchingEnabled
 }
 
-func getDefaultConfig() string {
-	tr := bool(true)
-	cfg := ClientConfig{
-		EnableBatching: &tr,
-		Endpoints: []Endpoint{
-			{
-				Component: componentName,
-			},
-		},
-		Size: 5,
-	}
-	data, _ := json.Marshal(cfg)
-	return string(data)
-}
-
+// Returns a new client for dapr
 func NewClient(ctx context.Context, data string) (interface{}, error) {
 	cfg := ClientConfig{}
-	if data == "" {
-		data = getDefaultConfig()
-	}
 	err := json.Unmarshal([]byte(data), &cfg)
 	if err != nil {
 		return nil, err
@@ -132,4 +117,19 @@ func NewClient(ctx context.Context, data string) (interface{}, error) {
 	}
 
 	return r, nil
+}
+
+func getDefaultConfig() string {
+	tr := bool(true)
+	cfg := ClientConfig{
+		EnableBatching: &tr,
+		Endpoints: []Endpoint{
+			{
+				Component: componentName,
+			},
+		},
+		Size: 5,
+	}
+	data, _ := json.Marshal(cfg)
+	return string(data)
 }

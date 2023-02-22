@@ -13,6 +13,62 @@ metadata:
     pod-security.kubernetes.io/warn-version: latest
   name: gatekeeper-system
 ---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+  namespace: gatekeeper-system
+spec:
+  type: pubsub.redis
+  version: v1
+  metadata:
+  # These settings will work out of the box if you use `helm install
+  # bitnami/redis`.  If you have your own setup, replace
+  # `redis-master:6379` with your own Redis master address, and the
+  # Redis password with your own Secret's name. For more information,
+  # see https://docs.dapr.io/operations/components/component-secrets .
+  - name: redisHost
+    value: redis-master.default.svc.cluster.local:6379
+  - name: redisPassword
+    value: KhSMOy2uj9
+# scopes:
+# - orders
+# - checkout
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: gatekeeper-system
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-master.default.svc.cluster.local:6379
+  - name: redisPassword
+    value: KhSMOy2uj9
+# scopes:
+# - orders
+# - checkout
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: dapr
+#   namespace: gatekeeper-system
+# data:
+#   config: |
+#     {
+#       "enableBatching": false,  
+#       "endpoints": [
+#         {
+#           "component": "pubsub"
+#         }
+#       ],
+#       "size": 5
+#     }
+---
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -3398,6 +3454,13 @@ spec:
         control-plane: audit-controller
         gatekeeper.sh/operation: audit
         gatekeeper.sh/system: "yes"
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "orders"
+        dapr.io/enable-api-logging: "true"
+        dapr.io/app-port: "6001"
+        dapr.io/enable-metrics: "false"
+        dapr.io/sidecar-seccomp-profile-type: "RuntimeDefault"
     spec:
       automountServiceAccountToken: true
       containers:
@@ -3408,6 +3471,7 @@ spec:
         - --logtostderr
         - --disable-opa-builtin={http.send}
         - --disable-cert-rotation
+        - --pub-sub-tool=dapr
         command:
         - /manager
         env:
@@ -3427,8 +3491,8 @@ spec:
               fieldPath: metadata.namespace
         - name: CONTAINER_NAME
           value: manager
-        image: openpolicyagent/gatekeeper:v3.12.0-beta.0
-        imagePullPolicy: Always
+        image: openpolicyagent/gatekeeper:latest
+        imagePullPolicy: Never
         livenessProbe:
           httpGet:
             path: /healthz
@@ -3503,6 +3567,11 @@ spec:
         control-plane: controller-manager
         gatekeeper.sh/operation: webhook
         gatekeeper.sh/system: "yes"
+      # annotations:
+      #   dapr.io/enabled: "true"
+      #   dapr.io/app-id: "orders"
+      #   dapr.io/enable-api-logging: "true"
+      #   dapr.io/app-port: "6001"
     spec:
       affinity:
         podAntiAffinity:
@@ -3525,6 +3594,9 @@ spec:
         - --operation=webhook
         - --operation=mutation-webhook
         - --disable-opa-builtin={http.send}
+        # - --pub-sub-tool=dapr
+        # - --dapr-pub-sub-name=pubsub
+        # - --dapr-topic=orders
         command:
         - /manager
         env:
@@ -3544,8 +3616,8 @@ spec:
               fieldPath: metadata.namespace
         - name: CONTAINER_NAME
           value: manager
-        image: openpolicyagent/gatekeeper:v3.12.0-beta.0
-        imagePullPolicy: Always
+        image: openpolicyagent/gatekeeper:latest
+        imagePullPolicy: Never
         livenessProbe:
           httpGet:
             path: /healthz

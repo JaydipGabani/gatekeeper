@@ -211,6 +211,7 @@ ifeq ($(ENABLE_PUBSUB),true)
 		--set audit.enablePubsub=${ENABLE_PUBSUB} \
 		--set audit.connection=${AUDIT_CONNECTION} \
 		--set audit.channel=${AUDIT_CHANNEL} \
+		--set constraintViolationsLimit=0 \
 		--values .tmp/annotations.yaml \
 		--set mutationAnnotations=true;
 else

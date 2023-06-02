@@ -16,14 +16,6 @@ import (
 	"github.com/go-logr/logr"
 	constraintclient "github.com/open-policy-agent/frameworks/constraint/pkg/client"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
-	pubsubController "github.com/open-policy-agent/gatekeeper/v3/pkg/controller/pubsub"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/expansion"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/logging"
-	mutationtypes "github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/types"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/target"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -41,9 +33,19 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
+	pubsubController "github.com/open-policy-agent/gatekeeper/v3/pkg/controller/pubsub"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/expansion"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/logging"
+	mutationtypes "github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/types"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/target"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 )
 
 var log = logf.Log.WithName("controller").WithValues(logging.Process, "audit")
+var event_count = 0
 
 const (
 	crdName                          = "constrainttemplates.templates.gatekeeper.sh"
@@ -123,6 +125,7 @@ type PubsubMsg struct {
 	ResourceNamespace     string            `json:"resourceNamespace,omitempty"`
 	ResourceName          string            `json:"resourceName,omitempty"`
 	ResourceLabels        map[string]string `json:"resourceLabels,omitempty"`
+	PublishTime time.Time `json:"publishTime,omitempty"`
 }
 
 // updateListEntry holds the information necessary to update the
@@ -277,7 +280,13 @@ func (am *Manager) audit(ctx context.Context) error {
 
 	// update constraints for each kind
 	am.writeAuditResults(ctx, constraintsGVKs, updateLists, timestamp, totalViolationsPerConstraint)
-
+	// if *pubsubController.PubsubEnabled {
+	// 	err := am.pubsubSystem.Publish(context.Background(), *auditConnection, *auditChannel, violationMsg(&unstructured.Unstructured{}, util.EnforcementAction("deny"), schema.GroupVersionKind{}, "", fmt.Sprint(event_count), "audit_finished", "", map[string]string{}, timestamp))
+	// 	if err != nil {
+	// 		am.log.Error(err, "failed to publish violation message")
+	// 	}
+	// }
+	am.log.Info("Audit finished", "violations", event_count)
 	return nil
 }
 
@@ -814,8 +823,9 @@ func (am *Manager) addAuditResponsesToUpdateLists(
 
 		totalViolationsPerEnforcementAction[ea]++
 		logViolation(am.log, r.Constraint, ea, gvk, namespace, name, r.Msg, details, r.obj.GetLabels())
+		event_count++
 		if *pubsubController.PubsubEnabled {
-			err := am.pubsubSystem.Publish(context.Background(), *auditConnection, *auditChannel, violationMsg(r.Constraint, ea, gvk, namespace, name, r.Msg, details, r.obj.GetLabels(), timestamp))
+			err := am.pubsubSystem.Publish(context.Background(), *auditConnection, *auditChannel, violationMsg(r.Constraint, ea, gvk, namespace, fmt.Sprint(event_count), r.Msg, details, r.obj.GetLabels(), timestamp))
 			if err != nil {
 				errs = errors.Join(errs, err)
 			}
@@ -1100,6 +1110,7 @@ func violationMsg(constraint *unstructured.Unstructured, enforcementAction util.
 		ResourceNamespace:     rnamespace,
 		ResourceName:          rname,
 		ResourceLabels:        rlabels,
+		PublishTime: time.Now(),
 	}
 }
 

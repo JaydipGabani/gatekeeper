@@ -211,7 +211,6 @@ ifeq ($(ENABLE_PUBSUB),true)
 		--set audit.enablePubsub=${ENABLE_PUBSUB} \
 		--set audit.connection=${AUDIT_CONNECTION} \
 		--set audit.channel=${AUDIT_CHANNEL} \
-		--set constraintViolationsLimit=500 \
 		--values .tmp/annotations.yaml \
 		--set mutationAnnotations=true;
 else
@@ -230,7 +229,7 @@ else
 		--set admissionEventsInvolvedNamespace=true \
 		--set auditEventsInvolvedNamespace=true \
 		--set disabledBuiltins={http.send} \
-		--set constraintViolationsLimit=500 \
+		--set constraintViolationsLimit=0 \
 		--set logMutations=true \
 		--set mutationAnnotations=true
 endif

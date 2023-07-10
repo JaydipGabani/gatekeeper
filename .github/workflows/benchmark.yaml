@@ -40,7 +40,9 @@ jobs:
           ref: ${{ github.base_ref }}
 
       - name: Run benchmarks on base ref
-        run: make benchmark-test BENCHMARK_FILE_NAME="../base_benchmarks.txt"
+        run: |
+          make benchmark-test BENCHMARK_FILE_NAME="../base_benchmarks.txt"
+          cat ../base_benchmarks.txt
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2

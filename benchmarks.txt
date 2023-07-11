@@ -1,0 +1,2990 @@
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b001/audit.test:
+  -api-cache-dir string
+    	The directory where audit from api server cache are stored, defaults to /tmp/audit (default "/tmp/audit")
+  -audit-channel string
+    	Channel name for publishing audit violation messages (default "audit-channel")
+  -audit-chunk-size uint
+    	(alpha) Kubernetes API chunking List results when retrieving cluster resources using discovery client. defaulted to 500 if unspecified (default 500)
+  -audit-connection string
+    	Connection name for publishing audit violation messages (default "audit-connection")
+  -audit-events-involved-namespace
+    	emit audit events for each violation in the involved objects namespace, the default (false) generates events in the namespace Gatekeeper is installed in. Audit events from cluster-scoped resources will still follow the default behavior
+  -audit-from-cache
+    	pull resources from OPA cache when auditing
+  -audit-interval uint
+    	interval to run audit in seconds. defaulted to 60 secs if unspecified, 0 to disable (default 60)
+  -audit-match-kind-only
+    	only use kinds specified in all constraints for auditing cluster resources. if kind is not specified in any of the constraints, it will audit all resources (same as setting this flag to false)
+  -constraint-violations-limit uint
+    	limit of number of violations per constraint. defaulted to 20 violations if unspecified (default 20)
+  -emit-audit-events
+    	(alpha) emit Kubernetes events with detailed info for each violation from an audit
+  -enable-external-data
+    	Enable external data feature (default true)
+  -enable-generator-resource-expansion
+    	(beta) Enable the expansion of generator resources (default true)
+  -enable-mutation
+    	Deprecated. This used to enable the mutation feature, now it has no effect. Use --operation=mutation-webhook and --operation=mutation-status instead.
+  -enable-pub-sub
+    	Enabled pubsub to publish messages
+  -log-mutations
+    	Enable detailed logging of mutation events
+  -log-stats-audit
+    	(alpha) log stats metrics for the audit run
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -mutation-annotations
+    	Enable mutation annotations
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [audit mutation-controller mutation-status mutation-webhook status webhook])
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -readiness-retries int
+    	The number of resource ingestion attempts allowed before the resource is disregarded.  A value of -1 will retry indefinitely.
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/audit	0.041s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/controller	[no test files]
+2023/07/10 23:16:37 unable to start control plane itself: failed to start the controlplane. retried 5 times: fork/exec /usr/local/kubebuilder/bin/etcd: no such file or directory
+exit status 1
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config	0.045s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1171/process.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process	0.012s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1174/constraint.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -enable-generator-resource-expansion
+    	(beta) Enable the expansion of generator resources (default true)
+  -enable-mutation
+    	Deprecated. This used to enable the mutation feature, now it has no effect. Use --operation=mutation-webhook and --operation=mutation-status instead.
+  -log-mutations
+    	Enable detailed logging of mutation events
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -mutation-annotations
+    	Enable mutation annotations
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [status webhook audit mutation-controller mutation-status mutation-webhook])
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -readiness-retries int
+    	The number of resource ingestion attempts allowed before the resource is disregarded.  A value of -1 will retry indefinitely.
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraint	0.038s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraintstatus	[no test files]
+2023/07/10 23:16:37 unable to start control plane itself: failed to start the controlplane. retried 5 times: fork/exec /usr/local/kubebuilder/bin/etcd: no such file or directory
+exit status 1
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constrainttemplate	0.042s
+2023/07/10 23:16:37 unable to start control plane itself: failed to start the controlplane. retried 5 times: fork/exec /usr/local/kubebuilder/bin/etcd: no such file or directory
+exit status 1
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constrainttemplatestatus	0.044s
+2023/07/10 23:16:38 unable to start control plane itself: failed to start the controlplane. retried 5 times: fork/exec /usr/local/kubebuilder/bin/etcd: no such file or directory
+exit status 1
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/expansion	0.042s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/expansionstatus	[no test files]
+2023/07/10 23:16:38 unable to start control plane itself: failed to start the controlplane. retried 5 times: fork/exec /usr/local/kubebuilder/bin/etcd: no such file or directory
+exit status 1
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/externaldata	0.044s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1189/mutators.test:
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/mutators	0.023s
+2023/07/10 23:16:38 unable to start control plane itself: failed to start the controlplane. retried 5 times: fork/exec /usr/local/kubebuilder/bin/etcd: no such file or directory
+exit status 1
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/mutators/core	0.042s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/mutators/instances	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/mutatorstatus	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1202/pubsub.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -enable-generator-resource-expansion
+    	(beta) Enable the expansion of generator resources (default true)
+  -enable-mutation
+    	Deprecated. This used to enable the mutation feature, now it has no effect. Use --operation=mutation-webhook and --operation=mutation-status instead.
+  -enable-pub-sub
+    	Enabled pubsub to publish messages
+  -log-mutations
+    	Enable detailed logging of mutation events
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -mutation-annotations
+    	Enable mutation annotations
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [audit mutation-controller mutation-status mutation-webhook status webhook])
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -readiness-retries int
+    	The number of resource ingestion attempts allowed before the resource is disregarded.  A value of -1 will retry indefinitely.
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/pubsub	0.039s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/controller/sync	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1206/expansion.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -enable-generator-resource-expansion
+    	(beta) Enable the expansion of generator resources (default true)
+  -enable-mutation
+    	Deprecated. This used to enable the mutation feature, now it has no effect. Use --operation=mutation-webhook and --operation=mutation-status instead.
+  -log-mutations
+    	Enable detailed logging of mutation events
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -mutation-annotations
+    	Enable mutation annotations
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [mutation-controller mutation-status mutation-webhook status webhook audit])
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/expansion	0.039s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/expansion/fixtures	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/externaldata	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/fakes	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/gator	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/gator/expand	[no test files]
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/gator/fixtures	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1427/reader.test:
+  -alsologtostderr
+    	log to standard error as well as files
+  -log_backtrace_at value
+    	when logging hits line file:N, emit a stack trace
+  -log_dir string
+    	If non-empty, write log files in this directory
+  -log_link string
+    	If non-empty, add symbolic links in this directory to the log files
+  -logbuflevel int
+    	Buffer log messages logged at this level or lower (-1 means don't buffer; 0 means buffer INFO only; ...). Has limited applicability on non-prod platforms.
+  -logtostderr
+    	log to standard error instead of files
+  -stderrthreshold value
+    	logs at or above this threshold go to stderr (default 2)
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+  -v value
+    	log level for V logs
+  -vmodule value
+    	comma-separated list of pattern=N settings for file-filtered logging
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/gator/reader	0.036s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1429/test.test:
+  -alsologtostderr
+    	log to standard error as well as files
+  -enable-external-data
+    	Enable external data feature (default true)
+  -enable-generator-resource-expansion
+    	(beta) Enable the expansion of generator resources (default true)
+  -enable-mutation
+    	Deprecated. This used to enable the mutation feature, now it has no effect. Use --operation=mutation-webhook and --operation=mutation-status instead.
+  -log-mutations
+    	Enable detailed logging of mutation events
+  -log_backtrace_at value
+    	when logging hits line file:N, emit a stack trace
+  -log_dir string
+    	If non-empty, write log files in this directory
+  -log_link string
+    	If non-empty, add symbolic links in this directory to the log files
+  -logbuflevel int
+    	Buffer log messages logged at this level or lower (-1 means don't buffer; 0 means buffer INFO only; ...). Has limited applicability on non-prod platforms.
+  -logtostderr
+    	log to standard error instead of files
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -mutation-annotations
+    	Enable mutation annotations
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [mutation-controller mutation-status mutation-webhook status webhook audit])
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -stderrthreshold value
+    	logs at or above this threshold go to stderr (default 2)
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+  -v value
+    	log level for V logs
+  -vmodule value
+    	comma-separated list of pattern=N settings for file-filtered logging
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/gator/test	0.042s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1432/verify.test:
+  -alsologtostderr
+    	log to standard error as well as files
+  -enable-external-data
+    	Enable external data feature (default true)
+  -log_backtrace_at value
+    	when logging hits line file:N, emit a stack trace
+  -log_dir string
+    	If non-empty, write log files in this directory
+  -log_link string
+    	If non-empty, add symbolic links in this directory to the log files
+  -logbuflevel int
+    	Buffer log messages logged at this level or lower (-1 means don't buffer; 0 means buffer INFO only; ...). Has limited applicability on non-prod platforms.
+  -logtostderr
+    	log to standard error instead of files
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [audit mutation-controller mutation-status mutation-webhook status webhook])
+  -stderrthreshold value
+    	logs at or above this threshold go to stderr (default 2)
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+  -v value
+    	log level for V logs
+  -vmodule value
+    	comma-separated list of pattern=N settings for file-filtered logging
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/gator/verify	0.036s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1438/instrumentation.test:
+  -alsologtostderr
+    	log to standard error as well as files
+  -log_backtrace_at value
+    	when logging hits line file:N, emit a stack trace
+  -log_dir string
+    	If non-empty, write log files in this directory
+  -log_link string
+    	If non-empty, add symbolic links in this directory to the log files
+  -logbuflevel int
+    	Buffer log messages logged at this level or lower (-1 means don't buffer; 0 means buffer INFO only; ...). Has limited applicability on non-prod platforms.
+  -logtostderr
+    	log to standard error instead of files
+  -stderrthreshold value
+    	logs at or above this threshold go to stderr (default 2)
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+  -v value
+    	log level for V logs
+  -vmodule value
+    	comma-separated list of pattern=N settings for file-filtered logging
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/instrumentation	0.036s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/keys	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1441/logging.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/logging	0.026s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1444/metrics.test:
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/metrics	0.025s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/opencensus	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1447/prometheus.test:
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/prometheus	0.014s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/stackdriver	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1450/registry.test:
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/registry	0.020s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1453/mutation.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -enable-mutation
+    	Deprecated. This used to enable the mutation feature, now it has no effect. Use --operation=mutation-webhook and --operation=mutation-status instead.
+  -log-mutations
+    	Enable detailed logging of mutation events
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -mutation-annotations
+    	Enable mutation annotations
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [mutation-webhook status webhook audit mutation-controller mutation-status])
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation	0.039s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1456/match.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/match	0.012s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1459/mutators.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [audit mutation-controller mutation-status mutation-webhook status webhook])
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/mutators	0.028s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1462/assign.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [mutation-status mutation-webhook status webhook audit mutation-controller])
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/mutators/assign	0.030s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1465/assignimage.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [mutation-status mutation-webhook status webhook audit mutation-controller])
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/mutators/assignimage	0.031s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1468/assignmeta.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [mutation-controller mutation-status mutation-webhook status webhook audit])
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/mutators/assignmeta	0.030s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1471/core.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [audit mutation-controller mutation-status mutation-webhook status webhook])
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/mutators/core	0.039s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1481/modifyset.test:
+  -enable-external-data
+    	Enable external data feature (default true)
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [webhook audit mutation-controller mutation-status mutation-webhook status])
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/mutators/modifyset	0.029s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/mutators/testhelpers	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1485/parser.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/path/parser	0.003s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1488/tester.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/path/tester	0.002s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1491/token.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/path/token	0.003s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1494/schema.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/schema	0.014s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1497/types.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/types	0.011s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/oci	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1501/operations.test:
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [audit mutation-controller mutation-status mutation-webhook status webhook])
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/operations	0.003s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1504/pubsub.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub	0.005s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub/connection	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1507/dapr.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub/dapr	0.005s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1510/provider.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub/provider	0.004s
+2023/07/10 23:16:41 unable to start control plane itself: failed to start the controlplane. retried 5 times: fork/exec /usr/local/kubebuilder/bin/etcd: no such file or directory
+exit status 1
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/readiness	0.045s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1530/syncutil.test:
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/syncutil	0.023s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1533/aggregator.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/syncutil/aggregator	0.003s
+2023/07/10 23:16:41 unable to start control plane itself: failed to start the controlplane. retried 5 times: fork/exec /usr/local/kubebuilder/bin/etcd: no such file or directory
+exit status 1
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/syncutil/cachemanager	0.044s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1539/parser.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/syncutil/parser	0.005s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1543/target.test:
+  -alsologtostderr
+    	log to standard error as well as files
+  -enable-external-data
+    	Enable external data feature (default true)
+  -log_backtrace_at value
+    	when logging hits line file:N, emit a stack trace
+  -log_dir string
+    	If non-empty, write log files in this directory
+  -log_link string
+    	If non-empty, add symbolic links in this directory to the log files
+  -logbuflevel int
+    	Buffer log messages logged at this level or lower (-1 means don't buffer; 0 means buffer INFO only; ...). Has limited applicability on non-prod platforms.
+  -logtostderr
+    	log to standard error instead of files
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [mutation-webhook status webhook audit mutation-controller mutation-status])
+  -stderrthreshold value
+    	logs at or above this threshold go to stderr (default 2)
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+  -v value
+    	log level for V logs
+  -vmodule value
+    	comma-separated list of pattern=N settings for file-filtered logging
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/target	0.033s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/upgrade	[no test files]
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1547/util.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/util	0.014s
+?   	github.com/open-policy-agent/gatekeeper/v3/pkg/version	[no test files]
+2023/07/10 23:16:42 unable to start control plane itself: failed to start the controlplane. retried 5 times: fork/exec /usr/local/kubebuilder/bin/etcd: no such file or directory
+exit status 1
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/watch	0.044s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1557/webhook.test:
+  -admission-events-involved-namespace
+    	emit admission events for each violation in the involved objects namespace, the default (false) generates events in the namespace Gatekeeper is installed in. Admission events from cluster-scoped resources will still follow the default behavior
+  -alsologtostderr
+    	log to standard error as well as files
+  -client-ca-name string
+    	name of the certificate authority bundle to authenticate the Kubernetes API server requests against
+  -client-cn-name string
+    	expected CN name on the client certificate attached by apiserver in requests to the webhook (default "kube-apiserver")
+  -disable-enforcementaction-validation
+    	disable validation of the enforcementAction field of a constraint
+  -emit-admission-events
+    	(alpha) emit Kubernetes events for each admission violation
+  -enable-external-data
+    	Enable external data feature (default true)
+  -enable-generator-resource-expansion
+    	(beta) Enable the expansion of generator resources (default true)
+  -enable-mutation
+    	Deprecated. This used to enable the mutation feature, now it has no effect. Use --operation=mutation-webhook and --operation=mutation-status instead.
+  -exempt-namespace value
+    	The specified namespace is allowed to set the admission.gatekeeper.sh/ignore label. To exempt multiple namespaces, this flag can be declared more than once.
+  -exempt-namespace-prefix value
+    	A namespace with the specified prefix is allowed to set the admission.gatekeeper.sh/ignore label. To exempt multiple prefixes, this flag can be declared more than once.
+  -exempt-namespace-suffix value
+    	A namespace with the specified suffix is allowed to set the admission.gatekeeper.sh/ignore label. To exempt multiple suffixes, this flag can be declared more than once.
+  -log-denies
+    	log detailed info on each deny
+  -log-mutations
+    	Enable detailed logging of mutation events
+  -log-stats-admission
+    	(alpha) log stats for admission webhook
+  -log_backtrace_at value
+    	when logging hits line file:N, emit a stack trace
+  -log_dir string
+    	If non-empty, write log files in this directory
+  -log_link string
+    	If non-empty, add symbolic links in this directory to the log files
+  -logbuflevel int
+    	Buffer log messages logged at this level or lower (-1 means don't buffer; 0 means buffer INFO only; ...). Has limited applicability on non-prod platforms.
+  -logtostderr
+    	log to standard error instead of files
+  -max-serving-threads int
+    	cap the number of threads handling non-trivial requests, -1 caps the number of threads to GOMAXPROCS. Defaults to -1. (default -1)
+  -metrics-backend prometheus
+    	Backend used for metrics. e.g. prometheus, `stackdriver`. This flag can be declared more than once. Omitting will default to supporting `prometheus`.
+  -mutating-webhook-configuration-name string
+    	name of the MutatingWebhookConfiguration (default "gatekeeper-mutating-webhook-configuration")
+  -mutation-annotations
+    	Enable mutation annotations
+  -operation value
+    	The operation to be performed by this instance. e.g. audit, webhook. This flag can be declared more than once. Omitting will default to supporting all operations. (default [status webhook audit mutation-controller mutation-status mutation-webhook])
+  -prometheus-port int
+    	Prometheus port for metrics backend (default 8888)
+  -stackdriver-only-when-available
+    	Only attempt to start the stackdriver exporter if credentials are available
+  -stderrthreshold value
+    	logs at or above this threshold go to stderr (default 2)
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+  -tls-min-version string
+    	minimum version of TLS supported (default "1.3")
+  -v value
+    	log level for V logs
+  -validating-webhook-configuration-name string
+    	name of the ValidatingWebhookConfiguration (default "gatekeeper-validating-webhook-configuration")
+  -vmodule value
+    	comma-separated list of pattern=N settings for file-filtered logging
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/webhook	0.041s
+flag provided but not defined: -vvv
+Usage of /tmp/go-build592512648/b1562/wildcard.test:
+  -test.bench regexp
+    	run only benchmarks matching regexp
+  -test.benchmem
+    	print memory allocations for benchmarks
+  -test.benchtime d
+    	run each benchmark for duration d (default 1s)
+  -test.blockprofile file
+    	write a goroutine blocking profile to file
+  -test.blockprofilerate rate
+    	set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+  -test.count n
+    	run tests and benchmarks n times (default 1)
+  -test.coverprofile file
+    	write a coverage profile to file
+  -test.cpu list
+    	comma-separated list of cpu counts to run each test with
+  -test.cpuprofile file
+    	write a cpu profile to file
+  -test.failfast
+    	do not start new tests after the first test failure
+  -test.fuzz regexp
+    	run the fuzz test matching regexp
+  -test.fuzzcachedir string
+    	directory where interesting fuzzing inputs are stored (for use only by cmd/go)
+  -test.fuzzminimizetime value
+    	time to spend minimizing a value after finding a failing input (default 1m0s)
+  -test.fuzztime value
+    	time to spend fuzzing; default is to run indefinitely
+  -test.fuzzworker
+    	coordinate with the parent process to fuzz random values (for use only by cmd/go)
+  -test.gocoverdir string
+    	write coverage intermediate files to this directory
+  -test.list regexp
+    	list tests, examples, and benchmarks matching regexp then exit
+  -test.memprofile file
+    	write an allocation profile to file
+  -test.memprofilerate rate
+    	set memory allocation profiling rate (see runtime.MemProfileRate)
+  -test.mutexprofile string
+    	write a mutex contention profile to the named file after execution
+  -test.mutexprofilefraction int
+    	if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+  -test.outputdir dir
+    	write profiles to dir
+  -test.paniconexit0
+    	panic on call to os.Exit(0)
+  -test.parallel n
+    	run at most n tests in parallel (default 1)
+  -test.run regexp
+    	run only tests and examples matching regexp
+  -test.short
+    	run smaller test suite to save time
+  -test.shuffle string
+    	randomize the execution order of tests and benchmarks (default "off")
+  -test.skip regexp
+    	do not list or run tests matching regexp
+  -test.testlogfile file
+    	write test action log to file (for use only by cmd/go)
+  -test.timeout d
+    	panic test binary after duration d (default 0, timeout disabled)
+  -test.trace file
+    	write an execution trace to file
+  -test.v
+    	verbose: print additional output
+exit status 2
+FAIL	github.com/open-policy-agent/gatekeeper/v3/pkg/wildcard	0.002s
+FAIL

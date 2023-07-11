@@ -116,7 +116,7 @@ native-test: envtest
 
 .PHONY: benchmark-test
 benchmark-test:
-	GOMAXPROCS=1 go test ./pkg/... -bench . -run="^#" -count 10 > ${BENCHMARK_FILE_NAME}
+	GOMAXPROCS=1 go test ./pkg/... -bench . -run="^#" -count 10 -v > ${BENCHMARK_FILE_NAME}
 
 # Hook to run docker tests
 .PHONY: test

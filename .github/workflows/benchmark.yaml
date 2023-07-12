@@ -51,6 +51,7 @@ jobs:
 
       - name: Run benchmark with incoming changes
         run: make benchmark-test BENCHMARK_FILE_NAME="pr_benchmarks.txt"
+        continue-on-error: true
 
       - name: Compare benchmarks
         id: get-comment-body

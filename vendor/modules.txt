@@ -153,7 +153,7 @@ github.com/docker/cli/cli/config
 github.com/docker/cli/cli/config/configfile
 github.com/docker/cli/cli/config/credentials
 github.com/docker/cli/cli/config/types
-# github.com/docker/distribution v2.8.1+incompatible
+# github.com/docker/distribution v2.8.2+incompatible
 ## explicit
 github.com/docker/distribution
 github.com/docker/distribution/digestset
@@ -573,7 +573,7 @@ github.com/spf13/pflag
 # github.com/stoewer/go-strcase v1.2.0
 ## explicit; go 1.11
 github.com/stoewer/go-strcase
-# github.com/stretchr/testify v1.8.3
+# github.com/stretchr/testify v1.8.4
 ## explicit; go 1.20
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require

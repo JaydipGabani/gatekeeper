@@ -275,11 +275,11 @@ e2e-subscriber-build-load-image:
 
 e2e-subscriber-deploy:
 	kubectl create ns fake-subscriber
-	kubectl get secret redis --namespace=default -o yaml | sed 's/namespace: .*/namespace: fake-subscriber/' | kubectl apply -f -
+	kubectl get secret redis --namespace=gatekeeper-system -o yaml | sed 's/namespace: .*/namespace: fake-subscriber/' | kubectl apply -f -
 	kubectl apply -f test/pubsub/fake-subscriber/manifest/subscriber.yaml
 
 e2e-publisher-deploy:
-	kubectl get secret redis --namespace=default -o yaml | sed 's/namespace: .*/namespace: gatekeeper-system/' | kubectl apply -f -
+	# kubectl get secret redis --namespace=default -o yaml | sed 's/namespace: .*/namespace: gatekeeper-system/' | kubectl apply -f -
 	kubectl apply -f test/pubsub/publish-components.yaml
 
 # Build manager binary

@@ -9,7 +9,7 @@ spec:
   version: v1
   metadata:
   - name: redisHost
-    value: redis-master.default.svc.cluster.local:6379
+    value: redis-master.gatekeeper-system.svc.cluster.local:6379
   - name: redisPassword
     secretKeyRef: 
       name: redis
@@ -39,5 +39,5 @@ spec:
     spec:
       containers:
       - name: go-sub
-        image: fake-subscriber:latest
-        imagePullPolicy: Never
+        image: docker.io/jaydipgabani/fake-subscriber:latest
+        imagePullPolicy: Always

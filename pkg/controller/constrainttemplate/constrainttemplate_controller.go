@@ -82,6 +82,7 @@ func (a *Adder) Add(mgr manager.Manager) error {
 	events := make(chan event.GenericEvent, 1024)
 	r, err := newReconciler(mgr, a.CFClient, a.WatchManager, a.ControllerSwitch, a.Tracker, events, events, a.GetPod)
 	if err != nil {
+		logger.Info("errored out here")
 		return err
 	}
 	return add(mgr, r)

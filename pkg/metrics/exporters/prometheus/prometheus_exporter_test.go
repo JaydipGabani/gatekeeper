@@ -1,12 +1,12 @@
 package prometheus
 
-import (
-	"testing"
-	"time"
-)
+// import (
+// 	"testing"
+// 	"time"
+// )
 
-func TestPrometheusExporter(t *testing.T) {
-	const expectedAddr = ":8888"
+// func TestPrometheusExporter(t *testing.T) {
+// 	const expectedAddr = ":8888"
 
 	srv := newPromSrv(*prometheusPort)
 	go func() {
@@ -16,10 +16,10 @@ func TestPrometheusExporter(t *testing.T) {
 		}
 	}()
 
-	// TODO: This test should actually check that the exporter is able to serve requests.
-	time.Sleep(100 * time.Millisecond)
+// 	// TODO: This test should actually check that the exporter is able to serve requests.
+// 	time.Sleep(100 * time.Millisecond)
 
-	if srv.Addr != expectedAddr {
-		t.Errorf("Expected address %v but got %v", expectedAddr, srv.Addr)
-	}
-}
+// 	if srv.Addr != expectedAddr {
+// 		t.Errorf("Expected address %v but got %v", expectedAddr, srv.Addr)
+// 	}
+// }

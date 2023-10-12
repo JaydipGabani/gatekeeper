@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	// register exporters with the registry.
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/opencensus"
+	// "github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/opencensus"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/prometheus"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/stackdriver"
 )
@@ -27,7 +27,7 @@ type Exporter interface {
 
 var exporters = newExporterSet(
 	map[string]StartExporter{
-		opencensus.Name:  opencensus.Start,
+		// opencensus.Name:  opencensus.Start,
 		prometheus.Name:  prometheus.Start,
 		stackdriver.Name: stackdriver.Start,
 	},

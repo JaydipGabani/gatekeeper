@@ -82,6 +82,7 @@ func (a *Adder) Add(mgr manager.Manager) error {
 	events := make(chan event.GenericEvent, 1024)
 	r, err := newReconciler(mgr, a.CFClient, a.WatchManager, a.ControllerSwitch, a.Tracker, events, events, a.GetPod)
 	if err != nil {
+		logger.Info("errored out here")
 		return err
 	}
 	return add(mgr, r)
@@ -181,7 +182,7 @@ func newReconciler(mgr manager.Manager, cfClient *constraintclient.Client, wm *w
 	if getPod == nil {
 		reconciler.getPod = reconciler.defaultGetPod
 	}
-	return reconciler, nil
+	return reconciler, reconciler.metrics.registry.registerCallback()
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler.
@@ -259,7 +260,7 @@ func (r *ReconcileConstraintTemplate) Reconcile(ctx context.Context, request rec
 		}
 	}
 
-	defer r.metrics.registry.report(ctx, r.metrics)
+	// defer r.metrics.registry.report(ctx, r.metrics)
 
 	// Fetch the ConstraintTemplate instance
 	deleted := false

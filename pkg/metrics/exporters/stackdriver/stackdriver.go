@@ -3,10 +3,13 @@ package stackdriver
 import (
 	"context"
 	"flag"
+	"time"
 
 	traceapi "cloud.google.com/go/trace/apiv2"
-	"contrib.go.opencensus.io/exporter/stackdriver"
-	"contrib.go.opencensus.io/exporter/stackdriver/monitoredresource"
+	stackdriver "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/sdk/metric"
 	"golang.org/x/oauth2/google"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
@@ -31,10 +34,7 @@ func Start(ctx context.Context) error {
 		return err
 	}
 
-	exporter, err := stackdriver.NewExporter(stackdriver.Options{
-		MetricPrefix:      metricPrefix,
-		MonitoredResource: monitoredresource.Autodetect(),
-	})
+	e, err := stackdriver.New(stackdriver.WithProjectID(metricPrefix))
 	if err != nil {
 		if *ignoreMissingCreds {
 			log.Error(err, "Error initializing stackdriver exporter, not exporting stackdriver metrics")
@@ -42,15 +42,23 @@ func Start(ctx context.Context) error {
 		}
 		return err
 	}
+	reader := metric.NewPeriodicReader(e, metric.WithInterval(30*time.Second))
+	meterProvider := metric.NewMeterProvider(
+		metric.WithReader(reader),
+		metric.WithView(view.Views()...),
+	)
 
-	if err := exporter.StartMetricsExporter(); err != nil {
-		if *ignoreMissingCreds {
-			log.Error(err, "Error starting stackdriver exporter, not exporting stackdriver metrics")
-			return nil
-		}
-		return err
-	}
-	defer exporter.StopMetricsExporter()
+	otel.SetMeterProvider(meterProvider)
+	otel.SetLogger(logf.Log.WithName("metrics"))
+
+	// if err := exporter.StartMetricsExporter(); err != nil {
+	// 	if *ignoreMissingCreds {
+	// 		log.Error(err, "Error starting stackdriver exporter, not exporting stackdriver metrics")
+	// 		return nil
+	// 	}
+	// 	return err
+	// }
+	// defer exporter.StopMetricsExporter()
 
 	<-ctx.Done()
 	return nil

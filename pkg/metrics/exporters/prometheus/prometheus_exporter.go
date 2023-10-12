@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"time"
 
-	"contrib.go.opencensus.io/exporter/prometheus"
-	"go.opencensus.io/stats/view"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/sdk/metric"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	ctlmetrics "sigs.k8s.io/controller-runtime/pkg/metrics"
 )
 
 const (
@@ -25,13 +27,25 @@ var (
 )
 
 func Start(ctx context.Context) error {
-	e, err := newExporter()
+	e, err := prometheus.New(
+		prometheus.WithNamespace(namespace),
+	)
 	if err != nil {
 		return err
 	}
-	view.RegisterExporter(e)
+	meterProvider := metric.NewMeterProvider(
+		metric.WithReader(e),
+		metric.WithView(view.Views()...),
+	)
+	metricsServerMux, port := newPromSrv(*prometheusPort)
+	otel.SetMeterProvider(meterProvider)
+	otel.SetLogger(logf.Log.WithName("metrics"))
 
-	server := newPromSrv(e, *prometheusPort)
+	server := &http.Server{
+		Addr:    port,
+		Handler: metricsServerMux,
+	}
+
 	errCh := make(chan error)
 	srv := func() {
 		err := server.ListenAndServe()
@@ -52,26 +66,8 @@ func Start(ctx context.Context) error {
 	return nil
 }
 
-func newExporter() (*prometheus.Exporter, error) {
-	e, err := prometheus.NewExporter(prometheus.Options{
-		Namespace:  namespace,
-		Registerer: ctlmetrics.Registry,
-		Gatherer:   ctlmetrics.Registry,
-	})
-	if err != nil {
-		log.Error(err, "Failed to create the Prometheus exporter")
-		return nil, err
-	}
-	return e, nil
-}
-
-func newPromSrv(e http.Handler, port int) *http.Server {
+func newPromSrv(port int) (*http.ServeMux, string) {
 	sm := http.NewServeMux()
-	sm.Handle("/metrics", e)
-	curPromSrv := &http.Server{
-		ReadHeaderTimeout: readHeaderTimeout,
-		Addr:              fmt.Sprintf(":%v", port),
-		Handler:           sm,
-	}
-	return curPromSrv
+	sm.Handle("/metrics", promhttp.Handler())
+	return sm, fmt.Sprintf(":%v", port)
 }

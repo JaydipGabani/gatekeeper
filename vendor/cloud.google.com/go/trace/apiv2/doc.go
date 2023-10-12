@@ -82,6 +82,11 @@
 //		// TODO: Handle error.
 //	}
 //
+// # Inspecting errors
+//
+// To see examples of how to inspect errors returned by this package please reference
+// [Inspecting errors](https://pkg.go.dev/cloud.google.com/go#hdr-Inspecting_errors).
+//
 // # Use of Context
 //
 // The ctx passed to NewClient is used for authentication requests and

@@ -3,14 +3,14 @@ package mutation
 import (
 	"context"
 
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
-	"go.opencensus.io/stats"
-	"go.opencensus.io/stats/view"
-	"go.opencensus.io/tag"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 )
 
 const (
 	mutationSystemIterationsMetricName = "mutation_system_iterations"
+	systemConvergenceKey               = "success"
 )
 
 // SystemConvergenceStatus defines the outcomes of the attempted mutation of an object by the
@@ -25,26 +25,18 @@ const (
 )
 
 var (
-	systemConvergenceKey = tag.MustNewKey("success")
-
-	systemIterationsM = stats.Int64(
-		mutationSystemIterationsMetricName,
-		"The distribution of Mutation System iterations before convergence",
-		stats.UnitDimensionless)
+	systemIterationsM metric.Int64Histogram
 )
 
 func init() {
-	views := []*view.View{
-		{
-			Name:        mutationSystemIterationsMetricName,
-			Description: systemIterationsM.Description(),
-			Measure:     systemIterationsM,
-			Aggregation: view.Distribution(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, 200, 500),
-			TagKeys:     []tag.Key{systemConvergenceKey},
-		},
-	}
+	var err error
+	meter := otel.GetMeterProvider().Meter("gatekeeper")
 
-	if err := view.Register(views...); err != nil {
+	systemIterationsM, err = meter.Int64Histogram(
+		mutationSystemIterationsMetricName,
+		metric.WithDescription("The distribution of Mutation System iterations before convergence"),
+	)
+	if err != nil {
 		panic(err)
 	}
 }
@@ -66,13 +58,6 @@ func NewStatsReporter() StatsReporter {
 // It also records the number of system iterations that were required to reach this end.
 func (r *reporter) ReportIterationConvergence(scs SystemConvergenceStatus, iterations int) error {
 	// No need for an actual Context.
-	ctx, err := tag.New(
-		context.Background(),
-		tag.Insert(systemConvergenceKey, string(scs)),
-	)
-	if err != nil {
-		return err
-	}
-
-	return metrics.Record(ctx, systemIterationsM.M(int64(iterations)))
+	systemIterationsM.Record(context.Background(), int64(iterations), metric.WithAttributes(attribute.String(systemConvergenceKey, string(scs))))
+	return nil
 }

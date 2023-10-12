@@ -35,7 +35,7 @@ var logger = log.New(os.Stdout, "", 0)
 func getTestClient(ctx context.Context) (client daprClient.Client, closer func()) {
 	s := grpc.NewServer()
 	pb.RegisterDaprServer(s, &testDaprServer{
-		state:                       make(map[string][]byte),
+		state: make(map[string][]byte),
 		configurationSubscriptionID: map[string]chan struct{}{},
 	})
 

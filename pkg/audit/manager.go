@@ -162,11 +162,7 @@ func (c *nsCache) Get(ctx context.Context, client client.Client, namespace strin
 
 // New creates a new manager for audit.
 func New(mgr manager.Manager, deps *Dependencies) (*Manager, error) {
-	reporter, err := newStatsReporter()
-	if err != nil {
-		log.Error(err, "StatsReporter could not start")
-		return nil, err
-	}
+	reporter := newStatsReporter()
 	eventBroadcaster := record.NewBroadcaster()
 	kubeClient := kubernetes.NewForConfigOrDie(mgr.GetConfig())
 	eventBroadcaster.StartRecordingToSink(&clientcorev1.EventSinkImpl{Interface: kubeClient.CoreV1().Events("")})
@@ -187,31 +183,24 @@ func New(mgr manager.Manager, deps *Dependencies) (*Manager, error) {
 		expansionSystem: deps.ExpansionSystem,
 		pubsubSystem:    deps.PubSubSystem,
 	}
-	return am, nil
+	return am, am.reporter.registerCallback()
 }
 
 // audit performs an audit then updates the status of all constraint resources with the results.
 func (am *Manager) audit(ctx context.Context) error {
-	startTime := time.Now()
+	startTime = time.Now()
 	timestamp := startTime.UTC().Format(time.RFC3339)
 	am.log = log.WithValues(logging.AuditID, timestamp)
 	logStart(am.log)
 	// record audit latency
 	defer func() {
 		logFinish(am.log)
-		endTime := time.Now()
-		latency := endTime.Sub(startTime)
+		endTime = time.Now()
+		latency = endTime.Sub(startTime)
 		if err := am.reporter.reportLatency(latency); err != nil {
 			am.log.Error(err, "failed to report latency")
 		}
-		if err := am.reporter.reportRunEnd(endTime); err != nil {
-			am.log.Error(err, "failed to report run end time")
-		}
 	}()
-
-	if err := am.reporter.reportRunStart(startTime); err != nil {
-		am.log.Error(err, "failed to report run start time")
-	}
 
 	// Create a new client to get an updated RESTMapper.
 	c, err := client.New(am.mgr.GetConfig(), client.Options{Scheme: am.mgr.GetScheme(), Mapper: nil})
@@ -235,7 +224,7 @@ func (am *Manager) audit(ctx context.Context) error {
 
 	updateLists := make(map[util.KindVersionName][]updateListEntry)
 	totalViolationsPerConstraint := make(map[util.KindVersionName]int64)
-	totalViolationsPerEnforcementAction := make(map[util.EnforcementAction]int64)
+	totalViolationsPerEnforcementAction = make(map[util.EnforcementAction]int64)
 	// resetting total violations per enforcement action
 	for _, action := range util.KnownEnforcementActions {
 		totalViolationsPerEnforcementAction[action] = 0
@@ -263,12 +252,6 @@ func (am *Manager) audit(ctx context.Context) error {
 	for gvknn := range updateLists {
 		ar := updateLists[gvknn][0]
 		logConstraint(am.log, &gvknn, ar.enforcementAction, totalViolationsPerConstraint[gvknn])
-	}
-
-	for k, v := range totalViolationsPerEnforcementAction {
-		if err := am.reporter.reportTotalViolations(k, v); err != nil {
-			am.log.Error(err, "failed to report total violations")
-		}
 	}
 
 	// update constraints for each kind

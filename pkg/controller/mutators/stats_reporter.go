@@ -98,7 +98,7 @@ func (r *reporter) ReportMutatorIngestionRequest(ms MutatorIngestionStatus, d ti
 
 // ReportMutatorsStatus reports the number of mutators of a specific status that are present in the
 // mutation System.
-func (r *Cache) ReportMutatorsStatus(ctx context.Context, observer metric.Observer) error {
+func (r *Cache) ReportMutatorsStatus(_ context.Context, observer metric.Observer) error {
 	for status, count := range r.TallyStatus() {
 		observer.ObserveInt64(mutatorsM, int64(count), metric.WithAttributes(attribute.String(statusKey, string(status))))
 	}
@@ -107,7 +107,7 @@ func (r *Cache) ReportMutatorsStatus(ctx context.Context, observer metric.Observ
 
 // ReportMutatorsInConflict reports the number of mutators that have schema
 // conflicts with other mutators in the mutation system.
-func (r *Cache) ReportMutatorsInConflict(ctx context.Context, observer metric.Observer) error {
+func (r *Cache) ReportMutatorsInConflict(_ context.Context, observer metric.Observer) error {
 	observer.ObserveInt64(conflictingMutatorsM, int64(r.TallyConflict()))
 	return nil
 }

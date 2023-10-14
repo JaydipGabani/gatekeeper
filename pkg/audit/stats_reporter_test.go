@@ -1,150 +1,204 @@
 package audit
 
-// import (
-// 	"testing"
-// 	"time"
+ 
 
-// 	"go.opencensus.io/stats/view"
-// )
+func TestReporter_reportTotalViolations(t *testing.T) {
+	var err error
+	totalViolationsPerEnforcementAction = map[util.EnforcementAction]int64{
+		util.Deny: 1,
+		util.Dryrun: 2,
+		util.Warn: 3,
+		util.Unrecognized: 4,
+	}
+	tests := []struct {
+		name        string
+		ctx         context.Context
+		expectedErr error
+		want metricdata.Metrics
+		r *reporter
+	}{
+		{
+			name:        "reporting total violations with attributes",
+			ctx:         context.Background(),
+			expectedErr: nil,
+			r: newStatsReporter(),
+			want: metricdata.Metrics{
+				Name: "test",
+				Data: metricdata.Gauge[int64]{
+					DataPoints: []metricdata.DataPoint[int64]{
+						{Attributes: attribute.NewSet(attribute.String(enforcementActionKey, string(util.Deny))), Value: 1},
+						{Attributes: attribute.NewSet(attribute.String(enforcementActionKey, string(util.Dryrun))), Value: 2},
+						{Attributes: attribute.NewSet(attribute.String(enforcementActionKey, string(util.Warn))), Value: 3},
+						{Attributes: attribute.NewSet(attribute.String(enforcementActionKey, string(util.Unrecognized))), Value: 4},	
+					},
+				},
+			},
+		},
+	}
 
-// func TestReportTotalViolations(t *testing.T) {
-// 	const wantValue = 10
-// 	const wantRowLength = 1
-// 	wantTags := map[string]string{
-// 		"enforcement_action": "deny",
-// 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
+			mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
+			meter := mp.Meter("test")
 
-// 	r, err := newStatsReporter()
-// 	if err != nil {
-// 		t.Fatalf("newStatsReporter() error %v", err)
-// 	}
+			// Ensure the pipeline has a callback setup
+			violationsM, err = meter.Int64ObservableGauge("test")
+			assert.NoError(t, err)
+			_, err = meter.RegisterCallback(tt.r.reportTotalViolations, violationsM)
+			assert.NoError(t, err)
 
-// 	err = r.reportTotalViolations("deny", wantValue)
-// 	if err != nil {
-// 		t.Fatalf("ReportTotalViolations error %v", err)
-// 	}
+			rm := &metricdata.ResourceMetrics{}
+			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
 
-// 	row := checkData(t, violationsMetricName, wantRowLength)
-// 	got, ok := row.Data.(*view.LastValueData)
-// 	if !ok {
-// 		t.Error("ReportTotalViolations should have aggregation LastValue()")
-// 	}
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+		})
+	}
+}
 
-// 	for _, tag := range row.Tags {
-// 		if tag.Value != wantTags[tag.Key.Name()] {
-// 			t.Errorf("ReportTotalViolations tags does not match for %v", tag.Key.Name())
-// 		}
-// 	}
+func TestReporter_reportLatency(t *testing.T) {
+	tests := []struct {
+		name        string
+		ctx         context.Context
+		expectedErr error
+		want metricdata.Metrics
+		r *reporter
+		duration time.Duration
+	}{
+		{
+			name:        "reporting audit latency",
+			ctx:         context.Background(),
+			expectedErr: nil,
+			r: newStatsReporter(),
+			duration: 7000000000,
+			want: metricdata.Metrics{
+				Name: "test",
+				Data: metricdata.Histogram[float64]{
+					Temporality: metricdata.CumulativeTemporality,
+					DataPoints: []metricdata.HistogramDataPoint[float64]{
+						{
+							Attributes:   attribute.Set{},
+							Count:        1,
+							Bounds:       []float64{0, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000},
+							BucketCounts: []uint64{0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+							Min:          metricdata.NewExtrema[float64](7.),
+							Max:          metricdata.NewExtrema[float64](7.),
+							Sum:          7,
+						},
+					},
+				},
+			},
+		},
+	}
 
-// 	if int64(got.Value) != wantValue {
-// 		t.Errorf("got %q = %v, want %v", violationsMetricName, got.Value, wantValue)
-// 	}
-// }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var err error
+			rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
+			mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
+			meter := mp.Meter("test")
 
-// func TestReportLatency(t *testing.T) {
-// 	const minLatency = 100 * time.Second
-// 	const maxLatency = 500 * time.Second
+			// Ensure the pipeline has a callback setup
+			auditDurationM, err = meter.Float64Histogram("test")
+			assert.NoError(t, err)
+			tt.r.reportLatency(tt.duration)
+			
+			rm := &metricdata.ResourceMetrics{}
+			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+		})
+	}
+}
 
-// 	const wantLatencyCount int64 = 2
-// 	const wantLatencyMin float64 = 100
-// 	const wantLatencyMax float64 = 500
-// 	const wantRowLength int = 1
+func TestReporter_reportRunStart(t *testing.T) {
+	startTime = time.Now()
+	tests := []struct {
+		name        string
+		ctx         context.Context
+		expectedErr error
+		want metricdata.Metrics
+		r *reporter
+	}{
+		{
+			name:        "reporting audit start time",
+			ctx:         context.Background(),
+			expectedErr: nil,
+			r: newStatsReporter(),
+			want: metricdata.Metrics{
+				Name: "test",
+				Data: metricdata.Gauge[float64]{
+					DataPoints: []metricdata.DataPoint[float64]{
+						{Value: float64(startTime.Unix())},
+					},
+				},
+			},
+		},
+	}
 
-// 	r, err := newStatsReporter()
-// 	if err != nil {
-// 		t.Fatalf("got newStatsReporter() error %v", err)
-// 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var err error
+			rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
+			mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
+			meter := mp.Meter("test")
 
-// 	err = r.reportLatency(minLatency)
-// 	if err != nil {
-// 		t.Fatalf("got reportLatency error %v", err)
-// 	}
+			// Ensure the pipeline has a callback setup
+			lastRunStartTimeM, err = meter.Float64ObservableGauge("test")
+			assert.NoError(t, err)
+			_, err = meter.RegisterCallback(tt.r.reportRunStart, lastRunStartTimeM)
+			assert.NoError(t, err)
 
-// 	err = r.reportLatency(maxLatency)
-// 	if err != nil {
-// 		t.Fatalf("got reportLatency error %v", err)
-// 	}
+			rm := &metricdata.ResourceMetrics{}
+			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
 
-// 	row := checkData(t, auditDurationMetricName, wantRowLength)
-// 	gotLatency, ok := row.Data.(*view.DistributionData)
-// 	if !ok {
-// 		t.Fatalf("got reportLatency() type %T, want %T", row.Data, &view.DistributionData{})
-// 	}
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+		})
+	}
+}
 
-// 	if gotLatency.Count != wantLatencyCount {
-// 		t.Errorf("got %q = %v, want %v", auditDurationMetricName, gotLatency.Count, wantLatencyCount)
-// 	}
+func TestReporter_reportRunEnd(t *testing.T) {
+	endTime = time.Now()
+	tests := []struct {
+		name        string
+		ctx         context.Context
+		expectedErr error
+		want metricdata.Metrics
+		r *reporter
+	}{
+		{
+			name:        "reporting audit end time",
+			ctx:         context.Background(),
+			expectedErr: nil,
+			r: newStatsReporter(),
+			want: metricdata.Metrics{
+				Name: "test",
+				Data: metricdata.Gauge[float64]{
+					DataPoints: []metricdata.DataPoint[float64]{
+						{Value: float64(endTime.Unix())},
+					},
+				},
+			},
+		},
+	}
 
-// 	if gotLatency.Min != wantLatencyMin {
-// 		t.Errorf("got %q = %v, want %v", auditDurationMetricName, gotLatency.Min, wantLatencyMin)
-// 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var err error
+			rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
+			mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
+			meter := mp.Meter("test")
 
-// 	if gotLatency.Max != wantLatencyMax {
-// 		t.Errorf("got %q = %v, want %v", auditDurationMetricName, gotLatency.Max, wantLatencyMax)
-// 	}
-// }
+			// Ensure the pipeline has a callback setup
+			lastRunEndTimeM, err = meter.Float64ObservableGauge("test")
+			assert.NoError(t, err)
+			_, err = meter.RegisterCallback(tt.r.reportRunEnd, lastRunEndTimeM)
+			assert.NoError(t, err)
 
-// func checkData(t *testing.T, name string, wantRowLength int) *view.Row {
-// 	row, err := view.RetrieveData(name)
-// 	if err != nil {
-// 		t.Fatalf("got RetrieveData error: %v from %v", err, name)
-// 	}
+			rm := &metricdata.ResourceMetrics{}
+			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
 
-// 	if len(row) != wantRowLength {
-// 		t.Fatalf("got row length %v, want %v", len(row), wantRowLength)
-// 	}
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+		})
+	}
+}
 
-// 	if row[0].Data == nil {
-// 		t.Fatalf("got row[0].Data = nil, want non-nil: %+v", row)
-// 	}
-// 	return row[0]
-// }
-
-// func TestLastRestartCheck(t *testing.T) {
-// 	wantStartTime := time.Now()
-// 	wantEndTime := wantStartTime.Add(1 * time.Minute)
-// 	wantStartTs := float64(wantStartTime.Unix())
-// 	wantEndTs := float64(wantEndTime.Unix())
-// 	const wantRowLength = 1
-
-// 	r, err := newStatsReporter()
-// 	if err != nil {
-// 		t.Fatalf("got newStatsReporter() error %v", err)
-// 	}
-
-// 	err = r.reportRunStart(wantStartTime)
-// 	if err != nil {
-// 		t.Fatalf("reportRunStart error %v", err)
-// 	}
-// 	row := checkData(t, lastRunStartTimeMetricName, wantRowLength)
-// 	got, ok := row.Data.(*view.LastValueData)
-// 	if !ok {
-// 		t.Errorf("%s should have aggregation LastValue()", lastRunStartTimeMetricName)
-// 	}
-
-// 	if len(row.Tags) != 0 {
-// 		t.Errorf("got %q tags %v, want empty", lastRunStartTimeMetricName, row.Tags)
-// 	}
-
-// 	if got.Value != wantStartTs {
-// 		t.Errorf("got %q = %v, want %v", lastRunStartTimeMetricName, got.Value, wantStartTs)
-// 	}
-
-// 	err = r.reportRunEnd(wantEndTime)
-// 	if err != nil {
-// 		t.Fatalf("reportRunEnd error %v", err)
-// 	}
-// 	row = checkData(t, lastRunEndTimeMetricName, wantRowLength)
-// 	got, ok = row.Data.(*view.LastValueData)
-// 	if !ok {
-// 		t.Errorf("%s should have aggregation LastValue()", lastRunEndTimeMetricName)
-// 	}
-
-// 	if len(row.Tags) != 0 {
-// 		t.Errorf("got %q tags %v, want empty", lastRunEndTimeMetricName, row.Tags)
-// 	}
-
-// 	if got.Value != wantEndTs {
-// 		t.Errorf("got %q = %v, want %v", lastRunEndTimeMetricName, got.Value, wantEndTs)
-// 	}
-// }

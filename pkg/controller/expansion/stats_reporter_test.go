@@ -1,18 +1,16 @@
-package constrainttemplate
+package expansion
 
 import (
-	"context"
 	"testing"
-	"time"
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"github.com/stretchr/testify/assert"
+	"context"
+	"k8s.io/apimachinery/pkg/types"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
-	"k8s.io/apimachinery/pkg/types"
 )
-
 
 type fnExporter struct {
 	temporalityFunc sdkmetric.TemporalitySelector
@@ -57,66 +55,77 @@ func (e *fnExporter) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func TestReportIngestion(t *testing.T) {
-	var err error
-	const (
-		minIngestDuration = 1 * time.Second
-		maxIngestDuration = 5 * time.Second
-	)
-
-	want1 := metricdata.Metrics{
-			Name: "ingestDurationM",
-			Data: metricdata.Histogram[float64]{
-				Temporality: metricdata.CumulativeTemporality,
-				DataPoints: []metricdata.HistogramDataPoint[float64]{
-					{
-						Attributes:   attribute.NewSet(attribute.String(statusKey, string(metrics.ActiveStatus))),
-						Count:        2,
-						Bounds:       []float64{0, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000},
-						BucketCounts: []uint64{0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-						Min:          metricdata.NewExtrema[float64](1.),
-						Max:          metricdata.NewExtrema[float64](5.),
-						Sum:          6,
-					},
-				},
-			},
-		}
-	want2 := metricdata.Metrics{
-		Name: "ingestCountM",
-		Data: metricdata.Sum[int64]{
-			Temporality: metricdata.CumulativeTemporality,
-			DataPoints: []metricdata.DataPoint[int64]{
-				{Attributes: attribute.NewSet(attribute.String(statusKey, string(metrics.ActiveStatus))), Value: 2},
-			},
-			IsMonotonic: true,
-		},
+func TestEtRegistry_add(t *testing.T) {
+	r := &etRegistry{
+		cache: make(map[types.NamespacedName]metrics.Status),
 	}
 
-	rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
-	mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
-	meter := mp.Meter("test")
-	
-	// Ensure the pipeline has a callback setup
-	ingestDurationM, err = meter.Float64Histogram("ingestDurationM")
-	assert.NoError(t, err)
-	
-	ingestCountM, err = meter.Int64Counter("ingestCountM")
-	assert.NoError(t, err)
-	r := newStatsReporter()
-	
-	ctx := context.Background()
+	// Add a new entry
+	key := types.NamespacedName{Name: "test-name", Namespace: "test-namespace"}
+	status := metrics.ActiveStatus
+	r.add(key, status)
 
-	err = r.reportIngestDuration(ctx, metrics.ActiveStatus, minIngestDuration)
-	assert.NoError(t, err)
+	// Check that the entry was added correctly
+	if len(r.cache) != 1 {
+		t.Errorf("Expected cache length 1, got %d", len(r.cache))
+	}
+	if _, ok := r.cache[key]; !ok {
+		t.Errorf("Expected key %v to be in cache", key)
+	}
+	if r.cache[key] != status {
+		t.Errorf("Expected status %v, got %v", status, r.cache[key])
+	}
 
-	err = r.reportIngestDuration(ctx, metrics.ActiveStatus, maxIngestDuration)
-	assert.NoError(t, err)
+	// Add an existing entry with the same status
+	r.add(key, status)
 
-	rm := &metricdata.ResourceMetrics{}
-	assert.NoError(t, rdr.Collect(ctx, rm))
+	// Check that the entry was not added again
+	if len(r.cache) != 1 {
+		t.Errorf("Expected cache length 1, got %d", len(r.cache))
+	}
+	if _, ok := r.cache[key]; !ok {
+		t.Errorf("Expected key %v to be in cache", key)
+	}
+	if r.cache[key] != status {
+		t.Errorf("Expected status %v, got %v", status, r.cache[key])
+	}
 
-	metricdatatest.AssertEqual(t, want1, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
-	metricdatatest.AssertEqual(t, want2, rm.ScopeMetrics[0].Metrics[1], metricdatatest.IgnoreTimestamp())	
+	// Add an existing entry with a different status
+	newStatus := metrics.ErrorStatus
+	r.add(key, newStatus)
+
+	// Check that the entry was updated with the new status
+	if len(r.cache) != 1 {
+		t.Errorf("Expected cache length 1, got %d", len(r.cache))
+	}
+	if _, ok := r.cache[key]; !ok {
+		t.Errorf("Expected key %v to be in cache", key)
+	}
+	if r.cache[key] != newStatus {
+		t.Errorf("Expected status %v, got %v", newStatus, r.cache[key])
+	}
+}
+
+func TestEtRegistry_remove(t *testing.T) {
+	r := &etRegistry{
+		cache: map[types.NamespacedName]metrics.Status{{Name: "test", Namespace: "default"}: metrics.ActiveStatus},
+		dirty: true,
+	}
+
+	// Test removing an existing key
+	r.remove(types.NamespacedName{Name: "test", Namespace: "default"})
+	if _, exists := r.cache[types.NamespacedName{Name: "test", Namespace: "default"}]; exists {
+		t.Error("Expected key to be removed from cache")
+	}
+	if r.dirty != true {
+		t.Error("Expected dirty flag to be set to true")
+	}
+
+	// Test removing a non-existing key
+	r.remove(types.NamespacedName{Name: "non-existing", Namespace: "default"})
+	if r.dirty != true {
+		t.Error("Expected dirty flag to remain true")
+	}
 }
 
 func TestReport(t *testing.T) {
@@ -125,13 +134,13 @@ func TestReport(t *testing.T) {
 		ctx         context.Context
 		expectedErr error
 		want metricdata.Metrics
-		c *ctRegistry
+		r *etRegistry
 	}{
 		{
 			name: "reporting total expansion templates with attributes",
 			ctx: context.Background(),
 			expectedErr: nil,
-			c: &ctRegistry{
+			r: &etRegistry{
 				dirty: true,
 				cache: map[types.NamespacedName]metrics.Status{
 					{Name: "test1", Namespace: "default"}: metrics.ActiveStatus,
@@ -159,9 +168,9 @@ func TestReport(t *testing.T) {
 			meter := mp.Meter("test")
 
 			// Ensure the pipeline has a callback setup
-			ctM, err = meter.Int64ObservableGauge("test")
+			etM, err = meter.Int64ObservableGauge("test")
 			assert.NoError(t, err)
-			_, err = meter.RegisterCallback(tt.c.report, ctM)
+			_, err = meter.RegisterCallback(tt.r.report, etM)
 			assert.NoError(t, err)
 
 			rm := &metricdata.ResourceMetrics{}

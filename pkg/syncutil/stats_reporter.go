@@ -52,8 +52,8 @@ func init() {
 
 type MetricsCache struct {
 	mux        sync.RWMutex
-	Cache      map[string]Tags
 	KnownKinds map[string]bool
+	Cache      map[string]Tags
 }
 
 type Tags struct {
@@ -149,12 +149,12 @@ func (r *Reporter) ReportSyncDuration(d time.Duration) error {
 	return nil
 }
 
-func (r *Reporter) ReportLastSync(ctx context.Context, observer metric.Observer) error {
+func (r *Reporter) ReportLastSync(_ context.Context, observer metric.Observer) error {
 	observer.ObserveFloat64(lastRunSyncM, r.now())
 	return nil
 }
 
-func (c *MetricsCache) ReportSync(ctx context.Context, observer metric.Observer) error {
+func (c *MetricsCache) ReportSync(_ context.Context, observer metric.Observer) error {
 	c.mux.RLock()
 	defer c.mux.RUnlock()
 
@@ -165,7 +165,6 @@ func (c *MetricsCache) ReportSync(ctx context.Context, observer metric.Observer)
 
 	for kind := range c.KnownKinds {
 		for _, status := range metrics.AllStatuses {
-
 			t := Tags{
 				Kind:   kind,
 				Status: status,

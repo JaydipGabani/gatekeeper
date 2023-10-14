@@ -37,14 +37,9 @@ func Start(ctx context.Context) error {
 		metric.WithReader(e),
 		metric.WithView(view.Views()...),
 	)
-	metricsServerMux, port := newPromSrv(*prometheusPort)
+	server := newPromSrv(*prometheusPort)
 	otel.SetMeterProvider(meterProvider)
 	otel.SetLogger(logf.Log.WithName("metrics"))
-
-	server := &http.Server{
-		Addr:    port,
-		Handler: metricsServerMux,
-	}
 
 	errCh := make(chan error)
 	srv := func() {
@@ -66,8 +61,12 @@ func Start(ctx context.Context) error {
 	return nil
 }
 
-func newPromSrv(port int) (*http.ServeMux, string) {
+func newPromSrv(port int) *http.Server {
 	sm := http.NewServeMux()
 	sm.Handle("/metrics", promhttp.Handler())
-	return sm, fmt.Sprintf(":%v", port)
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%v", port),
+		Handler: sm,
+	}
+	return server
 }

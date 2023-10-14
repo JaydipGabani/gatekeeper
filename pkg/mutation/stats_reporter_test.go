@@ -1,103 +1,147 @@
 package mutation
 
-// import (
-// 	"fmt"
-// 	"testing"
+import (
+	"context"
+	"testing"
 
-// )
+	"github.com/stretchr/testify/assert"
 
-// func TestReportIterationConvergence(t *testing.T) {
-// 	const (
-// 		successMax = 5
-// 		successMin = 3
-// 		failureMax = 8
-// 		failureMin = failureMax
-// 	)
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
+)
 
-// 	r := NewStatsReporter()
+type fnExporter struct {
+	temporalityFunc sdkmetric.TemporalitySelector
+	aggregationFunc sdkmetric.AggregationSelector
+	exportFunc      func(context.Context, *metricdata.ResourceMetrics) error
+	flushFunc       func(context.Context) error
+	shutdownFunc    func(context.Context) error
+}
 
-// 	err := r.ReportIterationConvergence(SystemConvergenceTrue, successMax)
-// 	if err != nil {
-// 		t.Fatalf("ReportIterationConvergence error: %v", err)
-// 	}
+func (e *fnExporter) Temporality(k sdkmetric.InstrumentKind) metricdata.Temporality {
+	if e.temporalityFunc != nil {
+		return e.temporalityFunc(k)
+	}
+	return sdkmetric.DefaultTemporalitySelector(k)
+}
 
-// 	err = r.ReportIterationConvergence(SystemConvergenceFalse, failureMax)
-// 	if err != nil {
-// 		t.Fatalf("ReportIterationConvergence error: %v", err)
-// 	}
+func (e *fnExporter) Aggregation(k sdkmetric.InstrumentKind) sdkmetric.Aggregation {
+	if e.aggregationFunc != nil {
+		return e.aggregationFunc(k)
+	}
+	return sdkmetric.DefaultAggregationSelector(k)
+}
 
-// 	err = r.ReportIterationConvergence(SystemConvergenceTrue, successMin)
-// 	if err != nil {
-// 		t.Fatalf("ReportIterationConvergence error: %v", err)
-// 	}
+func (e *fnExporter) Export(ctx context.Context, m *metricdata.ResourceMetrics) error {
+	if e.exportFunc != nil {
+		return e.exportFunc(ctx, m)
+	}
+	return nil
+}
 
-// 	rows, err := view.RetrieveData(mutationSystemIterationsMetricName)
-// 	if err != nil {
-// 		t.Fatalf("Error when retrieving data: %v from %v", err, mutationSystemIterationsMetricName)
-// 	}
+func (e *fnExporter) ForceFlush(ctx context.Context) error {
+	if e.flushFunc != nil {
+		return e.flushFunc(ctx)
+	}
+	return nil
+}
 
-// 	wantIterations := 2
+func (e *fnExporter) Shutdown(ctx context.Context) error {
+	if e.shutdownFunc != nil {
+		return e.shutdownFunc(ctx)
+	}
+	return nil
+}
 
-// 	if gotIterations := len(rows); gotIterations != wantIterations {
-// 		t.Errorf("got %q iterations %v, want %v",
-// 			mutationSystemIterationsMetricName, gotIterations, wantIterations)
-// 	}
+func TestReportIterationConvergence(t *testing.T) {
+	const (
+		successMax = 5
+		successMin = 3
+		failureMax = 8
+		failureMin = failureMax
+	)
+	tests := []struct {
+		name        string
+		ctx         context.Context
+		expectedErr error
+		want metricdata.Metrics
+		r StatsReporter
+		max int
+		min int
+		status SystemConvergenceStatus
+	}{
+		{
+			name:        "recording successful iteration convergence",
+			ctx:         context.Background(),
+			expectedErr: nil,
+			r: NewStatsReporter(),
+			max: successMax,
+			min: successMin,
+			status: SystemConvergenceTrue,
+			want: metricdata.Metrics{
+				Name: "test",
+				Data: metricdata.Histogram[int64]{
+					Temporality: metricdata.CumulativeTemporality,
+					DataPoints: []metricdata.HistogramDataPoint[int64]{
+						{
+							Attributes:   attribute.NewSet(attribute.String(systemConvergenceKey, string(SystemConvergenceTrue))),
+							Count:        2,
+							Bounds:       []float64{0, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000},
+							BucketCounts: []uint64{0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+							Min:          metricdata.NewExtrema[int64](successMin),
+							Max:          metricdata.NewExtrema[int64](successMax),
+							Sum:          8,
+						},
+					},
+				},
+			},
+		},
+		{
+			name:        "recording failed iteration convergence",
+			ctx:         context.Background(),
+			expectedErr: nil,
+			r: NewStatsReporter(),
+			max: failureMax,
+			min: failureMin,
+			status: SystemConvergenceFalse,
+			want: metricdata.Metrics{
+				Name: "test",
+				Data: metricdata.Histogram[int64]{
+					Temporality: metricdata.CumulativeTemporality,
+					DataPoints: []metricdata.HistogramDataPoint[int64]{
+						{
+							Attributes:   attribute.NewSet(attribute.String(systemConvergenceKey, string(SystemConvergenceFalse))),
+							Count:        2,
+							Bounds:       []float64{0, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000},
+							BucketCounts: []uint64{0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+							Min:          metricdata.NewExtrema[int64](failureMin),
+							Max:          metricdata.NewExtrema[int64](failureMax),
+							Sum:          16,
+						},
+					},
+				},
+			},
+		},
+	}
 
-// 	err = verifyDistributionRow(rows, SystemConvergenceTrue, 2, successMin, successMax)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var err error
+			rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
+			mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
+			meter := mp.Meter("test")
 
-// 	err = verifyDistributionRow(rows, SystemConvergenceFalse, 1, failureMin, failureMax)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// }
-
-// func getRow(rows []*view.Row, tag SystemConvergenceStatus) *view.Row {
-// 	for _, row := range rows {
-// 		if !hasTag(row, systemConvergenceKey.Name(), string(tag)) {
-// 			continue
-// 		}
-
-// 		return row
-// 	}
-
-// 	return nil
-// }
-
-// func verifyDistributionRow(rows []*view.Row, tag SystemConvergenceStatus, count int64, min, max float64) error {
-// 	row := getRow(rows, tag)
-// 	if row == nil {
-// 		return fmt.Errorf("got no rows with tag %q", tag)
-// 	}
-
-// 	distData, ok := row.Data.(*view.DistributionData)
-// 	if !ok {
-// 		return fmt.Errorf("got row Data type %T, want type %T", row.Data, &view.DistributionData{})
-// 	}
-
-// 	if distData.Count != count {
-// 		return fmt.Errorf("got tag %q count %v, want %v", tag, distData.Count, count)
-// 	}
-
-// 	if distData.Min != min {
-// 		return fmt.Errorf("got tag %q min %v, want %v", tag, distData.Min, min)
-// 	}
-
-// 	if distData.Max != max {
-// 		return fmt.Errorf("got tag %q max %v, want %v", tag, distData.Max, max)
-// 	}
-
-// 	return nil
-// }
-
-// func hasTag(row *view.Row, key, value string) bool {
-// 	for _, tag := range row.Tags {
-// 		if tag.Key.Name() == key && tag.Value == value {
-// 			return true
-// 		}
-// 	}
-
-// 	return false
-// }
+			// Ensure the pipeline has a callback setup
+			systemIterationsM, err = meter.Int64Histogram("test")
+			assert.NoError(t, err)
+			tt.r.ReportIterationConvergence(tt.status, tt.max)
+			tt.r.ReportIterationConvergence(tt.status, tt.min)
+			
+			rm := &metricdata.ResourceMetrics{}
+			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+		})
+	}
+}

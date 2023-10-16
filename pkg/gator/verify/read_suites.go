@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator"
+	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 

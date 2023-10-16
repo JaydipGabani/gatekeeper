@@ -2,6 +2,8 @@ package gator
 
 import (
 	"encoding/json"
+
+	"gopkg.in/yaml.v3"
 )
 
 func ParseYaml(yamlBytes []byte, v interface{}) error {

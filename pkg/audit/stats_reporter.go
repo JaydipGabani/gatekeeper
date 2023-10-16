@@ -2,8 +2,8 @@ package audit
 
 import (
 	"context"
-	"time"
 	"errors"
+	"time"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -19,14 +19,14 @@ const (
 )
 
 var (
-	violationsM      metric.Int64ObservableGauge
-	auditDurationM        metric.Float64Histogram
-	lastRunStartTimeM  metric.Float64ObservableGauge
-	lastRunEndTimeM      metric.Float64ObservableGauge
-	endTime          time.Time
-	latency          time.Duration
-	startTime        time.Time
-	meter metric.Meter
+	violationsM       metric.Int64ObservableGauge
+	auditDurationM    metric.Float64Histogram
+	lastRunStartTimeM metric.Float64ObservableGauge
+	lastRunEndTimeM   metric.Float64ObservableGauge
+	endTime           time.Time
+	latency           time.Duration
+	startTime         time.Time
+	meter             metric.Meter
 )
 
 func init() {
@@ -75,7 +75,7 @@ func (r *reporter) registerCallback() error {
 
 func (r *reporter) reportTotalViolations(_ context.Context, o metric.Observer) error {
 	for k, v := range totalViolationsPerEnforcementAction {
-		o.ObserveInt64(violationsM, int64(v), metric.WithAttributes(attribute.String(enforcementActionKey, string(k))))
+		o.ObserveInt64(violationsM, v, metric.WithAttributes(attribute.String(enforcementActionKey, string(k))))
 	}
 	return nil
 }
@@ -100,5 +100,4 @@ func newStatsReporter() *reporter {
 	return &reporter{}
 }
 
-type reporter struct {
-}
+type reporter struct{}

@@ -4,10 +4,11 @@ import (
 	"context"
 	"testing"
 	"time"
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+
 	"github.com/stretchr/testify/assert"
-	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/attribute"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
 )
 
@@ -62,7 +63,7 @@ const (
 	wantMaxValidationSeconds float64 = 5
 
 	wantCount     uint64 = 2
-	wantRowLength int   = 1
+	wantRowLength int    = 1
 
 	dryRun string = "false"
 )
@@ -122,8 +123,8 @@ func TestValidationReportRequest(t *testing.T) {
 	rm := &metricdata.ResourceMetrics{}
 	assert.NoError(t, rdr.Collect(ctx, rm))
 
-	metricdatatest.AssertEqual(t, want1, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
-	metricdatatest.AssertEqual(t, want2, rm.ScopeMetrics[0].Metrics[1], metricdatatest.IgnoreTimestamp())	
+	metricdatatest.AssertEqual(t, want1, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
+	metricdatatest.AssertEqual(t, want2, rm.ScopeMetrics[0].Metrics[1], metricdatatest.IgnoreTimestamp())
 }
 
 func TestMutationReportRequest(t *testing.T) {
@@ -181,6 +182,6 @@ func TestMutationReportRequest(t *testing.T) {
 	rm := &metricdata.ResourceMetrics{}
 	assert.NoError(t, rdr.Collect(ctx, rm))
 
-	metricdatatest.AssertEqual(t, want1, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
-	metricdatatest.AssertEqual(t, want2, rm.ScopeMetrics[0].Metrics[1], metricdatatest.IgnoreTimestamp())	
+	metricdatatest.AssertEqual(t, want1, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
+	metricdatatest.AssertEqual(t, want2, rm.ScopeMetrics[0].Metrics[1], metricdatatest.IgnoreTimestamp())
 }

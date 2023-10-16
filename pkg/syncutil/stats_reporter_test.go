@@ -3,17 +3,14 @@ package syncutil
 import (
 	"context"
 	"testing"
-
 	"time"
 
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
 	"github.com/stretchr/testify/assert"
-
+	"go.opentelemetry.io/otel/attribute"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
-
 )
 
 type fnExporter struct {
@@ -69,12 +66,12 @@ func TestReportSync(t *testing.T) {
 		name        string
 		ctx         context.Context
 		expectedErr error
-		want metricdata.Metrics
-		c *MetricsCache
+		want        metricdata.Metrics
+		c           *MetricsCache
 	}{
 		{
-			name: "reporting sync",
-			ctx: context.Background(),
+			name:        "reporting sync",
+			ctx:         context.Background(),
 			expectedErr: nil,
 			c: &MetricsCache{
 				Cache: map[string]Tags{
@@ -112,7 +109,7 @@ func TestReportSync(t *testing.T) {
 			rm := &metricdata.ResourceMetrics{}
 			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
 
-			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
 		})
 	}
 }
@@ -140,7 +137,7 @@ func TestReportSyncLatency(t *testing.T) {
 				},
 			},
 		},
-	}	
+	}
 
 	r, err := NewStatsReporter()
 	if err != nil {
@@ -154,7 +151,7 @@ func TestReportSyncLatency(t *testing.T) {
 	// Ensure the pipeline has a callback setup
 	syncDurationM, err = meter.Float64Histogram("test")
 	assert.NoError(t, err)
-	
+
 	err = r.ReportSyncDuration(minLatency)
 	if err != nil {
 		t.Fatalf("got reportSyncDuration() error %v, want nil", err)
@@ -167,8 +164,7 @@ func TestReportSyncLatency(t *testing.T) {
 
 	rm := &metricdata.ResourceMetrics{}
 	assert.Equal(t, nil, rdr.Collect(context.Background(), rm))
-	metricdatatest.AssertEqual(t, want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
-
+	metricdatatest.AssertEqual(t, want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
 }
 
 func TestLastRunSync(t *testing.T) {
@@ -188,11 +184,11 @@ func TestLastRunSync(t *testing.T) {
 		name        string
 		ctx         context.Context
 		expectedErr error
-		want metricdata.Metrics
+		want        metricdata.Metrics
 	}{
 		{
-			name: "reporting last sync run",
-			ctx: context.Background(),
+			name:        "reporting last sync run",
+			ctx:         context.Background(),
 			expectedErr: nil,
 			want: metricdata.Metrics{
 				Name: "test",
@@ -221,7 +217,7 @@ func TestLastRunSync(t *testing.T) {
 			rm := &metricdata.ResourceMetrics{}
 			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
 
-			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
 		})
 	}
 }

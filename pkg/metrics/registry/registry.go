@@ -27,9 +27,9 @@ type Exporter interface {
 
 var exporters = newExporterSet(
 	map[string]StartExporter{
-		opentelemetry.Name:  opentelemetry.Start,
-		prometheus.Name:  prometheus.Start,
-		stackdriver.Name: stackdriver.Start,
+		opentelemetry.Name: opentelemetry.Start,
+		prometheus.Name:    prometheus.Start,
+		stackdriver.Name:   stackdriver.Start,
 	},
 )
 

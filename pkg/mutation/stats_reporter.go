@@ -24,9 +24,7 @@ const (
 	SystemConvergenceFalse SystemConvergenceStatus = "false"
 )
 
-var (
-	systemIterationsM metric.Int64Histogram
-)
+var systemIterationsM metric.Int64Histogram
 
 func init() {
 	var err error

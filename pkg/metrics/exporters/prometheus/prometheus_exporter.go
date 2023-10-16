@@ -65,8 +65,9 @@ func newPromSrv(port int) *http.Server {
 	sm := http.NewServeMux()
 	sm.Handle("/metrics", promhttp.Handler())
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%v", port),
-		Handler: sm,
+		Addr:              fmt.Sprintf(":%v", port),
+		Handler:           sm,
+		ReadHeaderTimeout: 30 * time.Second,
 	}
 	return server
 }

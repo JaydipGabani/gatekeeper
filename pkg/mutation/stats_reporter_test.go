@@ -5,10 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
+	"go.opentelemetry.io/otel/attribute"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
 )
 
@@ -66,20 +65,20 @@ func TestReportIterationConvergence(t *testing.T) {
 		name        string
 		ctx         context.Context
 		expectedErr error
-		want metricdata.Metrics
-		r StatsReporter
-		max int
-		min int
-		status SystemConvergenceStatus
+		want        metricdata.Metrics
+		r           StatsReporter
+		max         int
+		min         int
+		status      SystemConvergenceStatus
 	}{
 		{
 			name:        "recording successful iteration convergence",
 			ctx:         context.Background(),
 			expectedErr: nil,
-			r: NewStatsReporter(),
-			max: successMax,
-			min: successMin,
-			status: SystemConvergenceTrue,
+			r:           NewStatsReporter(),
+			max:         successMax,
+			min:         successMin,
+			status:      SystemConvergenceTrue,
 			want: metricdata.Metrics{
 				Name: "test",
 				Data: metricdata.Histogram[int64]{
@@ -102,10 +101,10 @@ func TestReportIterationConvergence(t *testing.T) {
 			name:        "recording failed iteration convergence",
 			ctx:         context.Background(),
 			expectedErr: nil,
-			r: NewStatsReporter(),
-			max: failureMax,
-			min: failureMin,
-			status: SystemConvergenceFalse,
+			r:           NewStatsReporter(),
+			max:         failureMax,
+			min:         failureMin,
+			status:      SystemConvergenceFalse,
 			want: metricdata.Metrics{
 				Name: "test",
 				Data: metricdata.Histogram[int64]{
@@ -136,12 +135,12 @@ func TestReportIterationConvergence(t *testing.T) {
 			// Ensure the pipeline has a callback setup
 			systemIterationsM, err = meter.Int64Histogram("test")
 			assert.NoError(t, err)
-			tt.r.ReportIterationConvergence(tt.status, tt.max)
-			tt.r.ReportIterationConvergence(tt.status, tt.min)
-			
+			assert.NoError(t, tt.r.ReportIterationConvergence(tt.status, tt.max))
+			assert.NoError(t, tt.r.ReportIterationConvergence(tt.status, tt.min))
+
 			rm := &metricdata.ResourceMetrics{}
 			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
-			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
 		})
 	}
 }

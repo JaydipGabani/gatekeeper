@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	etM metric.Int64ObservableGauge
+	etM   metric.Int64ObservableGauge
 	meter metric.Meter
 )
 

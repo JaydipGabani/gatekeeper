@@ -284,7 +284,6 @@ func (wm *Manager) replaceWatches(ctx context.Context, r *Registrar) error {
 		}
 	}
 
-
 	if errlist != nil {
 		return errlist
 	}

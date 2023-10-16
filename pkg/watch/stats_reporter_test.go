@@ -3,13 +3,12 @@ package watch
 import (
 	"context"
 	"testing"
-	
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+
 	"github.com/stretchr/testify/assert"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
 )
-
 
 type fnExporter struct {
 	temporalityFunc sdkmetric.TemporalitySelector
@@ -63,16 +62,16 @@ func TestReporter_registerGvkCountMCallBack(t *testing.T) {
 		name        string
 		ctx         context.Context
 		expectedErr error
-		want metricdata.Metrics
-		r *reporter
-		wm *Manager
+		want        metricdata.Metrics
+		r           *reporter
+		wm          *Manager
 	}{
 		{
 			name:        "reporting total violations with attributes",
 			ctx:         context.Background(),
 			expectedErr: nil,
-			r: r,
-			wm: &Manager{watchedKinds: make(vitalsByGVK)},
+			r:           r,
+			wm:          &Manager{watchedKinds: make(vitalsByGVK)},
 			want: metricdata.Metrics{
 				Name: "test",
 				Data: metricdata.Gauge[int64]{
@@ -99,14 +98,13 @@ func TestReporter_registerGvkCountMCallBack(t *testing.T) {
 			rm := &metricdata.ResourceMetrics{}
 			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
 
-			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
 		})
 	}
 }
 
-
 func TestRecordKeeper_registerGvkIntentCountMCallback(t *testing.T) {
-	want :=  metricdata.Metrics{
+	want := metricdata.Metrics{
 		Name: "test",
 		Data: metricdata.Gauge[int64]{
 			DataPoints: []metricdata.DataPoint[int64]{
@@ -133,6 +131,5 @@ func TestRecordKeeper_registerGvkIntentCountMCallback(t *testing.T) {
 
 	rm := &metricdata.ResourceMetrics{}
 	assert.Equal(t, nil, rdr.Collect(context.Background(), rm))
-	metricdatatest.AssertEqual(t, want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
-
+	metricdatatest.AssertEqual(t, want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
 }

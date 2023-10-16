@@ -37,19 +37,15 @@ func init() {
 
 func (r *recordKeeper) registerGvkIntentCountMCallback() error {
 	if _, err := meter.RegisterCallback(r.Count, gvkIntentCountM); err != nil {
-		log.Error(err, "failed to register callback for gvkIntentCountM")
 		return err
 	}
-	log.Info("registered callback watch_manager_intended_watch_gvk otel")
 	return nil
 }
 
 func (r *reporter) registerGvkCountMCallBack(wm *Manager) error {
 	if _, err := meter.RegisterCallback(wm.reportGvkCount, gvkCountM); err != nil {
-		log.Error(err, "failed to register callback for gvkCountM")
 		return err
 	}
-	log.Info("registered callback watch_manager_watched_gvk otel")
 	return nil
 }
 

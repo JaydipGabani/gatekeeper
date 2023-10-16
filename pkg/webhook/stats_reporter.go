@@ -24,8 +24,8 @@ const (
 var (
 	validationResponseTimeInSecM metric.Float64Histogram
 	mutationResponseTimeInSecM   metric.Float64Histogram
-	mutationRequestCountM         metric.Int64Counter
-	validationRequestCountM       metric.Int64Counter
+	mutationRequestCountM        metric.Int64Counter
+	validationRequestCountM      metric.Int64Counter
 	meter                        metric.Meter
 )
 

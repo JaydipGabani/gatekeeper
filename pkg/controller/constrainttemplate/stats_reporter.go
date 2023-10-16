@@ -24,7 +24,7 @@ var (
 	ctM             metric.Int64ObservableGauge
 	ingestCountM    metric.Int64Counter
 	ingestDurationM metric.Float64Histogram
-	meter metric.Meter
+	meter           metric.Meter
 )
 
 func init() {

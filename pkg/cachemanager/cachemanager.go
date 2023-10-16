@@ -413,7 +413,6 @@ func (c *CacheManager) replayGVKs(ctx context.Context, gvksToRelist []schema.Gro
 				}
 			}
 		}
-
 	}
 }
 

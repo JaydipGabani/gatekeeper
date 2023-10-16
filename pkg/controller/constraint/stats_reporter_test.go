@@ -4,15 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	"go.opentelemetry.io/otel/sdk/metric/metricdata"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
-	
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
+	"github.com/stretchr/testify/assert"
+	"go.opentelemetry.io/otel/attribute"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
 )
 
 type fnExporter struct {
@@ -66,7 +64,7 @@ func TestReportConstraints(t *testing.T) {
 		name        string
 		ctx         context.Context
 		expectedErr error
-		want metricdata.Metrics
+		want        metricdata.Metrics
 	}{
 		{
 			name:        "reporting total constraint with attributes",
@@ -84,7 +82,6 @@ func TestReportConstraints(t *testing.T) {
 						{Attributes: attribute.NewSet(attribute.String(enforcementActionKey, string(util.Dryrun)), attribute.String(statusKey, string(metrics.ActiveStatus))), Value: 0},
 						{Attributes: attribute.NewSet(attribute.String(enforcementActionKey, string(util.Unrecognized)), attribute.String(statusKey, string(metrics.ActiveStatus))), Value: 0},
 						{Attributes: attribute.NewSet(attribute.String(enforcementActionKey, string(util.Unrecognized)), attribute.String(statusKey, string(metrics.ErrorStatus))), Value: 0},
-						
 					},
 				},
 			},
@@ -114,8 +111,7 @@ func TestReportConstraints(t *testing.T) {
 					}
 				}
 			}
-			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
 		})
 	}
 }
-

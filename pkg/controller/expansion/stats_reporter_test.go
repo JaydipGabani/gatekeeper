@@ -1,15 +1,16 @@
 package expansion
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"context"
-	"k8s.io/apimachinery/pkg/types"
+	"testing"
+
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
+	"github.com/stretchr/testify/assert"
+	"go.opentelemetry.io/otel/attribute"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata/metricdatatest"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 type fnExporter struct {
@@ -133,12 +134,12 @@ func TestReport(t *testing.T) {
 		name        string
 		ctx         context.Context
 		expectedErr error
-		want metricdata.Metrics
-		r *etRegistry
+		want        metricdata.Metrics
+		r           *etRegistry
 	}{
 		{
-			name: "reporting total expansion templates with attributes",
-			ctx: context.Background(),
+			name:        "reporting total expansion templates with attributes",
+			ctx:         context.Background(),
 			expectedErr: nil,
 			r: &etRegistry{
 				dirty: true,
@@ -176,7 +177,7 @@ func TestReport(t *testing.T) {
 			rm := &metricdata.ResourceMetrics{}
 			assert.Equal(t, tt.expectedErr, rdr.Collect(tt.ctx, rm))
 
-			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())	
+			metricdatatest.AssertEqual(t, tt.want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
 		})
 	}
 }

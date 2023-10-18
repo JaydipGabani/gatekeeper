@@ -2,11 +2,11 @@ package opentelemetry
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"time"
 
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
-	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/sdk/metric"
@@ -19,10 +19,16 @@ const (
 	defaultMetricsCollectInterval = 10 * time.Second
 )
 
-var log = logf.Log.WithName("opentelemetry-exporter")
+var (
+	log          = logf.Log.WithName("opentelemetry-exporter")
+	otlpEndPoint = flag.String("otlp-end-point", "", "Opentelemetry exporter endpoint")
+)
 
 func Start(ctx context.Context) error {
-	exp, err := otlpmetrichttp.New(ctx)
+	if *otlpEndPoint == "" {
+		return fmt.Errorf("otlp-end-point must be specified")
+	}
+	exp, err := otlpmetrichttp.New(ctx, otlpmetrichttp.WithInsecure(), otlpmetrichttp.WithEndpoint(*otlpEndPoint))
 	if err != nil {
 		return err
 	}
@@ -35,12 +41,7 @@ func Start(ctx context.Context) error {
 		)),
 		metric.WithView(view.Views()...),
 	)
-	err = runtime.Start(
-		runtime.WithMinimumReadMemStatsInterval(defaultMetricsCollectInterval),
-		runtime.WithMeterProvider(meterProvider))
-	if err != nil {
-		return fmt.Errorf("start runtime metrics: %w", err)
-	}
+
 	otel.SetMeterProvider(meterProvider)
 	defer func() {
 		if err := meterProvider.Shutdown(ctx); err != nil {
@@ -48,8 +49,6 @@ func Start(ctx context.Context) error {
 		}
 	}()
 
-	// From here, the meterProvider can be used by instrumentation to collect
-	// telemetry.
 	<-ctx.Done()
 	return nil
 }

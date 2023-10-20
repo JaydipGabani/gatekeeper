@@ -10,6 +10,8 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
 )
 
 const (
@@ -66,6 +68,15 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	view.Register(sdkmetric.NewView(
+		sdkmetric.Instrument{Name: auditDurationMetricName},
+		sdkmetric.Stream{
+			Aggregation: sdkmetric.AggregationExplicitBucketHistogram{
+				Boundaries: []float64{1 * 60, 3 * 60, 5 * 60, 10 * 60, 15 * 60, 20 * 60, 40 * 60, 80 * 60, 160 * 60, 320 * 60},
+			},
+		},
+	))
 }
 
 func (r *reporter) registerCallback() error {

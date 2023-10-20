@@ -16,12 +16,14 @@ import (
 const (
 	Name                          = "opentelemetry"
 	metricPrefix                  = "gatekeeper"
-	defaultMetricsCollectInterval = 10 * time.Second
+	defaultMetricsCollectInterval = 10
+	defaultMetricsTimeout = 30 * time.Second
 )
 
 var (
 	log          = logf.Log.WithName("opentelemetry-exporter")
 	otlpEndPoint = flag.String("otlp-end-point", "", "Opentelemetry exporter endpoint")
+	metricInterval = flag.Uint("otlp-metric-interval", defaultMetricsCollectInterval, "interval to read metrics for opentelemetry exporter. defaulted to 10 secs if unspecified")
 )
 
 func Start(ctx context.Context) error {
@@ -36,8 +38,8 @@ func Start(ctx context.Context) error {
 	meterProvider := metric.NewMeterProvider(
 		metric.WithReader(metric.NewPeriodicReader(
 			exp,
-			metric.WithTimeout(defaultMetricsCollectInterval),
-			metric.WithInterval(defaultMetricsCollectInterval),
+			metric.WithTimeout(defaultMetricsTimeout),
+			metric.WithInterval(time.Duration(*metricInterval)*time.Second),
 		)),
 		metric.WithView(view.Views()...),
 	)

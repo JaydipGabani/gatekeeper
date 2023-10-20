@@ -17,10 +17,12 @@ import (
 const (
 	Name         = "stackdriver"
 	metricPrefix = "custom.googleapis.com/opencensus/gatekeeper/"
+	defaultMetricsCollectInterval = 10
 )
 
 var (
 	ignoreMissingCreds = flag.Bool("stackdriver-only-when-available", false, "Only attempt to start the stackdriver exporter if credentials are available")
+	metricInterval = flag.Uint("stackdriver-metric-interval", defaultMetricsCollectInterval, "interval to read metrics for stackdriver exporter. defaulted to 10 secs if unspecified")
 	log                = logf.Log.WithName("stackdriver-exporter")
 )
 
@@ -42,7 +44,7 @@ func Start(ctx context.Context) error {
 		}
 		return err
 	}
-	reader := metric.NewPeriodicReader(e, metric.WithInterval(30*time.Second))
+	reader := metric.NewPeriodicReader(e, metric.WithInterval(time.Duration(*metricInterval)*time.Second))
 	meterProvider := metric.NewMeterProvider(
 		metric.WithReader(reader),
 		metric.WithView(view.Views()...),
@@ -50,15 +52,6 @@ func Start(ctx context.Context) error {
 
 	otel.SetMeterProvider(meterProvider)
 	otel.SetLogger(logf.Log.WithName("metrics"))
-
-	// if err := exporter.StartMetricsExporter(); err != nil {
-	// 	if *ignoreMissingCreds {
-	// 		log.Error(err, "Error starting stackdriver exporter, not exporting stackdriver metrics")
-	// 		return nil
-	// 	}
-	// 	return err
-	// }
-	// defer exporter.StopMetricsExporter()
 
 	<-ctx.Done()
 	return nil

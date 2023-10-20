@@ -6,6 +6,8 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
 )
 
 const (
@@ -37,6 +39,15 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	view.Register(sdkmetric.NewView(
+		sdkmetric.Instrument{Name: mutationSystemIterationsMetricName},
+		sdkmetric.Stream{
+			Aggregation: sdkmetric.AggregationExplicitBucketHistogram{
+				Boundaries: []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, 200, 500},
+			},
+		},
+	))
 }
 
 // StatsReporter reports mutator-related metrics.

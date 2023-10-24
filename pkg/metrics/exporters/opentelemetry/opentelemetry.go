@@ -17,12 +17,12 @@ const (
 	Name                          = "opentelemetry"
 	metricPrefix                  = "gatekeeper"
 	defaultMetricsCollectInterval = 10
-	defaultMetricsTimeout = 30 * time.Second
+	defaultMetricsTimeout         = 30 * time.Second
 )
 
 var (
-	log          = logf.Log.WithName("opentelemetry-exporter")
-	otlpEndPoint = flag.String("otlp-end-point", "", "Opentelemetry exporter endpoint")
+	log            = logf.Log.WithName("opentelemetry-exporter")
+	otlpEndPoint   = flag.String("otlp-end-point", "", "Opentelemetry exporter endpoint")
 	metricInterval = flag.Uint("otlp-metric-interval", defaultMetricsCollectInterval, "interval to read metrics for opentelemetry exporter. defaulted to 10 secs if unspecified")
 )
 
@@ -34,7 +34,6 @@ func Start(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	log.Info("otel provider started")
 	meterProvider := metric.NewMeterProvider(
 		metric.WithReader(metric.NewPeriodicReader(
 			exp,

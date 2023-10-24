@@ -15,14 +15,14 @@ import (
 )
 
 const (
-	Name         = "stackdriver"
-	metricPrefix = "custom.googleapis.com/opencensus/gatekeeper/"
+	Name                          = "stackdriver"
+	metricPrefix                  = "custom.googleapis.com/opencensus/gatekeeper/"
 	defaultMetricsCollectInterval = 10
 )
 
 var (
 	ignoreMissingCreds = flag.Bool("stackdriver-only-when-available", false, "Only attempt to start the stackdriver exporter if credentials are available")
-	metricInterval = flag.Uint("stackdriver-metric-interval", defaultMetricsCollectInterval, "interval to read metrics for stackdriver exporter. defaulted to 10 secs if unspecified")
+	metricInterval     = flag.Uint("stackdriver-metric-interval", defaultMetricsCollectInterval, "interval to read metrics for stackdriver exporter. defaulted to 10 secs if unspecified")
 	log                = logf.Log.WithName("stackdriver-exporter")
 )
 

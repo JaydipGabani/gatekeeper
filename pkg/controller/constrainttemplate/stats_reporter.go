@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"k8s.io/apimachinery/pkg/types"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 const (

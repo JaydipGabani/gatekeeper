@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
 )
 
 const (
@@ -50,11 +50,11 @@ func init() {
 	view.Register(
 		sdkmetric.NewView(
 			sdkmetric.Instrument{Name: syncDurationMetricName},
-				sdkmetric.Stream{
-					Aggregation: sdkmetric.AggregationExplicitBucketHistogram{
-						Boundaries: []float64{0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.0006, 0.0007, 0.0008, 0.0009, 0.001, 0.002, 0.003, 0.004, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05},
-					},
+			sdkmetric.Stream{
+				Aggregation: sdkmetric.AggregationExplicitBucketHistogram{
+					Boundaries: []float64{0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.0006, 0.0007, 0.0008, 0.0009, 0.001, 0.002, 0.003, 0.004, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05},
 				},
+			},
 		))
 }
 

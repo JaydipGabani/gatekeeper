@@ -165,7 +165,7 @@ func TestReporter_reportLatency(t *testing.T) {
 }
 
 func TestReporter_reportRunStart(t *testing.T) {
-	startTime = time.Now()
+	startTime := time.Now()
 	tests := []struct {
 		name        string
 		ctx         context.Context
@@ -191,6 +191,7 @@ func TestReporter_reportRunStart(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt.r.startTime = startTime
 			var err error
 			rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
 			mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
@@ -211,7 +212,7 @@ func TestReporter_reportRunStart(t *testing.T) {
 }
 
 func TestReporter_reportRunEnd(t *testing.T) {
-	endTime = time.Now()
+	endTime := time.Now()
 	tests := []struct {
 		name        string
 		ctx         context.Context
@@ -238,6 +239,7 @@ func TestReporter_reportRunEnd(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var err error
+			tt.r.endTime = endTime
 			rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
 			mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
 			meter := mp.Meter("test")

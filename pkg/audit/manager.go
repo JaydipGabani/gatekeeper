@@ -188,16 +188,16 @@ func New(mgr manager.Manager, deps *Dependencies) (*Manager, error) {
 
 // audit performs an audit then updates the status of all constraint resources with the results.
 func (am *Manager) audit(ctx context.Context) error {
-	startTime = time.Now()
-	timestamp := startTime.UTC().Format(time.RFC3339)
+	am.reporter.startTime = time.Now()
+	timestamp := am.reporter.startTime.UTC().Format(time.RFC3339)
 	am.log = log.WithValues(logging.AuditID, timestamp)
 	logStart(am.log)
 	// record audit latency
 	defer func() {
 		logFinish(am.log)
-		endTime = time.Now()
-		latency = endTime.Sub(startTime)
-		if err := am.reporter.reportLatency(latency); err != nil {
+		am.reporter.endTime = time.Now()
+		am.reporter.latency = am.reporter.endTime.Sub(am.reporter.startTime)
+		if err := am.reporter.reportLatency(am.reporter.latency); err != nil {
 			am.log.Error(err, "failed to report latency")
 		}
 	}()

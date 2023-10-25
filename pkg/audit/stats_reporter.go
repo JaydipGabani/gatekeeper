@@ -27,9 +27,6 @@ var (
 	auditDurationM    metric.Float64Histogram
 	lastRunStartTimeM metric.Float64ObservableGauge
 	lastRunEndTimeM   metric.Float64ObservableGauge
-	endTime           time.Time
-	latency           time.Duration
-	startTime         time.Time
 	meter             metric.Meter
 )
 
@@ -99,12 +96,12 @@ func (r *reporter) reportLatency(d time.Duration) error {
 }
 
 func (r *reporter) reportRunStart(_ context.Context, o metric.Observer) error {
-	o.ObserveFloat64(lastRunStartTimeM, float64(startTime.Unix()))
+	o.ObserveFloat64(lastRunStartTimeM, float64(r.startTime.Unix()))
 	return nil
 }
 
 func (r *reporter) reportRunEnd(_ context.Context, o metric.Observer) error {
-	o.ObserveFloat64(lastRunEndTimeM, float64(endTime.Unix()))
+	o.ObserveFloat64(lastRunEndTimeM, float64(r.endTime.Unix()))
 	return nil
 }
 
@@ -113,4 +110,8 @@ func newStatsReporter() *reporter {
 	return &reporter{}
 }
 
-type reporter struct{}
+type reporter struct{
+	endTime           time.Time
+	latency           time.Duration
+	startTime         time.Time
+}

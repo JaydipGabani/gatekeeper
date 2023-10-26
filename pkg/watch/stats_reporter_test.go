@@ -104,6 +104,7 @@ func TestReporter_registerGvkCountMCallBack(t *testing.T) {
 }
 
 func TestRecordKeeper_registerGvkIntentCountMCallback(t *testing.T) {
+	var err error
 	want := metricdata.Metrics{
 		Name: "test",
 		Data: metricdata.Gauge[int64]{
@@ -111,10 +112,6 @@ func TestRecordKeeper_registerGvkIntentCountMCallback(t *testing.T) {
 				{Value: 0},
 			},
 		},
-	}
-	r, err := newRecordKeeper()
-	if err != nil {
-		t.Fatalf("newRecordKeeper() error %v", err)
 	}
 
 	rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
@@ -124,6 +121,10 @@ func TestRecordKeeper_registerGvkIntentCountMCallback(t *testing.T) {
 	// Ensure the pipeline has a callback setup
 	gvkIntentCountM, err = meter.Int64ObservableGauge("test")
 	assert.NoError(t, err)
+	r, err := newRecordKeeper()
+	if err != nil {
+		t.Fatalf("newRecordKeeper() error %v", err)
+	}
 
 	// Register the callback
 	err = r.registerGvkIntentCountMCallback()
@@ -132,4 +133,17 @@ func TestRecordKeeper_registerGvkIntentCountMCallback(t *testing.T) {
 	rm := &metricdata.ResourceMetrics{}
 	assert.Equal(t, nil, rdr.Collect(context.Background(), rm))
 	metricdatatest.AssertEqual(t, want, rm.ScopeMetrics[0].Metrics[0], metricdatatest.IgnoreTimestamp())
+}
+
+func InitializeTestInstruments(t *testing.T) {
+	var err error
+	rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
+	mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
+	meter = mp.Meter("test")
+
+	// Ensure the pipeline has a callback setup
+	gvkIntentCountM, err = meter.Int64ObservableGauge("test")
+	assert.NoError(t, err)
+	gvkCountM, err = meter.Int64ObservableGauge("test")
+	assert.NoError(t, err)
 }

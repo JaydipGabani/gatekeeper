@@ -94,12 +94,6 @@ func New(c RemovableCache) (*Manager, error) {
 		log.Error(err, "Failed to register callback")
 		return nil, err
 	}
-
-	// err = wm.managedKinds.registerGvkIntentCountMCallback()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	return wm, err
 }
 

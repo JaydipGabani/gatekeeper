@@ -110,8 +110,8 @@ func newStatsReporter() *reporter {
 	return &reporter{}
 }
 
-type reporter struct{
-	endTime           time.Time
-	latency           time.Duration
-	startTime         time.Time
+type reporter struct {
+	endTime   time.Time
+	latency   time.Duration
+	startTime time.Time
 }

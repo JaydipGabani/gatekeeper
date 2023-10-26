@@ -10,7 +10,6 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/sdk/metric"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 const (
@@ -21,7 +20,6 @@ const (
 )
 
 var (
-	log            = logf.Log.WithName("opentelemetry-exporter")
 	otlpEndPoint   = flag.String("otlp-end-point", "", "Opentelemetry exporter endpoint")
 	metricInterval = flag.Uint("otlp-metric-interval", defaultMetricsCollectInterval, "interval to read metrics for opentelemetry exporter. defaulted to 10 secs if unspecified")
 )

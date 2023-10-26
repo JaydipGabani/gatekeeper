@@ -16,7 +16,7 @@ import (
 
 const (
 	Name                          = "stackdriver"
-	metricPrefix                  = "custom.googleapis.com/opencensus/gatekeeper/"
+	metricPrefix                  = "custom.googleapis.com/opentelemetry/gatekeeper/"
 	defaultMetricsCollectInterval = 10
 )
 

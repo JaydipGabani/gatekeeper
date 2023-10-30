@@ -8,12 +8,10 @@ jobs:
   create_tag:
     name: "Create tag"
     runs-on: ubuntu-22.04
-    if: contains(github.event.pull_request.labels.*.name, 'release-pr')
     steps:
     - name: "git commit message"
       run: |
-        echo "git commit message ${{ github.event.head_commit.message }}"
-        echo "git pull label ${{ github.event.pull_request.labels.*.name }}"
+        echo "git commit message ${{ github.event }}"
     
     - name: Check out code
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2

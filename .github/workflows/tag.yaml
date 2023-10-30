@@ -12,12 +12,12 @@ jobs:
     steps:
     - name: "git commit message"
       run: |
-        echo "${{ github.event.head_commit.message }}" | grep -o 'v[^ ,]\+' | sed -n '1p'
+        echo "RELEASE_TAG= $(echo ${{ github.event.head_commit.message }} | grep -o 'v[^ ,]\+' | sed -n '1p')" >> $GITHUB_ENV
     
     - name: Check out code
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2
       with:
-        ref: ${{ github.base_ref }}
+        ref: ${{ env.RELEASE_TAG }}
 
     - uses: rickstaa/action-create-tag@v1.6.4
       id: "tag_create"

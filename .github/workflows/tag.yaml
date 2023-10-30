@@ -11,7 +11,8 @@ jobs:
     steps:
     - name: "git commit message"
       run: |
-        echo "git commit message ${{ github.event }}"
+        echo "git commit message ${{ github.event.base_ref }}"
+        echo "git commit message ${{ github.event.head_commit.message }}"
     
     - name: Check out code
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2

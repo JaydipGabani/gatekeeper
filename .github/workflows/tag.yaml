@@ -1,5 +1,5 @@
 name: create_tag
-on: [push]
+on: [pull_request]
 
 permissions:
   contents: write
@@ -8,18 +8,18 @@ jobs:
   create_tag:
     name: "Create tag"
     runs-on: ubuntu-22.04
-    # if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release-pr')
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release-pr')
     steps:
-    - name: "git commit message"
-      run: |
-        echo "git commit message ${{ github.event.head_commit.message }}"
-    # - name: Check out code
-    #   uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2
-    #   with:
-    #     ref: ${{ github.base_ref }}
+    # - name: "git commit message"
+    #   run: |
+    #     echo "git commit message ${{ github.event.head_commit.message }}"
+    - name: Check out code
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2
+      with:
+        ref: ${{ github.base_ref }}
 
-    # - uses: rickstaa/action-create-tag@v1.6.4
-    #   id: "tag_create"
-    #   with:
-    #     tag: ${{ github.head_ref }}
-    #     tag_exists_error: false
+    - uses: rickstaa/action-create-tag@v1.6.4
+      id: "tag_create"
+      with:
+        tag: ${{ github.head_ref }}
+        tag_exists_error: false

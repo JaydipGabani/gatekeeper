@@ -14,13 +14,15 @@ jobs:
       run: |
         echo "RELEASE_TAG=$(echo ${{ github.event.head_commit.message }} | grep -o 'v[^ ,]\+' | sed -n '1p')" >> $GITHUB_ENV
     
+    - name: "echo tag"
+      run: |
+        echo ${{ env.RELEASE_TAG }}
+    
     - name: Check out code
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2
-      with:
-        ref: ${{ env.RELEASE_TAG }}
 
     - uses: rickstaa/action-create-tag@v1.6.4
       id: "tag_create"
       with:
-        tag: ${{ github.head_ref }}
+        tag: ${{ env.RELEASE_TAG }}
         tag_exists_error: false

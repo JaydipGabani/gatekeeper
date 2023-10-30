@@ -7,12 +7,12 @@ permissions:
 jobs:
   create_tag:
     name: "Create tag"
+    if: contains(github.event.head_commit.message, 'Prepare')
     runs-on: ubuntu-22.04
     steps:
     - name: "git commit message"
       run: |
-        echo "git commit message ${{ github.event.base_ref }}"
-        echo "git commit message ${{ github.event.head_commit.message }}"
+        echo "${{ github.event.head_commit.message }}" | grep -o 'v[^ ,]\+' | sed -n '1p'
     
     - name: Check out code
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2

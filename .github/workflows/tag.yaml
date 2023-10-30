@@ -8,7 +8,7 @@ jobs:
   create_tag:
     name: "Create tag"
     runs-on: ubuntu-22.04
-    # if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release-pr')
+    if: contains(github.event.pull_request.labels.*.name, 'release-pr')
     steps:
     - name: "git commit message"
       run: |

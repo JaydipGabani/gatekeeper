@@ -12,7 +12,8 @@ jobs:
     steps:
     - name: "git commit message"
       run: |
-        RELEASE_TAG=$(echo ${{ github.event.head_commit.message }} | grep -o 'v[^ ,]\+' | sed -n '1p')
+        echo "${{ github.event.head_commit.message }}" | grep -o 'v[^ ,]\+' | sed -n '1p'
+        RELEASE_TAG=$(echo "${{ github.event.head_commit.message }}" | grep -o 'v[^ ,]\+' | sed -n '1p')
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
         echo "RELEASE_TAG=$RELEASE_TAG"
     

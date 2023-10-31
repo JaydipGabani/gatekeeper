@@ -61,11 +61,11 @@ func (r *etRegistry) remove(key types.NamespacedName) {
 }
 
 func (r *etRegistry) registerCallback() error {
-	_, err := meter.RegisterCallback(r.report, etM)
+	_, err := meter.RegisterCallback(r.observeETM, etM)
 	return err
 }
 
-func (r *etRegistry) report(_ context.Context, o metric.Observer) error {
+func (r *etRegistry) observeETM(_ context.Context, o metric.Observer) error {
 	if !r.dirty {
 		return nil
 	}

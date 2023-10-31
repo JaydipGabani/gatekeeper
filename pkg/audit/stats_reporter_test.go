@@ -56,7 +56,7 @@ func (e *fnExporter) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func TestReporter_reportTotalViolations(t *testing.T) {
+func TestReporter_observeTotalViolations(t *testing.T) {
 	var err error
 	totalViolationsPerEnforcementAction = map[util.EnforcementAction]int64{
 		util.Deny:         1,
@@ -99,7 +99,7 @@ func TestReporter_reportTotalViolations(t *testing.T) {
 			// Ensure the pipeline has a callback setup
 			violationsM, err = meter.Int64ObservableGauge("test")
 			assert.NoError(t, err)
-			_, err = meter.RegisterCallback(tt.r.reportTotalViolations, violationsM)
+			_, err = meter.RegisterCallback(tt.r.observeTotalViolations, violationsM)
 			assert.NoError(t, err)
 
 			rm := &metricdata.ResourceMetrics{}
@@ -164,7 +164,7 @@ func TestReporter_reportLatency(t *testing.T) {
 	}
 }
 
-func TestReporter_reportRunStart(t *testing.T) {
+func TestReporter_observeRunStart(t *testing.T) {
 	startTime := time.Now()
 	tests := []struct {
 		name        string
@@ -200,7 +200,7 @@ func TestReporter_reportRunStart(t *testing.T) {
 			// Ensure the pipeline has a callback setup
 			lastRunStartTimeM, err = meter.Float64ObservableGauge("test")
 			assert.NoError(t, err)
-			_, err = meter.RegisterCallback(tt.r.reportRunStart, lastRunStartTimeM)
+			_, err = meter.RegisterCallback(tt.r.observeRunStart, lastRunStartTimeM)
 			assert.NoError(t, err)
 
 			rm := &metricdata.ResourceMetrics{}
@@ -211,7 +211,7 @@ func TestReporter_reportRunStart(t *testing.T) {
 	}
 }
 
-func TestReporter_reportRunEnd(t *testing.T) {
+func TestReporter_observeRunEnd(t *testing.T) {
 	endTime := time.Now()
 	tests := []struct {
 		name        string
@@ -247,7 +247,7 @@ func TestReporter_reportRunEnd(t *testing.T) {
 			// Ensure the pipeline has a callback setup
 			lastRunEndTimeM, err = meter.Float64ObservableGauge("test")
 			assert.NoError(t, err)
-			_, err = meter.RegisterCallback(tt.r.reportRunEnd, lastRunEndTimeM)
+			_, err = meter.RegisterCallback(tt.r.observeRunEnd, lastRunEndTimeM)
 			assert.NoError(t, err)
 
 			rm := &metricdata.ResourceMetrics{}

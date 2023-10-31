@@ -106,7 +106,7 @@ func (a *Adder) Add(mgr manager.Manager) error {
 	if a.IfWatching != nil {
 		r.ifWatching = a.IfWatching
 	}
-	err = registerCallback(r)
+	err = r.reporter.registerCallback(r)
 	if err != nil {
 		return err
 	}

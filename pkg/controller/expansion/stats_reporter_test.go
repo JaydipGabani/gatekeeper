@@ -171,7 +171,7 @@ func TestReport(t *testing.T) {
 			// Ensure the pipeline has a callback setup
 			etM, err = meter.Int64ObservableGauge("test")
 			assert.NoError(t, err)
-			_, err = meter.RegisterCallback(tt.r.report, etM)
+			_, err = meter.RegisterCallback(tt.r.observeETM, etM)
 			assert.NoError(t, err)
 
 			rm := &metricdata.ResourceMetrics{}

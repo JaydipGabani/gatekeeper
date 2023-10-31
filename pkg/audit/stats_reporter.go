@@ -77,13 +77,13 @@ func init() {
 }
 
 func (r *reporter) registerCallback() error {
-	_, err1 := meter.RegisterCallback(r.reportTotalViolations, violationsM)
-	_, err2 := meter.RegisterCallback(r.reportRunEnd, lastRunEndTimeM)
-	_, err3 := meter.RegisterCallback(r.reportRunStart, lastRunStartTimeM)
+	_, err1 := meter.RegisterCallback(r.observeTotalViolations, violationsM)
+	_, err2 := meter.RegisterCallback(r.observeRunEnd, lastRunEndTimeM)
+	_, err3 := meter.RegisterCallback(r.observeRunStart, lastRunStartTimeM)
 	return errors.Join(err1, err2, err3)
 }
 
-func (r *reporter) reportTotalViolations(_ context.Context, o metric.Observer) error {
+func (r *reporter) observeTotalViolations(_ context.Context, o metric.Observer) error {
 	for k, v := range totalViolationsPerEnforcementAction {
 		o.ObserveInt64(violationsM, v, metric.WithAttributes(attribute.String(enforcementActionKey, string(k))))
 	}
@@ -95,12 +95,12 @@ func (r *reporter) reportLatency(d time.Duration) error {
 	return nil
 }
 
-func (r *reporter) reportRunStart(_ context.Context, o metric.Observer) error {
+func (r *reporter) observeRunStart(_ context.Context, o metric.Observer) error {
 	o.ObserveFloat64(lastRunStartTimeM, float64(r.startTime.Unix()))
 	return nil
 }
 
-func (r *reporter) reportRunEnd(_ context.Context, o metric.Observer) error {
+func (r *reporter) observeRunEnd(_ context.Context, o metric.Observer) error {
 	o.ObserveFloat64(lastRunEndTimeM, float64(r.endTime.Unix()))
 	return nil
 }

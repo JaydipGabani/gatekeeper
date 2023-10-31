@@ -97,7 +97,7 @@ func TestReportConstraints(t *testing.T) {
 			// Ensure the pipeline has a callback setup
 			constraintsM, err = meter.Int64ObservableGauge("test")
 			assert.NoError(t, err)
-			_, err = meter.RegisterCallback(conctraintCache.reportConstraints, constraintsM)
+			_, err = meter.RegisterCallback(conctraintCache.observeConstraints, constraintsM)
 			assert.NoError(t, err)
 
 			rm := &metricdata.ResourceMetrics{}

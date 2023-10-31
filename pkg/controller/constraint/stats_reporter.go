@@ -37,7 +37,7 @@ func init() {
 	}
 }
 
-func (c *ConstraintsCache) reportConstraints(ctx context.Context, observer metric.Observer) error {
+func (c *ConstraintsCache) observeConstraints(ctx context.Context, observer metric.Observer) error {
 	c.mux.RLock()
 	defer c.mux.RUnlock()
 	if reportMetrics {
@@ -65,8 +65,8 @@ func newStatsReporter() (*reporter, error) {
 	return &reporter{}, nil
 }
 
-func registerCallback(r *ReconcileConstraint) error {
-	_, err := meter.RegisterCallback(r.constraintsCache.reportConstraints, constraintsM)
+func (rep *reporter) registerCallback(r *ReconcileConstraint) error {
+	_, err := meter.RegisterCallback(r.constraintsCache.observeConstraints, constraintsM)
 	return err
 }
 

@@ -106,11 +106,11 @@ func (r *ctRegistry) remove(key types.NamespacedName) {
 }
 
 func (r *ctRegistry) registerCallback() error {
-	_, err := meter.RegisterCallback(r.report, ctM)
+	_, err := meter.RegisterCallback(r.observeCTM, ctM)
 	return err
 }
 
-func (r *ctRegistry) report(_ context.Context, o metric.Observer) error {
+func (r *ctRegistry) observeCTM(_ context.Context, o metric.Observer) error {
 	totals := make(map[metrics.Status]int64)
 	for _, status := range r.cache {
 		totals[status]++

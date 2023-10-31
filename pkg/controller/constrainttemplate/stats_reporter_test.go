@@ -119,7 +119,7 @@ func TestReportIngestion(t *testing.T) {
 	metricdatatest.AssertEqual(t, want2, rm.ScopeMetrics[0].Metrics[1], metricdatatest.IgnoreTimestamp())
 }
 
-func TestReport(t *testing.T) {
+func TestObserveCTM(t *testing.T) {
 	tests := []struct {
 		name        string
 		ctx         context.Context
@@ -161,7 +161,7 @@ func TestReport(t *testing.T) {
 			// Ensure the pipeline has a callback setup
 			ctM, err = meter.Int64ObservableGauge("test")
 			assert.NoError(t, err)
-			_, err = meter.RegisterCallback(tt.c.report, ctM)
+			_, err = meter.RegisterCallback(tt.c.observeCTM, ctM)
 			assert.NoError(t, err)
 
 			rm := &metricdata.ResourceMetrics{}

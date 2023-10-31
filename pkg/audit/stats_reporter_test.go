@@ -58,12 +58,7 @@ func (e *fnExporter) Shutdown(ctx context.Context) error {
 
 func TestReporter_observeTotalViolations(t *testing.T) {
 	var err error
-	totalViolationsPerEnforcementAction = map[util.EnforcementAction]int64{
-		util.Deny:         1,
-		util.Dryrun:       2,
-		util.Warn:         3,
-		util.Unrecognized: 4,
-	}
+
 	tests := []struct {
 		name        string
 		ctx         context.Context
@@ -95,6 +90,13 @@ func TestReporter_observeTotalViolations(t *testing.T) {
 			rdr := sdkmetric.NewPeriodicReader(new(fnExporter))
 			mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(rdr))
 			meter := mp.Meter("test")
+
+			tt.r.totalViolationsPerEnforcementAction = map[util.EnforcementAction]int64{
+				util.Deny:         1,
+				util.Dryrun:       2,
+				util.Warn:         3,
+				util.Unrecognized: 4,
+			}
 
 			// Ensure the pipeline has a callback setup
 			violationsM, err = meter.Int64ObservableGauge("test")

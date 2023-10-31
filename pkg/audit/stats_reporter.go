@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
@@ -84,7 +85,7 @@ func (r *reporter) registerCallback() error {
 }
 
 func (r *reporter) observeTotalViolations(_ context.Context, o metric.Observer) error {
-	for k, v := range totalViolationsPerEnforcementAction {
+	for k, v := range r.totalViolationsPerEnforcementAction {
 		o.ObserveInt64(violationsM, v, metric.WithAttributes(attribute.String(enforcementActionKey, string(k))))
 	}
 	return nil
@@ -111,7 +112,7 @@ func newStatsReporter() *reporter {
 }
 
 type reporter struct {
-	endTime   time.Time
-	latency   time.Duration
-	startTime time.Time
+	endTime                             time.Time
+	startTime                           time.Time
+	totalViolationsPerEnforcementAction map[util.EnforcementAction]int64
 }

@@ -196,8 +196,8 @@ func (am *Manager) audit(ctx context.Context) error {
 	defer func() {
 		logFinish(am.log)
 		am.reporter.endTime = time.Now()
-		am.reporter.latency = am.reporter.endTime.Sub(am.reporter.startTime)
-		if err := am.reporter.reportLatency(am.reporter.latency); err != nil {
+		latency := am.reporter.endTime.Sub(am.reporter.startTime)
+		if err := am.reporter.reportLatency(latency); err != nil {
 			am.log.Error(err, "failed to report latency")
 		}
 	}()
@@ -224,10 +224,10 @@ func (am *Manager) audit(ctx context.Context) error {
 
 	updateLists := make(map[util.KindVersionName][]updateListEntry)
 	totalViolationsPerConstraint := make(map[util.KindVersionName]int64)
-	totalViolationsPerEnforcementAction = make(map[util.EnforcementAction]int64)
+	am.reporter.totalViolationsPerEnforcementAction = make(map[util.EnforcementAction]int64)
 	// resetting total violations per enforcement action
 	for _, action := range util.KnownEnforcementActions {
-		totalViolationsPerEnforcementAction[action] = 0
+		am.reporter.totalViolationsPerEnforcementAction[action] = 0
 	}
 
 	if *auditFromCache {
@@ -239,10 +239,10 @@ func (am *Manager) audit(ctx context.Context) error {
 			am.log.Error(err, "Auditing")
 		}
 
-		am.addAuditResponsesToUpdateLists(updateLists, res, totalViolationsPerConstraint, totalViolationsPerEnforcementAction, timestamp)
+		am.addAuditResponsesToUpdateLists(updateLists, res, totalViolationsPerConstraint, am.reporter.totalViolationsPerEnforcementAction, timestamp)
 	} else {
 		am.log.Info("Auditing via discovery client")
-		err := am.auditResources(ctx, constraintsGVKs, updateLists, totalViolationsPerConstraint, totalViolationsPerEnforcementAction, timestamp)
+		err := am.auditResources(ctx, constraintsGVKs, updateLists, totalViolationsPerConstraint, am.reporter.totalViolationsPerEnforcementAction, timestamp)
 		if err != nil {
 			return err
 		}

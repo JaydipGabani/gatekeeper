@@ -1,5 +1,7 @@
 name: create_tag
-on: [push]
+on: 
+  pull_request:
+    types: [closed]
 
 permissions:
   contents: write
@@ -7,21 +9,22 @@ permissions:
 jobs:
   create_tag:
     name: "Create tag"
-    if: contains(github.event.head_commit.message, 'Prepare')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.0 4
+    if: github.event.pull_request.merged == true
     steps:
     - name: "Set release tag"
       run: |
-        RELEASE_TAG=$(echo "${{ github.event.head_commit.message }}" | grep -o 'v[^ ,]\+' | sed -n '1p')
-        echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+        # RELEASE_TAG=$(echo "${{ github.event.head_commit.message }}" | grep -o 'v[^ ,]\+' | sed -n '1p')
+        # echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
         echo "base ref ${{ github.event.base_ref }}"
         echo "ref ${{ github.event.ref }}"
+        echo "base ref ${{ github.event.pull_request.merged }}"
     
-    - name: Check out code
-      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2
+    # - name: Check out code
+    #   uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2
 
-    - uses: rickstaa/action-create-tag@v1.6.4
-      id: "tag_create"
-      with:
-        tag: ${{ env.RELEASE_TAG }}
-        tag_exists_error: false
+    # - uses: rickstaa/action-create-tag@v1.6.4
+    #   id: "tag_create"
+    #   with:
+    #     tag: ${{ env.RELEASE_TAG }}
+    #     tag_exists_error: false

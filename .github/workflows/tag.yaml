@@ -19,6 +19,8 @@ jobs:
         echo "base ref ${{ github.event.base_ref }}"
         echo "ref ${{ github.event.ref }}"
         echo "base ref ${{ github.event.pull_request.merged }}"
+        echo "tag ${{ github.event.pull_request.labels.[0].name }}"
+        echo "tag ${{ github.event.pull_request.labels.[1].name }}"
     
     # - name: Check out code
     #   uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v3.5.2

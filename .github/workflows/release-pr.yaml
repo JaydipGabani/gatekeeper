@@ -2,7 +2,7 @@ name: create_release_pull_request
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.0' # run this workflow when a new minor version is published
+      - 'v[0-9]+.[0-9]+.[0-9]+' # run this workflow when a new minor version is published
   workflow_dispatch:
     inputs:
       release_version:

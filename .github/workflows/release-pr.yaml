@@ -2,7 +2,7 @@ name: create_release_pull_request
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.0' # run this workflow when a new minor version is published
+      - 'v[0-9]+.[0-9]+.[0-9]' # run this workflow when a new minor version is published
   workflow_dispatch:
     inputs:
       release_version:
@@ -36,9 +36,15 @@ jobs:
           echo "MAJOR_VERSION=${MAJOR_VERSION}" >> ${GITHUB_ENV}
           MINOR_VERSION="$(echo "${TAG}" | cut -d '.' -f2)"
           echo "MINOR_VERSION=${MINOR_VERSION}" >> ${GITHUB_ENV}
+          PATCH_VERSION="$(echo "${TAG}" | cut -d '.' -f3)"
+          echo "PATCH_VERSION=${PATCH_VERSION}" >> ${GITHUB_ENV}
 
-          # increment the minor version by 1 for vNext
-          echo "NEWVERSION=v${MAJOR_VERSION}.$((MINOR_VERSION+1)).0-beta.0" >> ${GITHUB_ENV}
+          if [[ "${PATCH_VERSION}" =~ 0 ]]; then
+            # increment the minor version by 1 for vNext
+            echo "NEWVERSION=v${MAJOR_VERSION}.$((MINOR_VERSION+1)).0-beta.0" >> ${GITHUB_ENV}
+          else
+            echo "NEWVERSION=v${TAG}" >> ${GITHUB_ENV}
+          fi
           # pre-release is always being merged to the master branch
           echo "TARGET_BRANCH=master" >> ${GITHUB_ENV}
           echo "TAG=${TAG}" >> ${GITHUB_ENV}
@@ -74,10 +80,19 @@ jobs:
           git checkout -b "${TARGET_BRANCH}"
           git push --set-upstream origin "${TARGET_BRANCH}"
 
-      - run: make release-manifest promote-staging-manifest
+      - run: echo ${{ env.PATCH_VERSION }}
 
-      - if: github.event_name == 'push'
-        run: make version-docs NEWVERSION=v${MAJOR_VERSION}.${MINOR_VERSION}.x TAG=${TAG}
+      - run: make release-manifest promote-staging-manifest
+        if: ${{ env.PATCH_VERSION }} == 0
+
+      - name: creating versioned docs
+        if: github.event_name == 'push'
+        run: |
+          if [[ ${{ env.PATCH_VERSION }} == 0 ]]; then
+            make version-docs NEWVERSION=v${MAJOR_VERSION}.${MINOR_VERSION}.x TAG=v${TAG}
+          else
+            make patch-version-docs NEWVERSION=v${MAJOR_VERSION}.${MINOR_VERSION}.x TAG=v${TAG}
+          fi
 
       - name: Create release pull request
         uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2

@@ -481,6 +481,10 @@ version-docs:
 		sh -c "yarn install --frozen-lockfile && yarn run docusaurus docs:version ${NEWVERSION}"
 	@sed -i 's/https:\/\/raw\.githubusercontent\.com\/open-policy-agent\/gatekeeper\/master\/deploy\/gatekeeper\.yaml.*/https:\/\/raw\.githubusercontent\.com\/open-policy-agent\/gatekeeper\/${TAG}\/deploy\/gatekeeper\.yaml/' ./website/versioned_docs/version-${NEWVERSION}/install.md
 
+.PHONY: patch-version-docs
+patch-version-docs:
+	@sed -i 's/https:\/\/raw\.githubusercontent\.com\/open-policy-agent\/gatekeeper\/master\/deploy\/gatekeeper\.yaml.*/https:\/\/raw\.githubusercontent\.com\/open-policy-agent\/gatekeeper\/${TAG}\/deploy\/gatekeeper\.yaml/' ./website/versioned_docs/version-${NEWVERSION}/install.md
+
 promote-staging-manifest:
 	@rm -rf deploy
 	@cp -r manifest_staging/deploy .

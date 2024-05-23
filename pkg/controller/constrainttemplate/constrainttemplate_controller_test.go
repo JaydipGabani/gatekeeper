@@ -30,7 +30,7 @@ import (
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers/rego"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/core/templates"
 	statusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
-	// "github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraint"
+	// "github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraint".
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/fakes"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/target"
@@ -126,7 +126,7 @@ func makeReconcileConstraintTemplateForVap(suffix string, generateVAP *bool) *v1
 			APIVersion: templatesv1.SchemeGroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   denyall + strings.ToLower(suffix),
+			Name: denyall + strings.ToLower(suffix),
 		},
 		Spec: v1beta1.ConstraintTemplateSpec{
 			CRD: v1beta1.CRD{
@@ -141,7 +141,7 @@ func makeReconcileConstraintTemplateForVap(suffix string, generateVAP *bool) *v1
 					Target: target.Name,
 					Code: []v1beta1.Code{
 						{
-							Engine: "K8sNativeValidation",
+							Engine:      "K8sNativeValidation",
 							GenerateVAP: generateVAP,
 							Source: &templates.Anything{
 								Value: source.MustToUnstructured(),

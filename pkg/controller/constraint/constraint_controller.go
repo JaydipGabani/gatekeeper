@@ -27,8 +27,8 @@ import (
 	"github.com/go-logr/logr"
 	v1beta1 "github.com/open-policy-agent/frameworks/constraint/pkg/apis/templates/v1beta1"
 	constraintclient "github.com/open-policy-agent/frameworks/constraint/pkg/client"
+	k8scelSchema "github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers/k8scel/schema"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers/k8scel/transform"
-	k8scelSchema"github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers/k8scel/schema"
 	constraintstatusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraintstatus"
@@ -61,8 +61,8 @@ import (
 )
 
 var (
-	log          = logf.Log.V(logging.DebugLevel).WithName("controller").WithValues(logging.Process, "constraint_controller")
-	discoveryErr *apiutil.ErrResourceDiscoveryFailed
+	log            = logf.Log.V(logging.DebugLevel).WithName("controller").WithValues(logging.Process, "constraint_controller")
+	discoveryErr   *apiutil.ErrResourceDiscoveryFailed
 	VapEnforcement = flag.Bool("vap-enforcement", false, "control VAP resource generation. Allowed values are false: do not generate unless enforceVAP: true is added to policy explicitly, true: generate unless enforceVAP: false is added to policy explicitly.")
 )
 
@@ -277,7 +277,7 @@ func (r *ReconcileConstraint) Reconcile(ctx context.Context, request reconcile.R
 		return reconcile.Result{}, err
 	}
 	log.Info("constraint resource", "generateVapBinding", generateVapBinding)
-	
+
 	constraintKey := strings.Join([]string{instance.GetKind(), instance.GetName()}, "/")
 	enforcementAction, err := util.GetEnforcementAction(instance.Object)
 	if err != nil {

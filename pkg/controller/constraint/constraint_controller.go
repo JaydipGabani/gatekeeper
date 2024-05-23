@@ -18,6 +18,7 @@ package constraint
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"reflect"
 	"strings"
@@ -27,6 +28,7 @@ import (
 	v1beta1 "github.com/open-policy-agent/frameworks/constraint/pkg/apis/templates/v1beta1"
 	constraintclient "github.com/open-policy-agent/frameworks/constraint/pkg/client"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers/k8scel/transform"
+	k8scelSchema"github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers/k8scel/schema"
 	constraintstatusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraintstatus"
@@ -61,44 +63,12 @@ import (
 var (
 	log          = logf.Log.V(logging.DebugLevel).WithName("controller").WithValues(logging.Process, "constraint_controller")
 	discoveryErr *apiutil.ErrResourceDiscoveryFailed
+	VapEnforcement = flag.Bool("vap-enforcement", false, "control VAP resource generation. Allowed values are false: do not generate unless enforceVAP: true is added to policy explicitly, true: generate unless enforceVAP: false is added to policy explicitly.")
 )
 
 var vapMux sync.RWMutex
 
 var VapAPIEnabled *bool
-
-var VapEnforcement VapFlagType
-
-// VapFlagType is the custom type for the vap-enforcement flag.
-type VapFlagType string
-
-// Allowed values for VapFlagType.
-var allowedVapFlagVals = []string{VapFlagNone, VapFlagGatekeeperDefault, VapFlagVapDefault}
-
-// String returns the string representation of the flag value.
-func (v *VapFlagType) String() string {
-	return string(*v)
-}
-
-// Set validates and sets the value for the VapFlagType.
-func (v *VapFlagType) Set(value string) error {
-	for _, val := range allowedVapFlagVals {
-		if val == value {
-			*v = VapFlagType(value)
-			return nil
-		}
-	}
-	return fmt.Errorf("invalid value %s. Allowed values are %s, %s, %s", value, VapFlagNone, VapFlagGatekeeperDefault, VapFlagVapDefault)
-}
-
-// setting defaults when not set; required for unit test.
-func (v *VapFlagType) SetDefaultIfEmpty() {
-	if *v == "" {
-		*v = VapFlagType(VapFlagGatekeeperDefault)
-		VapAPIEnabled = new(bool)
-		*VapAPIEnabled = true
-	}
-}
 
 type Adder struct {
 	CFClient         *constraintclient.Client
@@ -300,26 +270,14 @@ func (r *ReconcileConstraint) Reconcile(ctx context.Context, request reconcile.R
 
 	deleted = deleted || !instance.GetDeletionTimestamp().IsZero()
 
-	labels := instance.GetLabels()
-	log.Info("constraint resource", "labels", labels)
-	useVap, ok := labels[VapGenerationLabel]
-	if ok {
-		log.Info("constraint resource", "useVap", useVap)
+	log.Info("constraint resource use-vap label is not no; will default to parent constraint template label")
+	generateVapBinding, err = r.shouldGenerateVAPB(ctx, instance.GetKind())
+	if err != nil {
+		log.Error(err, "could not get parent constraint template object")
+		return reconcile.Result{}, err
 	}
-	// unless constraint vap label is false, default to parent
-	if useVap == No {
-		generateVapBinding = false
-	} else {
-		log.Info("constraint resource use-vap label is not no; will default to parent constraint template label")
-		parentCTUseVap, err := r.getCTVapLabel(ctx, instance.GetKind())
-		if err != nil {
-			log.Error(err, "could not get parent constraint template object")
-			return reconcile.Result{}, err
-		}
-		log.Info("constraint resource", "parentCTUseVap", parentCTUseVap)
-		generateVapBinding = ShouldGenerateVap(parentCTUseVap)
-		log.Info("constraint resource", "generateVapBinding", generateVapBinding)
-	}
+	log.Info("constraint resource", "generateVapBinding", generateVapBinding)
+	
 	constraintKey := strings.Join([]string{instance.GetKind(), instance.GetName()}, "/")
 	enforcementAction, err := util.GetEnforcementAction(instance.Object)
 	if err != nil {
@@ -555,20 +513,24 @@ func (r *ReconcileConstraint) cacheConstraint(ctx context.Context, instance *uns
 	return nil
 }
 
-func (r *ReconcileConstraint) getCTVapLabel(ctx context.Context, gvk string) (string, error) {
+func (r *ReconcileConstraint) shouldGenerateVAPB(ctx context.Context, gvk string) (bool, error) {
 	ct := &v1beta1.ConstraintTemplate{}
 	ctName := strings.ToLower(gvk)
-	log.Info("get parent constraint template and its labels", "ctName", ctName)
+	log.Info("get parent constraint template", "ctName", ctName)
 	if err := r.reader.Get(ctx, types.NamespacedName{Name: ctName}, ct); err != nil {
-		return "", err
+		return false, err
 	}
-	labels := ct.GetLabels()
-	log.Info("parent constraint template", "labels", labels)
-	useVap, ok := labels[VapGenerationLabel]
-	if !ok {
-		return "", nil
+	generateVap := false
+	for _, c := range ct.Spec.Targets[0].Code {
+		if c.Engine == k8scelSchema.Name {
+			if c.GenerateVAP == nil {
+				generateVap = ShouldGenerateVap()
+			} else {
+				generateVap = *c.GenerateVAP
+			}
+		}
 	}
-	return useVap, nil
+	return generateVap, nil
 }
 
 func NewConstraintsCache() *ConstraintsCache {
@@ -617,14 +579,8 @@ func (c *ConstraintsCache) reportTotalConstraints(ctx context.Context, reporter 
 	}
 }
 
-func ShouldGenerateVap(useVapLabel string) bool {
-	if VapEnforcement == VapFlagGatekeeperDefault {
-		return useVapLabel == Yes
-	}
-	if VapEnforcement == VapFlagVapDefault {
-		return useVapLabel != No
-	}
-	return false
+func ShouldGenerateVap() bool {
+	return *VapEnforcement
 }
 
 func IsVapAPIEnabled() bool {

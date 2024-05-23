@@ -30,7 +30,7 @@ import (
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers/rego"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/core/templates"
 	statusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraint"
+	// "github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraint"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/fakes"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/target"
@@ -52,6 +52,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 )
@@ -94,7 +95,7 @@ violation[{"msg": "denied!"}] {
 	}
 }
 
-func makeReconcileConstraintTemplateForVap(suffix string, labels map[string]string) *v1beta1.ConstraintTemplate {
+func makeReconcileConstraintTemplateForVap(suffix string, generateVAP *bool) *v1beta1.ConstraintTemplate {
 	source := &celSchema.Source{
 		// FailurePolicy: ptr.To[string]("Fail"),
 		// TODO(ritazh): enable fail when VAP reduces 30s discovery of CRDs
@@ -126,7 +127,6 @@ func makeReconcileConstraintTemplateForVap(suffix string, labels map[string]stri
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   denyall + strings.ToLower(suffix),
-			Labels: labels,
 		},
 		Spec: v1beta1.ConstraintTemplateSpec{
 			CRD: v1beta1.CRD{
@@ -142,6 +142,7 @@ func makeReconcileConstraintTemplateForVap(suffix string, labels map[string]stri
 					Code: []v1beta1.Code{
 						{
 							Engine: "K8sNativeValidation",
+							GenerateVAP: generateVAP,
 							Source: &templates.Anything{
 								Value: source.MustToUnstructured(),
 							},
@@ -263,10 +264,7 @@ func TestReconcile(t *testing.T) {
 		suffix := "VapShouldBeCreated"
 
 		logger.Info("Running test: Vap should be created")
-		labels := map[string]string{
-			constraint.VapGenerationLabel: constraint.Yes,
-		}
-		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, labels)
+		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, ptr.To[bool](true))
 		t.Cleanup(testutils.DeleteObjectAndConfirm(ctx, t, c, expectedCRD(suffix)))
 		testutils.CreateThenCleanup(ctx, t, c, constraintTemplate)
 
@@ -290,10 +288,7 @@ func TestReconcile(t *testing.T) {
 		suffix := "VapShouldNotBeCreated"
 
 		logger.Info("Running test: Vap should not be created")
-		labels := map[string]string{
-			constraint.VapGenerationLabel: constraint.No,
-		}
-		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, labels)
+		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, ptr.To[bool](false))
 		t.Cleanup(testutils.DeleteObjectAndConfirm(ctx, t, c, expectedCRD(suffix)))
 		testutils.CreateThenCleanup(ctx, t, c, constraintTemplate)
 
@@ -320,8 +315,7 @@ func TestReconcile(t *testing.T) {
 		suffix := "VapShouldNotBeCreatedWithoutLabel"
 
 		logger.Info("Running test: Vap should not be created without label")
-		labels := map[string]string{}
-		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, labels)
+		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, nil)
 		t.Cleanup(testutils.DeleteObjectAndConfirm(ctx, t, c, expectedCRD(suffix)))
 		testutils.CreateThenCleanup(ctx, t, c, constraintTemplate)
 
@@ -347,10 +341,8 @@ func TestReconcile(t *testing.T) {
 		suffix := "VapBindingShouldBeCreated"
 
 		logger.Info("Running test: VapBinding should be created")
-		labels := map[string]string{
-			constraint.VapGenerationLabel: constraint.Yes,
-		}
-		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, labels)
+		labels := map[string]string{}
+		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, ptr.To[bool](true))
 		cstr := newDenyAllCstrWithLabel(suffix, labels)
 		t.Cleanup(testutils.DeleteObjectAndConfirm(ctx, t, c, expectedCRD(suffix)))
 		testutils.CreateThenCleanup(ctx, t, c, constraintTemplate)
@@ -383,13 +375,8 @@ func TestReconcile(t *testing.T) {
 		suffix := "VapBindingShouldNotBeCreated"
 
 		logger.Info("Running test: VapBinding should not be created")
-		labels := map[string]string{
-			constraint.VapGenerationLabel: constraint.Yes,
-		}
-		constraintLabels := map[string]string{
-			constraint.VapGenerationLabel: constraint.No,
-		}
-		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, labels)
+		constraintLabels := map[string]string{}
+		constraintTemplate := makeReconcileConstraintTemplateForVap(suffix, ptr.To[bool](false))
 		cstr := newDenyAllCstrWithLabel(suffix, constraintLabels)
 		t.Cleanup(testutils.DeleteObjectAndConfirm(ctx, t, c, expectedCRD(suffix)))
 		testutils.CreateThenCleanup(ctx, t, c, constraintTemplate)

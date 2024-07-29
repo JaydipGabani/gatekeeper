@@ -331,7 +331,7 @@ func FakeConnection() (connection.Connection, func()) {
 	c, f := getTestClient(ctx)
 	return &Dapr{
 		client:          c,
-		pubSubComponent: "test",
+		Component: "test",
 	}, f
 }
 
@@ -340,7 +340,7 @@ type FakeDapr struct {
 	client daprClient.Client
 
 	// Name of the pubsub component
-	pubSubComponent string
+	Component string `json:"component"`
 
 	// closing function
 	f func()
@@ -356,36 +356,32 @@ func (r *FakeDapr) CloseConnection() error {
 }
 
 func (r *FakeDapr) UpdateConnection(_ context.Context, config interface{}) error {
-	var cfg ClientConfig
-	m, ok := config.(map[string]interface{})
+	fClient := &FakeDapr{}
+	cfg, ok := config.(string)
 	if !ok {
 		return fmt.Errorf("invalid type assertion, config is not in expected format")
 	}
-	cfg.Component, ok = m["component"].(string)
-	if !ok {
-		return fmt.Errorf("failed to get value of component")
+	err := json.Unmarshal([]byte(cfg), &fClient)
+	if err != nil {
+		return err
 	}
-	r.pubSubComponent = cfg.Component
+	r.Component = fClient.Component
 	return nil
 }
 
 // Returns a fake client for dapr.
 func FakeNewConnection(ctx context.Context, config interface{}) (connection.Connection, error) {
-	var cfg ClientConfig
-	m, ok := config.(map[string]interface{})
+	fClient := &FakeDapr{}
+	cfg, ok := config.(string)
 	if !ok {
 		return nil, fmt.Errorf("invalid type assertion, config is not in expected format")
 	}
-	cfg.Component, ok = m["component"].(string)
-	if !ok {
-		return nil, fmt.Errorf("failed to get value of component")
+	err := json.Unmarshal([]byte(cfg), &fClient)
+	if err != nil {
+		return nil, err
 	}
 
-	c, f := getTestClient(ctx)
+	fClient.client, fClient.f = getTestClient(ctx)
 
-	return &FakeDapr{
-		client:          c,
-		pubSubComponent: cfg.Component,
-		f:               f,
-	}, nil
+	return fClient, nil
 }

@@ -33,6 +33,56 @@ cloud.google.com/go/trace/internal
 # github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24
 ## explicit; go 1.20
 github.com/AdaLogics/go-fuzz-headers
+# github.com/Azure/azure-sdk-for-go/sdk/azcore v1.11.1
+## explicit; go 1.18
+github.com/Azure/azure-sdk-for-go/sdk/azcore
+github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud
+github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/exported
+github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/log
+github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers
+github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/async
+github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/body
+github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/fake
+github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/loc
+github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/op
+github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/shared
+github.com/Azure/azure-sdk-for-go/sdk/azcore/log
+github.com/Azure/azure-sdk-for-go/sdk/azcore/policy
+github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime
+github.com/Azure/azure-sdk-for-go/sdk/azcore/streaming
+github.com/Azure/azure-sdk-for-go/sdk/azcore/to
+github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing
+# github.com/Azure/azure-sdk-for-go/sdk/internal v1.7.0
+## explicit; go 1.18
+github.com/Azure/azure-sdk-for-go/sdk/internal/diag
+github.com/Azure/azure-sdk-for-go/sdk/internal/errorinfo
+github.com/Azure/azure-sdk-for-go/sdk/internal/exported
+github.com/Azure/azure-sdk-for-go/sdk/internal/log
+github.com/Azure/azure-sdk-for-go/sdk/internal/poller
+github.com/Azure/azure-sdk-for-go/sdk/internal/telemetry
+github.com/Azure/azure-sdk-for-go/sdk/internal/temporal
+github.com/Azure/azure-sdk-for-go/sdk/internal/uuid
+# github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs v1.2.1
+## explicit; go 1.18
+github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs
+github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/internal
+github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/internal/amqpwrap
+github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/internal/auth
+github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/internal/eh
+github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/internal/exported
+github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/internal/sas
+github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/internal/sbauth
+github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/internal/utils
+# github.com/Azure/go-amqp v1.0.5
+## explicit; go 1.18
+github.com/Azure/go-amqp
+github.com/Azure/go-amqp/internal/bitmap
+github.com/Azure/go-amqp/internal/buffer
+github.com/Azure/go-amqp/internal/debug
+github.com/Azure/go-amqp/internal/encoding
+github.com/Azure/go-amqp/internal/frames
+github.com/Azure/go-amqp/internal/queue
+github.com/Azure/go-amqp/internal/shared
 # github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.20.0
 ## explicit; go 1.20
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp

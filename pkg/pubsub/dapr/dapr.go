@@ -9,18 +9,13 @@ import (
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub/connection"
 )
 
-type ClientConfig struct {
-	// Name of the component to be used for pub sub messaging
-	Component string `json:"component"`
-}
-
 // Dapr represents driver for interacting with pub sub using dapr.
 type Dapr struct {
 	// Array of clients to talk to different endpoints
 	client daprClient.Client
 
 	// Name of the pubsub component
-	pubSubComponent string
+	Component string `json:"component"`
 }
 
 const (
@@ -33,7 +28,7 @@ func (r *Dapr) Publish(_ context.Context, data interface{}, topic string) error 
 		return fmt.Errorf("error marshaling data: %w", err)
 	}
 
-	err = r.client.PublishEvent(context.Background(), r.pubSubComponent, topic, jsonData)
+	err = r.client.PublishEvent(context.Background(), r.Component, topic, jsonData)
 	if err != nil {
 		return fmt.Errorf("error publishing message to dapr: %w", err)
 	}
@@ -46,38 +41,35 @@ func (r *Dapr) CloseConnection() error {
 }
 
 func (r *Dapr) UpdateConnection(_ context.Context, config interface{}) error {
-	var cfg ClientConfig
-	m, ok := config.(map[string]interface{})
+	dClient := &Dapr{}
+	cfg, ok := config.(string)
 	if !ok {
 		return fmt.Errorf("invalid type assertion, config is not in expected format")
 	}
-	cfg.Component, ok = m["component"].(string)
-	if !ok {
-		return fmt.Errorf("failed to get value of component")
+	err := json.Unmarshal([]byte(cfg), &dClient)
+	if err != nil {
+		return err
 	}
-	r.pubSubComponent = cfg.Component
+	r.Component = dClient.Component
 	return nil
 }
 
 // Returns a new client for dapr.
 func NewConnection(_ context.Context, config interface{}) (connection.Connection, error) {
-	var cfg ClientConfig
-	m, ok := config.(map[string]interface{})
+	dClient := &Dapr{}
+	cfg, ok := config.(string)
 	if !ok {
 		return nil, fmt.Errorf("invalid type assertion, config is not in expected format")
 	}
-	cfg.Component, ok = m["component"].(string)
-	if !ok {
-		return nil, fmt.Errorf("failed to get value of component")
-	}
-
-	tmp, err := daprClient.NewClient()
+	err := json.Unmarshal([]byte(cfg), &dClient)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Dapr{
-		client:          tmp,
-		pubSubComponent: cfg.Component,
-	}, nil
+	dClient.client, err = daprClient.NewClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return dClient, nil
 }

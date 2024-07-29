@@ -5,10 +5,12 @@ import (
 
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub/connection"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub/dapr"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/pubsub/eventhub"
 )
 
 var pubSubs = newPubSubSet(map[string]InitiateConnection{
 	dapr.Name: dapr.NewConnection,
+	eventhub.Name: eventhub.NewConnection,
 },
 )
 

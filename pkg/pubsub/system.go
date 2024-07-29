@@ -19,19 +19,19 @@ func NewSystem() *System {
 	return &System{}
 }
 
-func (s *System) Publish(_ context.Context, connection string, topic string, msg interface{}) error {
+func (s *System) Publish(ctx context.Context, connection string, topic string, msg interface{}) error {
 	s.mux.RLock()
 	defer s.mux.RUnlock()
 	if len(s.connections) > 0 {
 		if c, ok := s.connections[connection]; ok {
-			return c.Publish(context.Background(), msg, topic)
+			return c.Publish(ctx, msg, topic)
 		}
 		return fmt.Errorf("connection is not initialized, name: %s ", connection)
 	}
 	return fmt.Errorf("No connections are established")
 }
 
-func (s *System) UpsertConnection(ctx context.Context, config interface{}, name string, provider string) error {
+func (s *System) UpsertConnection(ctx context.Context, config string, name string, provider string) error {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 	// Check if the connection already exists.

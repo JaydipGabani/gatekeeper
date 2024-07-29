@@ -99,6 +99,9 @@ MANAGER_IMAGE_PATCH := "apiVersion: apps/v1\
 \n        - --default-create-vap-for-templates=${GENERATE_VAP}\
 \n        - --default-create-vap-binding-for-constraints=${GENERATE_VAPBINDING}\
 \n        - --experimental-enable-k8s-native-validation\
+\n        - --enable-pub-sub=${ENABLE_PUBSUB}\
+\n        - --audit-connection=${AUDIT_CONNECTION}\
+\n        - --audit-channel=${AUDIT_CHANNEL}\
 \n"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)

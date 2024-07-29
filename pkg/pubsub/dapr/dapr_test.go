@@ -144,7 +144,7 @@ func TestDapr_UpdateConnection(t *testing.T) {
 				assert.True(t, ok)
 				tmp, ok := r.(*Dapr)
 				assert.True(t, ok)
-				assert.Equal(t, cmp, tmp.pubSubComponent)
+				assert.Equal(t, cmp, tmp.Component)
 			}
 		})
 	}

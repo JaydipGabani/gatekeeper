@@ -2,7 +2,6 @@ package pubsub
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 
@@ -118,13 +117,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, request reconcile.Request) (
 	if _, ok := cfg.Data["provider"]; !ok {
 		return reconcile.Result{}, fmt.Errorf(fmt.Sprintf("missing provider field in configmap %s, unable to configure respective pubsub", request.NamespacedName))
 	}
-	var config interface{}
-	err = json.Unmarshal([]byte(cfg.Data["config"]), &config)
-	if err != nil {
-		return reconcile.Result{}, err
-	}
 
-	err = r.system.UpsertConnection(ctx, config, request.Name, cfg.Data["provider"])
+	err = r.system.UpsertConnection(ctx, cfg.Data["config"], request.Name, cfg.Data["provider"])
 	if err != nil {
 		return reconcile.Result{}, err
 	}

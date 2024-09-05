@@ -4933,6 +4933,29 @@ spec:
     spec:
       automountServiceAccountToken: true
       containers:
+      - name: go-sub
+        image: jaydipgabani/fake-reader:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 999
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /tmp/violations
+          name: tmp-violations
       - args:
         - --operation=audit
         - --operation=status
@@ -4940,6 +4963,9 @@ spec:
         - --logtostderr
         - --disable-opa-builtin={http.send}
         - --disable-cert-rotation
+        - --enable-pub-sub=true
+        - --audit-connection=audit
+        - --audit-channel=audit
         command:
         - /manager
         env:
@@ -4961,7 +4987,7 @@ spec:
           value: manager
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(NAMESPACE),k8s.container.name=$(CONTAINER_NAME)
-        image: openpolicyagent/gatekeeper:v3.18.0-beta.0
+        image: jaydipgabani/gatekeeper-e2e:latest
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
@@ -5002,6 +5028,8 @@ spec:
           readOnly: true
         - mountPath: /tmp/audit
           name: tmp-volume
+        - mountPath: /tmp/violations
+          name: tmp-violations
       nodeSelector:
         kubernetes.io/os: linux
       priorityClassName: system-cluster-critical
@@ -5014,6 +5042,8 @@ spec:
           secretName: gatekeeper-webhook-server-cert
       - emptyDir: {}
         name: tmp-volume
+      - emptyDir: {}
+        name: tmp-violations
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -5080,7 +5110,7 @@ spec:
           value: manager
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(NAMESPACE),k8s.container.name=$(CONTAINER_NAME)
-        image: openpolicyagent/gatekeeper:v3.18.0-beta.0
+        image: jaydipgabani/gatekeeper-e2e:latest
         imagePullPolicy: Always
         livenessProbe:
           httpGet:

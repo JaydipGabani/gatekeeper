@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"sync"
@@ -21,6 +22,8 @@ type DiskWriter struct {
 const (
 	Name = "diskwriter"
 )
+
+var count int
 
 func (r *DiskWriter) Publish(_ context.Context, data interface{}, topic string) error {
 	jsonData, err := json.Marshal(data)
@@ -46,10 +49,14 @@ func (r *DiskWriter) Publish(_ context.Context, data interface{}, topic string) 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	_, err = file.WriteString(string(jsonData) + "\n")
+	_, err = file.WriteString(fmt.Sprint("Violation number: ", count, " ") + string(jsonData) + "\n")
 	if err != nil {
 		return fmt.Errorf("error publishing message to dapr: %w", err)
 	}
+
+	log.Printf("%d messages published", count)
+
+	count++
 
 	return nil
 }

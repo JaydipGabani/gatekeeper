@@ -490,7 +490,6 @@ release-manifest:
 .PHONY: version-docs
 version-docs:
 	@sed -i '10,$$c ${OPA_VERSIONS}' ./website/docs/opa-versions.md
-	@sed -i '/^$$/d' ./website/docs/opa-versions.md
 	docker run \
 		-v $(shell pwd)/website:/website \
 		-w /website \

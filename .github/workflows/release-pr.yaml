@@ -79,6 +79,7 @@ jobs:
       - if: github.event_name == 'push'
         run: |
           tags=$(git tag -l --sort=-v:refname)
+          echo "tags: $tags"
           versions=''
           for tag in $tags; do
             if echo "$tag" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then

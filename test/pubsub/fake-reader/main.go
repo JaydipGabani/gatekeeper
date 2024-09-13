@@ -29,6 +29,13 @@ type PubsubMsg struct {
 	ResourceLabels        map[string]string `json:"resourceLabels,omitempty"`
 }
 
+// Modifications for acturate simulation
+// varify if violation exists for a constraint owned by policy and then post it - add sleep (2s) for a batch size of 2k violations
+// hold 2k violations in variable - read from tmp-violations.txt
+// hold tmp file for previous violations
+// 2 files
+// 1 - GK publish violations
+// 1 - policy read violations
 func main() {
 	filePath := "/tmp/violations/violations.txt"
 

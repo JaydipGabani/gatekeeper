@@ -4908,8 +4908,8 @@ spec:
     gatekeeper.sh/operation: webhook
     gatekeeper.sh/system: "yes"
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   labels:
     control-plane: audit-controller
@@ -4918,12 +4918,6 @@ metadata:
   name: gatekeeper-audit
   namespace: gatekeeper-system
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      control-plane: audit-controller
-      gatekeeper.sh/operation: audit
-      gatekeeper.sh/system: "yes"
   template:
     metadata:
       labels:
@@ -4931,10 +4925,11 @@ spec:
         gatekeeper.sh/operation: audit
         gatekeeper.sh/system: "yes"
     spec:
+      restartPolicy: Never
       automountServiceAccountToken: true
       containers:
       - name: go-sub
-        image: jaydipgabani/fake-reader:latest
+        image: docker.io/jaydipgabani/fake-reader:latest
         imagePullPolicy: Always
         resources:
           limits:
@@ -4987,7 +4982,7 @@ spec:
           value: manager
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(NAMESPACE),k8s.container.name=$(CONTAINER_NAME)
-        image: jaydipgabani/gatekeeper-e2e:latest
+        image: docker.io/jaydipgabani/gatekeeper-e2e:latest
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
@@ -5045,8 +5040,8 @@ spec:
       - emptyDir: {}
         name: tmp-violations
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   labels:
     control-plane: controller-manager
@@ -5055,12 +5050,6 @@ metadata:
   name: gatekeeper-controller-manager
   namespace: gatekeeper-system
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      control-plane: controller-manager
-      gatekeeper.sh/operation: webhook
-      gatekeeper.sh/system: "yes"
   template:
     metadata:
       labels:
@@ -5068,6 +5057,7 @@ spec:
         gatekeeper.sh/operation: webhook
         gatekeeper.sh/system: "yes"
     spec:
+      restartPolicy: Never
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -5110,7 +5100,7 @@ spec:
           value: manager
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(NAMESPACE),k8s.container.name=$(CONTAINER_NAME)
-        image: jaydipgabani/gatekeeper-e2e:latest
+        image: docker.io/jaydipgabani/gatekeeper-e2e:latest
         imagePullPolicy: Always
         livenessProbe:
           httpGet:

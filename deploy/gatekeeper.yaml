@@ -4959,6 +4959,7 @@ spec:
         - --disable-opa-builtin={http.send}
         - --disable-cert-rotation
         - --enable-pub-sub=true
+        - --constraint-violations-limit=0
         - --audit-connection=audit
         - --audit-channel=audit
         command:

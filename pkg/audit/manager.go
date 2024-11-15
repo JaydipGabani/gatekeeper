@@ -903,9 +903,11 @@ func (am *Manager) addAuditResponsesToUpdateLists(
 		labels := r.obj.GetLabels()
 		logViolation(am.log, constraint, ea, r.ScopedEnforcementActions, gvk, namespace, name, msg, details, labels)
 		if *pubsubController.PubsubEnabled {
-			err := am.pubsubSystem.Publish(context.Background(), *auditConnection, *auditChannel, violationMsg(constraint, ea, r.ScopedEnforcementActions, gvk, namespace, name, msg, details, labels, timestamp))
-			if err != nil {
-				am.log.Error(err, "pubsub audit Publishing")
+			for i := 0; i < 100; i++ {
+				err := am.pubsubSystem.Publish(context.Background(), *auditConnection, *auditChannel, violationMsg(constraint, ea, r.ScopedEnforcementActions, gvk, namespace, name, msg, details, labels, timestamp))
+				if err != nil {
+					am.log.Error(err, "pubsub audit Publishing")
+				}
 			}
 		}
 		if *emitAuditEvents {

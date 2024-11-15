@@ -9,7 +9,7 @@ import (
 )
 
 var pubSubs = newPubSubSet(map[string]InitiateConnection{
-	dapr.Name: dapr.NewConnection,
+	dapr.Name:       dapr.NewConnection,
 	diskwriter.Name: diskwriter.NewConnection,
 },
 )

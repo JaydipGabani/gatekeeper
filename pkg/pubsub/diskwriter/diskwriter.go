@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"sync"
 	"syscall"
 	"time"
 

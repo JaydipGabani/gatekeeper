@@ -283,6 +283,12 @@ func (am *Manager) audit(ctx context.Context) error {
 	// record audit latency
 	defer func() {
 		logFinish(am.log)
+		if *pubsubController.PubsubEnabled {
+			err := am.pubsubSystem.Publish(context.Background(), *auditConnection, *auditChannel, "audit is completed")
+			if err != nil {
+				am.log.Error(err, "pubsub audit Publishing")
+			}
+		}
 		endTime := time.Now()
 		latency := endTime.Sub(startTime)
 		if err := am.reporter.reportLatency(latency); err != nil {

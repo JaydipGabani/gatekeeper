@@ -22,8 +22,6 @@ const (
 	Name = "diskwriter"
 )
 
-var count int
-
 func (r *DiskWriter) Publish(_ context.Context, data interface{}, _ string) error {
 	if msg, ok := data.(string); ok && msg == "audit is completed" {	
 		// release lock
@@ -57,14 +55,10 @@ func (r *DiskWriter) Publish(_ context.Context, data interface{}, _ string) erro
 		r.file = file
 	}
 	
-	_, err = r.file.WriteString(fmt.Sprint("Violation number: ", count, " ") + string(jsonData) + "\n")
+	_, err = r.file.WriteString(string(jsonData) + "\n")
 	if err != nil {
 		return fmt.Errorf("error publishing message to dapr: %w", err)
 	}
-	
-	log.Printf("%d messages published", count)
-	
-	count++
 
 	return nil
 }

@@ -4,8 +4,6 @@ metadata:
   name: pod-must-have-test
 spec:
   match:
-    scope: "Namespaced"
-    namespaces: [ "nginx" ]
     kinds:
     - apiGroups: [ "" ]
       kinds: [ "Pod" ]

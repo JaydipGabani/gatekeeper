@@ -38,7 +38,7 @@ func (r *DiskWriter) Publish(_ context.Context, data interface{}, _ string) erro
 	if r.file == nil {
         // Open a new file and acquire a lock
         filePath := path.Join(r.Path, "violations.txt")
-        file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
+        file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
         if err != nil {
             return fmt.Errorf("failed to open file: %w", err)
         }

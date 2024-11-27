@@ -20,8 +20,8 @@ func NewSystem() *System {
 }
 
 func (s *System) Publish(_ context.Context, connection string, topic string, msg interface{}) error {
-	s.mux.RLock()
-	defer s.mux.RUnlock()
+	s.mux.Lock()
+	defer s.mux.Unlock()
 	if len(s.connections) > 0 {
 		if c, ok := s.connections[connection]; ok {
 			return c.Publish(context.Background(), msg, topic)

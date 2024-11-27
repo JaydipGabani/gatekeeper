@@ -6,6 +6,6 @@ spec:
   match:
     kinds:
     - apiGroups: [ "" ]
-      kinds: [ "Pod" ]
+      kinds: [ "Namespace" ]
   parameters:
     labels: [ "test" ]

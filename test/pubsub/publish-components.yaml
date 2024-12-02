@@ -15,14 +15,13 @@
 #       name: redis
 #       key: redis-password
 # ---
-apiVersion: v1
-kind: ConfigMap
+apiVersion: connection.gatekeeper.sh/v1alpha1
+kind: Connection
 metadata:
   name: audit
   namespace: gatekeeper-system
-data:
-  provider: "diskwriter"
-  config: |
-    {
-      "path": "/tmp/violations"
-    }
+spec:
+  driver: "diskwriter"
+  config:
+    path: "/tmp/violations"
+

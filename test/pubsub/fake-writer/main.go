@@ -1,9 +1,9 @@
 package main
 
 import (
-    "fmt"
-    "os"
-    // "time"
+	"fmt"
+	"os"
+	// "time".
 	"syscall"
 )
 
@@ -32,7 +32,7 @@ func main() {
 	msgId := 1
 
 	for {
-		file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 		if err != nil {
 			fmt.Println("failed to open file: %w", err)
 		}
@@ -41,21 +41,21 @@ func main() {
 		if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX); err != nil {
 			fmt.Println("failed to lock file: %w", err)
 		}
-		
+
 		_, err = file.WriteString(fmt.Sprintf("violation_msg_", msgId) + "\n")
 		if err != nil {
 			fmt.Println("error publishing message to dapr: %w", err)
 		}
-		
-		// Release the lock
-        if err := syscall.Flock(int(file.Fd()), syscall.LOCK_UN); err != nil {
-            fmt.Println("Error unlocking file: %v\n", err)
-        }
 
-        // Close the file
-        if err := file.Close(); err != nil {
-            fmt.Println("Error closing file: %v\n", err)
-        }
+		// Release the lock
+		if err := syscall.Flock(int(file.Fd()), syscall.LOCK_UN); err != nil {
+			fmt.Println("Error unlocking file: %v\n", err)
+		}
+
+		// Close the file
+		if err := file.Close(); err != nil {
+			fmt.Println("Error closing file: %v\n", err)
+		}
 		fmt.Println("Published message: violation_msg_", msgId)
 		msgId++
 	}

@@ -2,11 +2,11 @@ package main
 
 import (
 	"bufio"
-    // "fmt"
-	"time"
-    "log"
-    "os"
+	"log"
+	"os"
 	"syscall"
+	// "fmt".
+	"time"
 )
 
 type PubsubMsg struct {
@@ -35,53 +35,53 @@ type PubsubMsg struct {
 // hold tmp file for previous violations
 // 2 files
 // 1 - GK publish violations
-// 1 - policy read violations
+// 1 - policy read violations.
 func main() {
 	filePath := "/tmp/violations/violations.txt"
 
 	for {
 		// Open the file in read-write mode
-        file, err := os.OpenFile(filePath, os.O_RDWR, 0644)
-        if err != nil {
-            log.Printf("Error opening file: %v\n", err)
+		file, err := os.OpenFile(filePath, os.O_RDWR, 0o644)
+		if err != nil {
+			log.Printf("Error opening file: %v\n", err)
 			time.Sleep(5 * time.Second)
 			continue
-        }
+		}
 
-        // Acquire an exclusive lock on the file
-        if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX); err != nil {
-            log.Fatalf("Error locking file: %v\n", err)
-        }
+		// Acquire an exclusive lock on the file
+		if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX); err != nil {
+			log.Fatalf("Error locking file: %v\n", err)
+		}
 
-        // Read the file content
-        scanner := bufio.NewScanner(file)
-        var lines []string
-        for scanner.Scan() {
-            lines = append(lines, scanner.Text())
-        }
+		// Read the file content
+		scanner := bufio.NewScanner(file)
+		var lines []string
+		for scanner.Scan() {
+			lines = append(lines, scanner.Text())
+		}
 
-        if err := scanner.Err(); err != nil {
-            log.Fatalf("Error reading file: %v\n", err)
-        }
+		if err := scanner.Err(); err != nil {
+			log.Fatalf("Error reading file: %v\n", err)
+		}
 
-        // Process the read content
-        for _, line := range lines {
-            log.Printf("Processed line: %s\n", line)
-        }
+		// Process the read content
+		for _, line := range lines {
+			log.Printf("Processed line: %s\n", line)
+		}
 
-        // Truncate the file to remove the processed content
-        if err := file.Truncate(0); err != nil {
-            log.Fatalf("Error truncating file: %v\n", err)
-        }
+		// Truncate the file to remove the processed content
+		if err := file.Truncate(0); err != nil {
+			log.Fatalf("Error truncating file: %v\n", err)
+		}
 
-        // Release the lock
-        if err := syscall.Flock(int(file.Fd()), syscall.LOCK_UN); err != nil {
-            log.Fatalf("Error unlocking file: %v\n", err)
-        }
+		// Release the lock
+		if err := syscall.Flock(int(file.Fd()), syscall.LOCK_UN); err != nil {
+			log.Fatalf("Error unlocking file: %v\n", err)
+		}
 
-        // Close the file
-        if err := file.Close(); err != nil {
-            log.Fatalf("Error closing file: %v\n", err)
-        }
+		// Close the file
+		if err := file.Close(); err != nil {
+			log.Fatalf("Error closing file: %v\n", err)
+		}
 	}
 }

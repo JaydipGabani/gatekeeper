@@ -13,8 +13,8 @@ import (
 )
 
 type DiskWriter struct {
-	Path    string `json:"path,omitempty"`
-	file   *os.File
+	Path string `json:"path,omitempty"`
+	file *os.File
 }
 
 const (
@@ -22,7 +22,7 @@ const (
 )
 
 func (r *DiskWriter) Publish(_ context.Context, data interface{}, _ string) error {
-	if msg, ok := data.(string); ok && msg == "audit is completed" {	
+	if msg, ok := data.(string); ok && msg == "audit is completed" {
 		// release lock
 		err := syscall.Flock(int(r.file.Fd()), syscall.LOCK_UN)
 		r.file.Close()
@@ -36,29 +36,29 @@ func (r *DiskWriter) Publish(_ context.Context, data interface{}, _ string) erro
 	}
 
 	if r.file == nil {
-        // Open a new file and acquire a lock
-        filePath := path.Join(r.Path, "violations.txt")
-        file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-        if err != nil {
-            return fmt.Errorf("failed to open file: %w", err)
-        }
+		// Open a new file and acquire a lock
+		filePath := path.Join(r.Path, "violations.txt")
+		file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+		if err != nil {
+			return fmt.Errorf("failed to open file: %w", err)
+		}
 
-        for {
-            err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX)
-            if err == nil {
-                break
-            }
-            time.Sleep(100 * time.Millisecond) // Sleep for a short duration before retrying
-        }
-		
+		for {
+			err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX)
+			if err == nil {
+				break
+			}
+			time.Sleep(100 * time.Millisecond) // Sleep for a short duration before retrying
+		}
+
 		r.file = file
 		err = r.file.Truncate(0)
 		if err != nil {
 			r.file = nil
-            return fmt.Errorf("failed to truncate file: %w", err)
-        }
+			return fmt.Errorf("failed to truncate file: %w", err)
+		}
 	}
-	
+
 	_, err = r.file.WriteString(string(jsonData) + "\n")
 	if err != nil {
 		return fmt.Errorf("error publishing message to dapr: %w", err)
@@ -87,11 +87,11 @@ func (r *DiskWriter) UpdateConnection(_ context.Context, _ interface{}) error {
 // Returns a new client for dapr.
 func NewConnection(_ context.Context, config interface{}) (connection.Connection, error) {
 	var diskWriter DiskWriter
-	m, ok := config.(map[string]interface{})
+	m, ok := config.(map[string]string)
 	if !ok {
 		return nil, fmt.Errorf("invalid type assertion, config is not in expected format")
 	}
-	diskWriter.Path, ok = m["path"].(string)
+	diskWriter.Path, ok = m["path"]
 	if !ok {
 		return nil, fmt.Errorf("failed to get value of path")
 	}

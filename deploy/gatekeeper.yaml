@@ -2510,6 +2510,87 @@ metadata:
     controller-gen.kubebuilder.io/version: v0.14.0
   labels:
     gatekeeper.sh/system: "yes"
+  name: connections.connection.gatekeeper.sh
+spec:
+  group: connection.gatekeeper.sh
+  names:
+    kind: Connection
+    listKind: ConnectionList
+    plural: connections
+    singular: connection
+  preserveUnknownFields: false
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Connection is the Schema for the configs API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ConnectionSpec is the configuration for the pubsub connection.
+            properties:
+              config:
+                additionalProperties:
+                  type: string
+                type: object
+              driver:
+                description: |-
+                  Provider is the name of the pubsub provider
+                  dapr/rabbitmq/redis/nats/
+                type: string
+            type: object
+          status:
+            description: ConnectionStatus defines the observed state of Config.
+            properties:
+              byPod:
+                items:
+                  properties:
+                    errors:
+                      items:
+                        properties:
+                          message:
+                            type: string
+                          type:
+                            type: string
+                        required:
+                        - message
+                        - type
+                        type: object
+                      type: array
+                    id:
+                      description: a unique identifier for the pod that wrote the status
+                      type: string
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.14.0
+  labels:
+    gatekeeper.sh/system: "yes"
   name: constraintpodstatuses.status.gatekeeper.sh
 spec:
   group: status.gatekeeper.sh
@@ -4741,6 +4822,18 @@ rules:
   - patch
   - update
 - apiGroups:
+  - connection.gatekeeper.sh
+  resources:
+  - '*'
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - constraints.gatekeeper.sh
   resources:
   - '*'
@@ -4958,7 +5051,7 @@ spec:
         - --logtostderr
         - --disable-opa-builtin={http.send}
         - --disable-cert-rotation
-        - --enable-pub-sub=false
+        - --enable-pub-sub=true
         - --constraint-violations-limit=0
         - --audit-connection=audit
         - --audit-channel=audit

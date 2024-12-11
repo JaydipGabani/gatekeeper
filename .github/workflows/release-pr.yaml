@@ -94,7 +94,7 @@ jobs:
               | jq -r '[.[] | select(.prerelease == false) | .tag_name] | map(select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))) | .[:3] | map(ltrimstr("v")) | map("\"" + . + "\"") | join(", ")')
 
           # Update the workflow.yaml file with the latest versions
-          sed -i "s/KUBERNETES_VERSION: \[.*\]/KUBERNETES_VERSION: \[$latest_versions\]/" workflow.yaml
+          sed -i "s/KUBERNETES_VERSION: \[.*\]/KUBERNETES_VERSION: \[$latest_versions\]/" .github/workflows/workflow.yaml
 
       - name: Create release pull request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5

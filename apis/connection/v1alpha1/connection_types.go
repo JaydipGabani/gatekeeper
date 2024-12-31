@@ -53,6 +53,7 @@ type Connection struct {
 	Spec   ConnectionSpec   `json:"spec,omitempty"`
 	Status ConnectionStatus `json:"status,omitempty"`
 }
+
 // +kubebuilder:object:root=true
 
 // ConnectionList contains a list of Config.

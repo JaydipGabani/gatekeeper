@@ -2,6 +2,8 @@ package diskwriter
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -13,8 +15,11 @@ import (
 )
 
 type DiskWriter struct {
-	Path string `json:"path,omitempty"`
-	file *os.File
+	Path              string `json:"path,omitempty"`
+	file              *os.File
+	auditRuns         []string
+	currentAuditRun string
+	auditRunCount   int
 }
 
 const (
@@ -27,7 +32,18 @@ func (r *DiskWriter) Publish(_ context.Context, data interface{}, _ string) erro
 		err := syscall.Flock(int(r.file.Fd()), syscall.LOCK_UN)
 		r.file.Close()
 		r.file = nil
+		r.auditRuns = append(r.auditRuns, r.currentAuditRun)
+		r.currentAuditRun = ""
+		if len(r.auditRuns) > 3 {
+			os.Remove(r.auditRuns[0])
+			r.auditRuns = r.auditRuns[1:]
+		}
+		r.auditRunCount++
 		return err
+	}
+
+	if r.currentAuditRun == "" {
+		r.currentAuditRun = generateRandomFileName() + ".txt"
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -37,7 +53,7 @@ func (r *DiskWriter) Publish(_ context.Context, data interface{}, _ string) erro
 
 	if r.file == nil {
 		// Open a new file and acquire a lock
-		filePath := path.Join(r.Path, "violations.txt")
+		filePath := path.Join(r.Path, r.currentAuditRun)
 		file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 		if err != nil {
 			return fmt.Errorf("failed to open file: %w", err)
@@ -59,7 +75,7 @@ func (r *DiskWriter) Publish(_ context.Context, data interface{}, _ string) erro
 		}
 	}
 
-	_, err = r.file.WriteString(string(jsonData) + "\n")
+	_, err = r.file.WriteString(fmt.Sprintf("Audit ID :%d", r.auditRunCount) + string(jsonData) + "\n")
 	if err != nil {
 		return fmt.Errorf("error publishing message to dapr: %w", err)
 	}
@@ -96,4 +112,13 @@ func NewConnection(_ context.Context, config interface{}) (connection.Connection
 		return nil, fmt.Errorf("failed to get value of path")
 	}
 	return &diskWriter, nil
+}
+
+func generateRandomFileName() string {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(b)
 }

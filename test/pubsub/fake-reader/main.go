@@ -2,10 +2,11 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"syscall"
-	// "fmt".
 	"time"
 )
 
@@ -37,11 +38,19 @@ type PubsubMsg struct {
 // 1 - GK publish violations
 // 1 - policy read violations.
 func main() {
-	filePath := "/tmp/violations/violations.txt"
+	dirPath := "/tmp/violations/"
 
 	for {
+		// Find the latest created file in dirPath
+		latestFile, files, err := getLatestFile(dirPath)
+		if err != nil {
+			log.Printf("Error finding latest file: %v\n", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		log.Printf("out of all files: %v, reading from the %s \n", files, latestFile)
 		// Open the file in read-write mode
-		file, err := os.OpenFile(filePath, os.O_RDWR, 0o644)
+		file, err := os.OpenFile(latestFile, os.O_RDWR, 0o644)
 		if err != nil {
 			log.Printf("Error opening file: %v\n", err)
 			time.Sleep(5 * time.Second)
@@ -69,11 +78,6 @@ func main() {
 			log.Printf("Processed line: %s\n", line)
 		}
 
-		// Truncate the file to remove the processed content
-		if err := file.Truncate(0); err != nil {
-			log.Fatalf("Error truncating file: %v\n", err)
-		}
-
 		// Release the lock
 		if err := syscall.Flock(int(file.Fd()), syscall.LOCK_UN); err != nil {
 			log.Fatalf("Error unlocking file: %v\n", err)
@@ -83,5 +87,35 @@ func main() {
 		if err := file.Close(); err != nil {
 			log.Fatalf("Error closing file: %v\n", err)
 		}
+		time.Sleep(90 * time.Second)
 	}
+}
+
+func getLatestFile(dirPath string) (string, []string, error) {
+	var latestFile string
+	var latestModTime time.Time
+	var files []string
+
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && (latestFile == "" || info.ModTime().After(latestModTime)) {
+			latestFile = path
+			latestModTime = info.ModTime()
+		}
+		if !info.IsDir() {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return "", files, err
+	}
+
+	if latestFile == "" {
+		return "", files, fmt.Errorf("no files found in directory: %s", dirPath)
+	}
+
+	return latestFile, files, nil
 }

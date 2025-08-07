@@ -100,7 +100,7 @@ func TestReconcile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := newReconciler(mgr, cfClient, pc, tracker)
+	rec := newReconciler(mgr, cfClient, pc, tracker, nil, NewStatsReporter())
 
 	recFn, requests := SetupTestReconcile(rec)
 	err = add(mgr, recFn)

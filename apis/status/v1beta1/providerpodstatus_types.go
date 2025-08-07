@@ -38,13 +38,13 @@ type ProviderPodStatusStatus struct {
 	// Storing the provider UID allows us to detect drift, such as
 	// when a provider has been recreated after its CRD was deleted
 	// out from under it, interrupting the watch
-	ProviderUID        types.UID      `json:"providerUID,omitempty"`
-	Active             bool           `json:"active,omitempty"`
-	Errors             []ProviderError `json:"errors,omitempty"`
-	Operations         []string       `json:"operations,omitempty"`
-	LastTransitionTime *metav1.Time   `json:"lastTransitionTime,omitempty"`
-	LastCacheUpdateTime *metav1.Time  `json:"lastCacheUpdateTime,omitempty"`
-	ObservedGeneration int64          `json:"observedGeneration,omitempty"`
+	ProviderUID         types.UID       `json:"providerUID,omitempty"`
+	Active              bool            `json:"active,omitempty"`
+	Errors              []ProviderError `json:"errors,omitempty"`
+	Operations          []string        `json:"operations,omitempty"`
+	LastTransitionTime  *metav1.Time    `json:"lastTransitionTime,omitempty"`
+	LastCacheUpdateTime *metav1.Time    `json:"lastCacheUpdateTime,omitempty"`
+	ObservedGeneration  int64           `json:"observedGeneration,omitempty"`
 }
 
 // ProviderError represents errors encountered while managing providers.

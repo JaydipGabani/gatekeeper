@@ -18,10 +18,9 @@ package providerstatus
 import (
 	"context"
 	"fmt"
-	"sort"
 
 	"github.com/go-logr/logr"
-	externaldatav1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/externaldata/v1beta1"
+	frameworksv1beta1 "github.com/open-policy-agent/frameworks/constraint/pkg/apis/externaldata/v1beta1"
 	"github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/logging"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
@@ -29,6 +28,7 @@ import (
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -40,8 +40,7 @@ import (
 
 var log = logf.Log.WithName("controller").WithValues(logging.Process, "provider_status_controller")
 
-type Adder struct {
-}
+type Adder struct{}
 
 func (a *Adder) InjectTracker(_ *readiness.Tracker) {}
 
@@ -86,15 +85,15 @@ func PodStatusToProviderMapper(selfOnly bool, packerMap handler.MapFunc) handler
 				return nil
 			}
 		}
-		provider := &externaldatav1beta1.Provider{}
+		provider := &frameworksv1beta1.Provider{}
 		provider.SetName(name)
 		return packerMap(ctx, provider)
 	}
 }
 
-func eventPackerMapFunc() handler.TypedMapFunc[*externaldatav1beta1.Provider, reconcile.Request] {
+func eventPackerMapFunc() handler.TypedMapFunc[*frameworksv1beta1.Provider, reconcile.Request] {
 	mf := util.EventPackerMapFunc()
-	return func(ctx context.Context, obj *externaldatav1beta1.Provider) []reconcile.Request {
+	return func(ctx context.Context, obj *frameworksv1beta1.Provider) []reconcile.Request {
 		return mf(ctx, obj)
 	}
 }
@@ -118,7 +117,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 	// Watch for changes to Provider
 	err = c.Watch(
-		source.Kind(mgr.GetCache(), &externaldatav1beta1.Provider{},
+		source.Kind(mgr.GetCache(), &frameworksv1beta1.Provider{},
 			handler.TypedEnqueueRequestsFromMapFunc(eventPackerMapFunc())))
 	if err != nil {
 		return err
@@ -141,8 +140,9 @@ type ReconcileProviderStatus struct {
 // +kubebuilder:rbac:groups=externaldata.gatekeeper.sh,resources=*,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=status.gatekeeper.sh,resources=*,verbs=get;list;watch;create;update;patch;delete
 
-// Reconcile reads that state of the cluster for a Provider object and makes changes based on the state read
-// and what is in the Provider.Spec.
+// Reconcile reads that state of the cluster for ProviderPodStatus objects and reports metrics
+// based on the current state. Since the Provider CRD from frameworks doesn't have status,
+// we focus on aggregating metrics from the pod status objects.
 func (r *ReconcileProviderStatus) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	gvk, unpackedRequest, err := util.UnpackRequest(request)
 	if err != nil {
@@ -151,70 +151,87 @@ func (r *ReconcileProviderStatus) Reconcile(ctx context.Context, request reconci
 		return reconcile.Result{}, nil
 	}
 
-	// Sanity - make sure it is a provider resource.
-	if gvk.Group != v1beta1.ExternalDataGroup {
+	// Handle both Provider and ProviderPodStatus resources
+	if gvk.Group == v1beta1.ExternalDataGroup {
+		// This is a Provider resource - check if it still exists
+		instance := &frameworksv1beta1.Provider{}
+		if err := r.reader.Get(ctx, unpackedRequest.NamespacedName, instance); err != nil {
+			if errors.IsNotFound(err) {
+				// Provider was deleted, clean up associated pod status objects
+				r.cleanupProviderPodStatuses(ctx, unpackedRequest.Name)
+				return reconcile.Result{}, nil
+			}
+			return reconcile.Result{}, err
+		}
+
+		r.log.Info("handling provider for status aggregation", "provider", instance.Name)
+
+		// Aggregate status from all pods for this provider
+		r.aggregateProviderStatus(ctx, instance.Name, instance.GetUID())
+	} else {
 		// Unrecoverable, do not retry.
-		log.Error(err, "invalid provider GroupVersion", "gvk", gvk, "name", unpackedRequest.NamespacedName)
+		log.Error(fmt.Errorf("invalid resource group: %s", gvk.Group), "invalid group", "gvk", gvk, "name", unpackedRequest.NamespacedName)
 		return reconcile.Result{}, nil
-	}
-
-	instance := &externaldatav1beta1.Provider{}
-	if err := r.reader.Get(ctx, unpackedRequest.NamespacedName, instance); err != nil {
-		// If the provider does not exist, we are done
-		if errors.IsNotFound(err) {
-			return reconcile.Result{}, nil
-		}
-		return reconcile.Result{}, err
-	}
-
-	r.log.Info("handling provider status update", "instance", instance)
-
-	sObjs := &v1beta1.ProviderPodStatusList{}
-	if err := r.reader.List(
-		ctx,
-		sObjs,
-		client.MatchingLabels{
-			v1beta1.ProviderNameLabel: instance.GetName(),
-		},
-		client.InNamespace(util.GetNamespace()),
-	); err != nil {
-		return reconcile.Result{}, err
-	}
-
-	statusObjs := make(sortableStatuses, len(sObjs.Items))
-	copy(statusObjs, sObjs.Items)
-	sort.Sort(statusObjs)
-
-	var s []v1beta1.ProviderPodStatusStatus
-	for i := range statusObjs {
-		// Don't report status if it's not for the correct object. This can happen
-		// if a watch gets interrupted, causing the provider status to be deleted
-		// out from underneath it
-		if statusObjs[i].Status.ProviderUID != instance.GetUID() {
-			continue
-		}
-		s = append(s, statusObjs[i].Status)
-	}
-
-	instance.Status.ByPod = s
-
-	if err = r.statusClient.Status().Update(ctx, instance); err != nil {
-		return reconcile.Result{Requeue: true}, nil
 	}
 
 	return reconcile.Result{}, nil
 }
 
-type sortableStatuses []v1beta1.ProviderPodStatus
+// aggregateProviderStatus aggregates status from all ProviderPodStatus objects for a provider.
+func (r *ReconcileProviderStatus) aggregateProviderStatus(ctx context.Context, providerName string, providerUID types.UID) {
+	sObjs := &v1beta1.ProviderPodStatusList{}
+	if err := r.reader.List(
+		ctx,
+		sObjs,
+		client.MatchingLabels{
+			v1beta1.ProviderNameLabel: providerName,
+		},
+		client.InNamespace(util.GetNamespace()),
+	); err != nil {
+		log.Error(err, "failed to list provider pod status objects", "provider", providerName)
+		return
+	}
 
-func (s sortableStatuses) Len() int {
-	return len(s)
+	activeCount := 0
+	errorCount := 0
+
+	for i := range sObjs.Items {
+		status := &sObjs.Items[i]
+		// Only count status objects for the current provider instance
+		if status.Status.ProviderUID != providerUID {
+			continue
+		}
+
+		if status.Status.Active {
+			activeCount++
+		} else {
+			errorCount++
+		}
+	}
+
+	// TODO: Report metrics when we have a metrics reporter
+	log.Info("provider status aggregated", "provider", providerName, "active", activeCount, "error", errorCount)
 }
 
-func (s sortableStatuses) Less(i, j int) bool {
-	return s[i].Status.ID < s[j].Status.ID
-}
+// cleanupProviderPodStatuses removes all ProviderPodStatus objects for a deleted provider.
+func (r *ReconcileProviderStatus) cleanupProviderPodStatuses(ctx context.Context, providerName string) {
+	sObjs := &v1beta1.ProviderPodStatusList{}
+	if err := r.reader.List(
+		ctx,
+		sObjs,
+		client.MatchingLabels{
+			v1beta1.ProviderNameLabel: providerName,
+		},
+		client.InNamespace(util.GetNamespace()),
+	); err != nil {
+		log.Error(err, "failed to list provider pod status objects for cleanup", "provider", providerName)
+		return
+	}
 
-func (s sortableStatuses) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
+	for i := range sObjs.Items {
+		status := &sObjs.Items[i]
+		if err := r.writer.Delete(ctx, status); err != nil {
+			log.Error(err, "failed to delete provider pod status", "status", status.Name)
+		}
+	}
 }

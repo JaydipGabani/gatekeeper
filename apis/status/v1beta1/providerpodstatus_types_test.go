@@ -117,7 +117,7 @@ func TestProviderPodStatusDeepCopy(t *testing.T) {
 	}
 
 	copy := original.DeepCopy()
-	
+
 	// Verify the copy is independent
 	assert.Equal(t, original.Name, copy.Name)
 	assert.Equal(t, original.Status.ID, copy.Status.ID)
@@ -128,7 +128,7 @@ func TestProviderPodStatusDeepCopy(t *testing.T) {
 	// Modify copy and ensure original is unchanged
 	copy.Status.Active = false
 	copy.Status.Errors[0].Message = "modified"
-	
+
 	assert.True(t, original.Status.Active)
 	assert.Equal(t, "test error", original.Status.Errors[0].Message)
 }

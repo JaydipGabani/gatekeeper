@@ -1,0 +1,159 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sazurerbacauthorization
+  annotations:
+    metadata.gatekeeper.sh/title: "Azure RBAC Authorization"
+    metadata.gatekeeper.sh/version: 1.0.0
+    description: >-
+      Enforces authorization decisions based on Azure RBAC with ABAC conditions.
+      This constraint template evaluates SubjectAccessReview requests against
+      Azure RBAC policies using the external data provider.
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sAzureRBACAuthorization
+      validation:
+        openAPIV3Schema:
+          type: object
+          description: >-
+            K8sAzureRBACAuthorization evaluates Kubernetes authorization requests
+            against Azure RBAC with ABAC conditions support.
+          properties:
+            azureResourceId:
+              type: string
+              description: "The Azure resource ID of the AKS cluster"
+            allowedNamespacePrefixes:
+              type: array
+              items:
+                type: string
+              description: "Namespace prefixes that are allowed (e.g., 'kube-')"
+            deniedNamespaces:
+              type: array
+              items:
+                type: string
+              description: "Specific namespaces that are always denied"
+            allowedOperations:
+              type: array
+              items:
+                type: object
+                properties:
+                  verbs:
+                    type: array
+                    items:
+                      type: string
+                  resources:
+                    type: array
+                    items:
+                      type: string
+              description: "Operations that are allowed when Azure RBAC permits"
+  targets:
+    - target: authorization.k8s.gatekeeper.sh
+      rego: |
+        package k8sazurerbacauthorization
+
+        import future.keywords.if
+        import future.keywords.in
+
+        # Deny if namespace is in the denied list
+        violation[{"msg": msg}] if {
+          namespace := input.review.resourceAttributes.namespace
+          namespace in input.parameters.deniedNamespaces
+          msg := sprintf("Access denied to namespace '%v' - namespace is in deny list", [namespace])
+        }
+
+        # Deny if namespace doesn't match allowed prefixes (when prefixes are specified)
+        violation[{"msg": msg}] if {
+          count(input.parameters.allowedNamespacePrefixes) > 0
+          namespace := input.review.resourceAttributes.namespace
+          namespace != ""
+          not namespace_allowed(namespace)
+          msg := sprintf("Access denied to namespace '%v' - does not match allowed prefixes", [namespace])
+        }
+
+        # Check if namespace matches any allowed prefix
+        namespace_allowed(ns) if {
+          prefix := input.parameters.allowedNamespacePrefixes[_]
+          startswith(ns, prefix)
+        }
+
+        # Deny if operation is not in the allowed list (when list is specified)
+        violation[{"msg": msg}] if {
+          count(input.parameters.allowedOperations) > 0
+          not operation_allowed
+          verb := input.review.resourceAttributes.verb
+          resource := input.review.resourceAttributes.resource
+          msg := sprintf("Operation '%v' on resource '%v' is not allowed", [verb, resource])
+        }
+
+        # Check if the operation matches any allowed operation
+        operation_allowed if {
+          op := input.parameters.allowedOperations[_]
+          verb_matches(op.verbs, input.review.resourceAttributes.verb)
+          resource_matches(op.resources, input.review.resourceAttributes.resource)
+        }
+
+        verb_matches(verbs, verb) if {
+          "*" in verbs
+        }
+
+        verb_matches(verbs, verb) if {
+          verb in verbs
+        }
+
+        resource_matches(resources, resource) if {
+          "*" in resources
+        }
+
+        resource_matches(resources, resource) if {
+          resource in resources
+        }
+
+        # Call Azure RBAC via external data for additional validation
+        violation[{"msg": msg}] if {
+          # Only check Azure RBAC if azure_resource_id is configured
+          input.parameters.azureResourceId != ""
+          
+          # Build the Azure RBAC request
+          azure_request := {
+            "user": input.review.user,
+            "groups": input.review.groups,
+            "oid": input.review.extra.oid[0],
+            "namespace": input.review.resourceAttributes.namespace,
+            "group": input.review.resourceAttributes.group,
+            "resource": input.review.resourceAttributes.resource,
+            "subresource": input.review.resourceAttributes.subresource,
+            "verb": input.review.resourceAttributes.verb
+          }
+
+          # Call the Azure RBAC external data provider
+          response := external_data({"provider": "azure-rbac-provider", "keys": [azure_request]})
+          
+          # Check if Azure RBAC denied the request
+          response.errors[azure_request]
+          msg := sprintf("Azure RBAC denied: %v", [response.errors[azure_request]])
+        }
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAzureRBACAuthorization
+metadata:
+  name: azure-rbac-pod-access
+spec:
+  enforcementAction: deny
+  match:
+    # Match criteria for authorization requests
+    resources:
+      - apiGroups: [""]
+        resources: ["pods"]
+        verbs: ["get", "list", "watch"]
+  parameters:
+    # Allow access to namespaces starting with 'kube-' but not kube-system
+    allowedNamespacePrefixes:
+      - "kube-"
+    deniedNamespaces:
+      - "kube-system"
+    # Only allow read operations on pods
+    allowedOperations:
+      - verbs: ["get", "list", "watch"]
+        resources: ["pods"]

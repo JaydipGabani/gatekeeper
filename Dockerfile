@@ -19,7 +19,7 @@ COPY . .
 RUN \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    go build -a -ldflags "${LDFLAGS}" -o manager
+    go build -mod=vendor -a -ldflags "${LDFLAGS}" -o manager
 
 FROM gcr.io/distroless/static-debian12@sha256:cd64bec9cec257044ce3a8dd3620cf83b387920100332f2b041f19c4d2febf93
 

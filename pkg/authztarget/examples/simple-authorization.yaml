@@ -1,0 +1,107 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8ssimpleauthorization
+  annotations:
+    metadata.gatekeeper.sh/title: "Simple Authorization (No External Data)"
+    metadata.gatekeeper.sh/version: 1.0.0
+    description: >-
+      A simple authorization policy using pure Rego - no external data required.
+      Demonstrates how to make authorization decisions based solely on the
+      SubjectAccessReview request attributes.
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sSimpleAuthorization
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            deniedUsers:
+              type: array
+              items:
+                type: string
+              description: "Users that are always denied"
+            deniedNamespaces:
+              type: array
+              items:
+                type: string
+              description: "Namespaces that are protected from all access"
+            readOnlyGroups:
+              type: array
+              items:
+                type: string
+              description: "Groups that can only perform read operations"
+            adminGroups:
+              type: array
+              items:
+                type: string
+              description: "Groups with full admin access (bypass all checks)"
+  targets:
+    - target: authorization.k8s.gatekeeper.sh
+      rego: |
+        package k8ssimpleauthorization
+
+        # Deny specific users
+        violation[{"msg": msg}] {
+          input.review.user == input.parameters.deniedUsers[_]
+          not is_admin
+          msg := sprintf("User '%v' is not authorized", [input.review.user])
+        }
+
+        # Deny access to protected namespaces
+        violation[{"msg": msg}] {
+          ns := input.review.resourceAttributes.namespace
+          ns == input.parameters.deniedNamespaces[_]
+          not is_admin
+          msg := sprintf("Namespace '%v' is protected", [ns])
+        }
+
+        # Read-only groups can only GET, LIST, WATCH
+        violation[{"msg": msg}] {
+          is_readonly_group
+          not is_admin
+          verb := input.review.resourceAttributes.verb
+          not readonly_verb(verb)
+          msg := sprintf("Group has read-only access, cannot perform '%v'", [verb])
+        }
+
+        # Helper: check read-only verbs
+        readonly_verb("get") = true
+        readonly_verb("list") = true
+        readonly_verb("watch") = true
+
+        # Helper: check if user is in admin group
+        is_admin {
+          group := input.review.groups[_]
+          group == input.parameters.adminGroups[_]
+        }
+
+        # Helper: check if user is in read-only group
+        is_readonly_group {
+          group := input.review.groups[_]
+          group == input.parameters.readOnlyGroups[_]
+        }
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sSimpleAuthorization
+metadata:
+  name: demo-authorization-policy
+spec:
+  enforcementAction: deny
+  match:
+    source: Authorization
+  parameters:
+    deniedUsers:
+      - "bad-actor@example.com"
+      - "former-employee@example.com"
+    deniedNamespaces:
+      - "kube-system"
+      - "gatekeeper-system"
+    readOnlyGroups:
+      - "viewers"
+      - "auditors"
+    adminGroups:
+      - "cluster-admins"
+      - "platform-team"

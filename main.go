@@ -59,6 +59,7 @@ import (
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness/pruner"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/syncutil"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/authztarget"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/target"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/upgrade"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
@@ -426,7 +427,7 @@ func setupControllers(ctx context.Context, mgr ctrl.Manager, tracker *readiness.
 		mutationOpts.ClientCertWatcher = certWatcher
 	}
 
-	cfArgs := []constraintclient.Opt{constraintclient.Targets(&target.K8sValidationTarget{})}
+	cfArgs := []constraintclient.Opt{constraintclient.Targets(&target.K8sValidationTarget{}, &authztarget.K8sAuthorizationTarget{})}
 
 	if *enableK8sCel {
 		k8sDriver, err := k8scel.New()

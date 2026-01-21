@@ -1,0 +1,33 @@
+# Kind cluster configuration for OIDC POC
+# This config sets up a cluster that can be configured for OIDC authentication
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: oidc-poc
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        # Uncomment and configure these for OIDC authentication
+        # oidc-issuer-url: "https://dex.example.com"
+        # oidc-client-id: "kubernetes"
+        # oidc-username-claim: "email"
+        # oidc-groups-claim: "groups"
+        # For verbose audit logging (helpful for debugging)
+        audit-log-path: /var/log/kubernetes/audit.log
+        audit-policy-file: /etc/kubernetes/audit-policy.yaml
+      extraVolumes:
+      - name: audit-policy
+        hostPath: /etc/kubernetes/audit-policy.yaml
+        mountPath: /etc/kubernetes/audit-policy.yaml
+        readOnly: true
+      - name: audit-logs
+        hostPath: /var/log/kubernetes
+        mountPath: /var/log/kubernetes
+  extraMounts:
+  - hostPath: ./audit-policy.yaml
+    containerPath: /etc/kubernetes/audit-policy.yaml
+- role: worker
+- role: worker

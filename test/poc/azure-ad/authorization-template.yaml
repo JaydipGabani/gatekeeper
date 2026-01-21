@@ -1,0 +1,257 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sazureadauthorization
+  annotations:
+    metadata.gatekeeper.sh/title: "Azure AD User Authorization"
+    metadata.gatekeeper.sh/version: "1.0.0"
+    description: "Enforces authorization based on Azure AD user attributes retrieved via External Data"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sAzureADAuthorization
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            requiredGroups:
+              type: array
+              items:
+                type: string
+              description: "Azure AD groups required (display names). User must be in at least one."
+            requiredGroupIDs:
+              type: array
+              items:
+                type: string
+              description: "Azure AD group Object IDs required. User must be in at least one."
+            requiredAuthzLevel:
+              type: string
+              enum: ["read", "write", "admin"]
+              description: "Minimum authorization level required"
+            allowedDepartments:
+              type: array
+              items:
+                type: string
+              description: "Azure AD departments allowed to perform this action"
+            allowedJobTitles:
+              type: array
+              items:
+                type: string
+              description: "Azure AD job titles allowed to perform this action"
+            denyDisabledAccounts:
+              type: boolean
+              default: true
+              description: "Deny access if Azure AD account is disabled"
+            allowServiceAccounts:
+              type: boolean
+              default: true
+              description: "Allow Kubernetes service accounts to bypass Azure AD checks"
+            message:
+              type: string
+              description: "Custom message to include in violation"
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sazureadauthorization
+
+        import future.keywords.in
+
+        # Get user identifier from admission request
+        # AKS with Azure AD sets username to UPN (user@tenant.onmicrosoft.com)
+        # or Object ID depending on configuration
+        user_id := input.review.userInfo.username
+
+        # Check if this is a Kubernetes service account
+        is_service_account {
+          startswith(user_id, "system:serviceaccount:")
+        }
+
+        # Skip Azure AD check for service accounts if allowed
+        skip_azure_ad_check {
+          is_service_account
+          input.parameters.allowServiceAccounts == true
+        }
+
+        # Call Azure AD External Data Provider
+        # Only called if we're not skipping the check
+        azure_ad_response := external_data.gatekeeper["azure-ad-provider"] {
+          not skip_azure_ad_check
+        }
+
+        # Extract user data from response
+        user_data := azure_ad_response.response.items[0].value {
+          not skip_azure_ad_check
+          azure_ad_response.response.items[0].key == user_id
+          not azure_ad_response.response.items[0].error
+        }
+
+        # Check if external data call failed
+        external_data_error := azure_ad_response.response.items[0].error {
+          not skip_azure_ad_check
+          azure_ad_response.response.items[0].error != ""
+        }
+
+        # System error from provider
+        system_error := azure_ad_response.response.systemError {
+          not skip_azure_ad_check
+          azure_ad_response.response.systemError != ""
+        }
+
+        # Authorization level hierarchy
+        authz_levels := {
+          "read": 1,
+          "write": 2,
+          "admin": 3
+        }
+
+        # Helper: Get custom message
+        custom_message := msg {
+          msg := input.parameters.message
+        }
+        custom_message := "" {
+          not input.parameters.message
+        }
+
+        # Helper: Check if user has required authorization level
+        has_required_authz_level {
+          not input.parameters.requiredAuthzLevel
+        }
+        has_required_authz_level {
+          required := input.parameters.requiredAuthzLevel
+          user_level := user_data.authzLevel
+          authz_levels[user_level] >= authz_levels[required]
+        }
+
+        # Helper: Check if user is in required groups (by display name)
+        has_required_groups {
+          count(object.get(input.parameters, "requiredGroups", [])) == 0
+        }
+        has_required_groups {
+          required := {g | g := input.parameters.requiredGroups[_]}
+          user_groups := {g | g := user_data.groups[_]}
+          count(required & user_groups) > 0
+        }
+
+        # Helper: Check if user is in required group IDs
+        has_required_group_ids {
+          count(object.get(input.parameters, "requiredGroupIDs", [])) == 0
+        }
+        has_required_group_ids {
+          required := {g | g := input.parameters.requiredGroupIDs[_]}
+          user_groups := {g | g := user_data.groupIds[_]}
+          count(required & user_groups) > 0
+        }
+
+        # Helper: Check if user is in allowed departments
+        in_allowed_department {
+          count(object.get(input.parameters, "allowedDepartments", [])) == 0
+        }
+        in_allowed_department {
+          user_data.department in input.parameters.allowedDepartments
+        }
+
+        # Helper: Check if user has allowed job title
+        has_allowed_job_title {
+          count(object.get(input.parameters, "allowedJobTitles", [])) == 0
+        }
+        has_allowed_job_title {
+          user_data.jobTitle in input.parameters.allowedJobTitles
+        }
+
+        # Helper: Check if account is enabled
+        account_is_enabled {
+          not object.get(input.parameters, "denyDisabledAccounts", true)
+        }
+        account_is_enabled {
+          user_data.accountEnabled == true
+        }
+
+        # Violation: System error from provider
+        violation[{"msg": msg}] {
+          not skip_azure_ad_check
+          system_error
+          msg := sprintf("Azure AD provider system error: %s. %s", [system_error, custom_message])
+        }
+
+        # Violation: External data call failed
+        violation[{"msg": msg}] {
+          not skip_azure_ad_check
+          external_data_error
+          msg := sprintf("Failed to retrieve Azure AD data for user '%s': %s. %s", 
+            [user_id, external_data_error, custom_message])
+        }
+
+        # Violation: User not found in Azure AD
+        violation[{"msg": msg}] {
+          not skip_azure_ad_check
+          not external_data_error
+          not system_error
+          not user_data
+          msg := sprintf("User '%s' not found in Azure AD. %s", [user_id, custom_message])
+        }
+
+        # Violation: Account is disabled
+        violation[{"msg": msg}] {
+          not skip_azure_ad_check
+          user_data
+          object.get(input.parameters, "denyDisabledAccounts", true)
+          user_data.accountEnabled == false
+          msg := sprintf("User '%s' (%s) has a disabled Azure AD account. %s", 
+            [user_data.displayName, user_id, custom_message])
+        }
+
+        # Violation: Insufficient authorization level
+        violation[{"msg": msg}] {
+          not skip_azure_ad_check
+          user_data
+          account_is_enabled
+          input.parameters.requiredAuthzLevel
+          not has_required_authz_level
+          msg := sprintf("User '%s' has authorization level '%s', but '%s' is required. %s", 
+            [user_data.displayName, user_data.authzLevel, input.parameters.requiredAuthzLevel, custom_message])
+        }
+
+        # Violation: Not in required groups
+        violation[{"msg": msg}] {
+          not skip_azure_ad_check
+          user_data
+          account_is_enabled
+          count(object.get(input.parameters, "requiredGroups", [])) > 0
+          not has_required_groups
+          msg := sprintf("User '%s' is not a member of required groups: %v. User's groups: %v. %s", 
+            [user_data.displayName, input.parameters.requiredGroups, user_data.groups, custom_message])
+        }
+
+        # Violation: Not in required group IDs
+        violation[{"msg": msg}] {
+          not skip_azure_ad_check
+          user_data
+          account_is_enabled
+          count(object.get(input.parameters, "requiredGroupIDs", [])) > 0
+          not has_required_group_ids
+          msg := sprintf("User '%s' is not a member of required Azure AD groups. %s", 
+            [user_data.displayName, custom_message])
+        }
+
+        # Violation: Not in allowed department
+        violation[{"msg": msg}] {
+          not skip_azure_ad_check
+          user_data
+          account_is_enabled
+          count(object.get(input.parameters, "allowedDepartments", [])) > 0
+          not in_allowed_department
+          msg := sprintf("User '%s' is in department '%s', which is not in allowed departments: %v. %s", 
+            [user_data.displayName, user_data.department, input.parameters.allowedDepartments, custom_message])
+        }
+
+        # Violation: Job title not allowed
+        violation[{"msg": msg}] {
+          not skip_azure_ad_check
+          user_data
+          account_is_enabled
+          count(object.get(input.parameters, "allowedJobTitles", [])) > 0
+          not has_allowed_job_title
+          msg := sprintf("User '%s' has job title '%s', which is not in allowed job titles: %v. %s", 
+            [user_data.displayName, user_data.jobTitle, input.parameters.allowedJobTitles, custom_message])
+        }

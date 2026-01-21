@@ -1,0 +1,26 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sUserAuthorization
+metadata:
+  name: restrict-namespace-creation
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Namespace"]
+    operations: ["CREATE"]
+    excludedNamespaces:
+      - kube-system
+      - gatekeeper-system
+  parameters:
+    allowedUsers:
+      - "admin@example.com"
+      - "platform-admin@example.com"
+      - "kubernetes-admin"  # Kind cluster default admin
+    allowedGroups:
+      - "platform-admins"
+      - "namespace-admins"
+      - "kubeadm:cluster-admins"  # Kind cluster admin group
+      - "system:masters"
+    deniedUsers:
+      - "blocked-user@example.com"
+    message: "Only platform administrators can create namespaces."

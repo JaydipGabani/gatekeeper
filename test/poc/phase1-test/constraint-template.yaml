@@ -1,0 +1,110 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8suserpodauthorization
+  annotations:
+    metadata.gatekeeper.sh/title: "User Pod Authorization"
+    description: "Controls which users can perform specific operations on pods in namespaces"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sUserPodAuthorization
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            allowedUsers:
+              type: array
+              items:
+                type: string
+              description: "Users allowed to perform operations in matched namespaces"
+            allowedGroups:
+              type: array
+              items:
+                type: string
+              description: "Groups allowed to perform operations in matched namespaces"
+            deniedUsers:
+              type: array
+              items:
+                type: string
+              description: "Users explicitly denied (overrides allowed)"
+            restrictedOperations:
+              type: array
+              items:
+                type: string
+                enum: ["CREATE", "UPDATE", "DELETE", "CONNECT"]
+              description: "Operations to restrict (default: all). Note: GET/LIST cannot be restricted via admission webhooks"
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8suserpodauthorization
+
+        import future.keywords.in
+
+        # Get user info from the admission request
+        username := input.review.userInfo.username
+        groups := input.review.userInfo.groups
+        operation := input.review.operation
+
+        # Debug: Print info (visible in Gatekeeper logs)
+        # print("User:", username, "Groups:", groups, "Operation:", operation, "Namespace:", input.review.namespace)
+
+        # Get parameters with defaults
+        allowed_users := object.get(input.parameters, "allowedUsers", [])
+        allowed_groups := object.get(input.parameters, "allowedGroups", [])
+        denied_users := object.get(input.parameters, "deniedUsers", [])
+        restricted_ops := object.get(input.parameters, "restrictedOperations", [])
+
+        # Check if this operation should be restricted
+        # If restrictedOperations is empty, restrict all operations
+        # If restrictedOperations has values, only restrict those specific operations
+        operation_restricted {
+          count(restricted_ops) == 0
+        }
+
+        operation_restricted {
+          count(restricted_ops) > 0
+          operation in restricted_ops
+        }
+
+        # Check if user is explicitly denied
+        user_denied {
+          username in denied_users
+        }
+
+        # Check if user is in allowed list
+        user_allowed {
+          username in allowed_users
+        }
+
+        # Check if any user group is in allowed groups
+        group_allowed {
+          some user_group in groups
+          user_group in allowed_groups
+        }
+
+        # No restrictions if both allowed lists are empty
+        no_restrictions {
+          count(allowed_users) == 0
+          count(allowed_groups) == 0
+        }
+
+        # Violation: User is explicitly denied (for restricted operations)
+        violation[{"msg": msg}] {
+          operation_restricted
+          user_denied
+          msg := sprintf("DENIED: User '%s' is explicitly blocked from %s pods in namespace '%s'", 
+            [username, operation, input.review.namespace])
+        }
+
+        # Violation: User is not authorized (for restricted operations)
+        violation[{"msg": msg}] {
+          operation_restricted
+          not user_denied
+          not user_allowed
+          not group_allowed
+          not no_restrictions
+          msg := sprintf("DENIED: User '%s' (groups: %v) is not authorized to %s pods in namespace '%s'. Allowed users: %v, Allowed groups: %v", 
+            [username, groups, operation, input.review.namespace, allowed_users, allowed_groups])
+        }

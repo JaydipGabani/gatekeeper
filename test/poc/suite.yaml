@@ -1,0 +1,41 @@
+# Gator test suite for user authorization POC
+kind: Suite
+apiVersion: test.gatekeeper.sh/v1alpha1
+metadata:
+  name: user-authorization-tests
+tests:
+  - name: test-namespace-creation-authorization
+    template: user-authorization-template.yaml
+    constraint: restrict-namespace-creation.yaml
+    cases:
+      # Test 1: Allowed user can create namespace
+      - name: allowed-user-creates-namespace
+        object: samples/namespace-test.yaml
+        assertions:
+          - violations: no
+        inventory: []
+        # Override userInfo in the admission review
+        # Note: This requires gator to support userInfo override (may need enhancement)
+        
+      # Test 2: Denied user cannot create namespace  
+      - name: denied-user-blocked
+        object: samples/namespace-test.yaml
+        assertions:
+          - violations: yes
+            message: "explicitly denied"
+
+      # Test 3: Unknown user without allowed group
+      - name: unknown-user-blocked
+        object: samples/namespace-test.yaml
+        assertions:
+          - violations: yes
+            message: "not authorized"
+
+---
+# Sample namespace for testing
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-namespace
+  labels:
+    environment: test

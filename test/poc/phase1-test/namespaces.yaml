@@ -1,0 +1,17 @@
+# Namespace where kubernetes-admin CAN create pods
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: allowed-ns
+  labels:
+    authz-test: "true"
+    access-level: "allowed"
+---
+# Namespace where kubernetes-admin CANNOT create pods
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: restricted-ns
+  labels:
+    authz-test: "true"
+    access-level: "restricted"

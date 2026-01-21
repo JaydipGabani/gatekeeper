@@ -1,0 +1,55 @@
+# Deployment Write Access
+# Require write authorization level for deployment modifications
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAzureADAuthorization
+metadata:
+  name: deployment-write-access
+  annotations:
+    description: "Require write access for deployment modifications"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet", "ReplicaSet"]
+    operations: ["CREATE", "UPDATE", "PATCH", "DELETE"]
+    excludedNamespaces:
+      - "kube-system"
+      - "kube-public"
+      - "kube-node-lease"
+      - "gatekeeper-system"
+  parameters:
+    requiredAuthzLevel: "write"
+    denyDisabledAccounts: true
+    allowServiceAccounts: true
+    message: "Deployment modifications require write authorization level."
+---
+# Engineering Department Only
+# Only engineering department can modify workloads in dev namespaces
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAzureADAuthorization
+metadata:
+  name: dev-engineering-only
+  annotations:
+    description: "Only engineering can modify dev workloads"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet"]
+      - apiGroups: [""]
+        kinds: ["Pod", "ConfigMap"]
+    operations: ["CREATE", "UPDATE", "PATCH", "DELETE"]
+    namespaces:
+      - "dev"
+      - "development"
+      - "sandbox"
+  parameters:
+    allowedDepartments:
+      - "Engineering"
+      - "Platform Engineering"
+      - "DevOps"
+    denyDisabledAccounts: true
+    allowServiceAccounts: true
+    message: "Only Engineering department members can modify resources in dev namespaces."

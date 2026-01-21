@@ -1,0 +1,189 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gatekeeper-system
+  labels:
+    app.kubernetes.io/name: gatekeeper-system
+---
+# Secret for Azure AD credentials (use Workload Identity in production)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azure-ad-provider-config
+  namespace: gatekeeper-system
+type: Opaque
+stringData:
+  # Replace these with your actual values
+  AZURE_TENANT_ID: "<YOUR_TENANT_ID>"
+  AZURE_CLIENT_ID: "<YOUR_APP_ID>"
+  AZURE_CLIENT_SECRET: "<YOUR_CLIENT_SECRET>"
+  # Comma-separated list of Azure AD Group Object IDs that grant admin access
+  ADMIN_GROUP_IDS: "<GROUP_ID_1>,<GROUP_ID_2>"
+  # Cache TTL in seconds
+  CACHE_TTL_SECONDS: "300"
+---
+# TLS Certificate for the provider (use cert-manager in production)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azure-ad-provider-tls
+  namespace: gatekeeper-system
+type: kubernetes.io/tls
+data:
+  # Replace with your actual TLS certificates (base64-encoded)
+  tls.crt: <BASE64_ENCODED_CERT>
+  tls.key: <BASE64_ENCODED_KEY>
+  ca.crt: <BASE64_ENCODED_CA_CERT>
+---
+# ServiceAccount with Workload Identity annotation (for AKS)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: azure-ad-provider
+  namespace: gatekeeper-system
+  annotations:
+    # For AKS Workload Identity - use this instead of client secret
+    azure.workload.identity/client-id: "<YOUR_APP_ID>"
+  labels:
+    azure.workload.identity/use: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azure-ad-provider
+  namespace: gatekeeper-system
+  labels:
+    app: azure-ad-provider
+    app.kubernetes.io/name: azure-ad-provider
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: azure-ad-provider
+  template:
+    metadata:
+      labels:
+        app: azure-ad-provider
+        # For AKS Workload Identity
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: azure-ad-provider
+      containers:
+      - name: provider
+        # TODO: Replace with actual image
+        image: ghcr.io/open-policy-agent/azure-ad-provider:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8443
+          name: https
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: azure-ad-provider-config
+        env:
+        - name: TLS_CERT_FILE
+          value: /certs/tls.crt
+        - name: TLS_KEY_FILE
+          value: /certs/tls.key
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /certs
+          readOnly: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 65532
+          capabilities:
+            drop:
+            - ALL
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+      volumes:
+      - name: tls-certs
+        secret:
+          secretName: azure-ad-provider-tls
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: azure-ad-provider
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-ad-provider
+  namespace: gatekeeper-system
+  labels:
+    app: azure-ad-provider
+spec:
+  selector:
+    app: azure-ad-provider
+  ports:
+  - port: 8443
+    targetPort: 8443
+    protocol: TCP
+    name: https
+  type: ClusterIP
+---
+# Network policy to restrict access to the provider
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: azure-ad-provider-network-policy
+  namespace: gatekeeper-system
+spec:
+  podSelector:
+    matchLabels:
+      app: azure-ad-provider
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from Gatekeeper
+  - from:
+    - podSelector:
+        matchLabels:
+          control-plane: controller-manager
+    ports:
+    - protocol: TCP
+      port: 8443
+  egress:
+  # Allow DNS
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow HTTPS to Microsoft Graph API
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 443

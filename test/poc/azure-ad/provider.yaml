@@ -1,0 +1,11 @@
+apiVersion: externaldata.gatekeeper.sh/v1beta1
+kind: Provider
+metadata:
+  name: azure-ad-provider
+spec:
+  url: https://azure-ad-provider.gatekeeper-system.svc:8443/validate
+  timeout: 10  # seconds - Graph API can be slow
+  failurePolicy: Fail  # Fail-closed for security
+  # caBundle should be base64-encoded CA certificate
+  # Generate with: kubectl get secret azure-ad-provider-tls -n gatekeeper-system -o jsonpath='{.data.ca\.crt}'
+  caBundle: <BASE64_ENCODED_CA_CERT>

@@ -1,0 +1,105 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8suserauthorization
+  annotations:
+    description: "Validates if a user is authorized to perform certain actions based on username and groups"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sUserAuthorization
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            allowedUsers:
+              type: array
+              items:
+                type: string
+              description: "List of users allowed to perform this action"
+            allowedGroups:
+              type: array
+              items:
+                type: string
+              description: "List of groups allowed to perform this action"
+            deniedUsers:
+              type: array
+              items:
+                type: string
+              description: "List of users explicitly denied"
+            message:
+              type: string
+              description: "Custom message to display on violation"
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8suserauthorization
+
+        # Get user info from the admission request
+        username := input.review.userInfo.username
+        groups := input.review.userInfo.groups
+        extra := object.get(input.review.userInfo, "extra", {})
+
+        # Default empty arrays if not provided
+        default_allowed_users := object.get(input.parameters, "allowedUsers", [])
+        default_allowed_groups := object.get(input.parameters, "allowedGroups", [])
+        default_denied_users := object.get(input.parameters, "deniedUsers", [])
+
+        # Check if user is in denied list
+        user_denied {
+          some denied_user in default_denied_users
+          denied_user == username
+        }
+
+        # Check if user is in allowed list
+        user_allowed {
+          some allowed_user in default_allowed_users
+          allowed_user == username
+        }
+
+        # Check if any user group is in allowed groups
+        group_allowed {
+          some user_group in groups
+          some allowed_group in default_allowed_groups
+          user_group == allowed_group
+        }
+
+        # No restrictions if both allowed lists are empty
+        no_restrictions {
+          count(default_allowed_users) == 0
+          count(default_allowed_groups) == 0
+        }
+
+        # User is authorized if:
+        # 1. Not denied AND (allowed by user OR allowed by group OR no restrictions)
+        authorized {
+          not user_denied
+          user_allowed
+        }
+
+        authorized {
+          not user_denied
+          group_allowed
+        }
+
+        authorized {
+          not user_denied
+          no_restrictions
+        }
+
+        # Main violation rule - user is denied
+        violation[{"msg": msg}] {
+          user_denied
+          custom_msg := object.get(input.parameters, "message", "")
+          msg := sprintf("User '%s' is explicitly denied from performing this action. %s", [username, custom_msg])
+        }
+
+        # Main violation rule - user is not authorized
+        violation[{"msg": msg}] {
+          not user_denied
+          not authorized
+          custom_msg := object.get(input.parameters, "message", "")
+          msg := sprintf("User '%s' (groups: %v) is not authorized to perform this action. Allowed users: %v, Allowed groups: %v. %s", 
+            [username, groups, default_allowed_users, default_allowed_groups, custom_msg])
+        }

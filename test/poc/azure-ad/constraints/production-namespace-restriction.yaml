@@ -1,0 +1,23 @@
+# Production Namespace Restriction
+# Only platform admins and SRE team can create/delete namespaces in production
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAzureADAuthorization
+metadata:
+  name: production-namespace-admin-only
+  annotations:
+    description: "Restrict namespace operations to platform admins"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Namespace"]
+    operations: ["CREATE", "DELETE"]
+  parameters:
+    requiredAuthzLevel: "admin"
+    requiredGroups:
+      - "Platform Admins"
+      - "SRE Team"
+    denyDisabledAccounts: true
+    allowServiceAccounts: true
+    message: "Only Platform Admins and SRE team members can create/delete namespaces."

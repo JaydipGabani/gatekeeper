@@ -1,0 +1,79 @@
+# Constraint for ALLOWED namespace - kubernetes-admin CAN create/update pods
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sUserPodAuthorization
+metadata:
+  name: allowed-ns-pod-creation
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "allowed-ns"
+  parameters:
+    # kubernetes-admin and cluster-admins group are allowed
+    allowedUsers:
+      - "kubernetes-admin"
+      - "developer@example.com"
+    allowedGroups:
+      - "kubeadm:cluster-admins"
+      - "developers"
+    deniedUsers: []
+    # Restrict only CREATE and UPDATE operations
+    # DELETE is not restricted here
+    restrictedOperations:
+      - "CREATE"
+      - "UPDATE"
+---
+# Constraint for RESTRICTED namespace - only specific-admin can create pods
+# kubernetes-admin is NOT in the allowed list, so will be DENIED
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sUserPodAuthorization
+metadata:
+  name: restricted-ns-pod-creation
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "restricted-ns"
+  parameters:
+    # Only specific-admin is allowed - kubernetes-admin is NOT listed
+    allowedUsers:
+      - "specific-admin@example.com"
+      - "security-admin@example.com"
+    allowedGroups:
+      - "security-team"
+    deniedUsers:
+      - "blocked-user@example.com"
+    # Restrict ALL operations (CREATE, UPDATE, DELETE)
+    # Empty array = restrict all operations
+    restrictedOperations: []
+---
+# Constraint for DELETE-only restriction in a namespace
+# Anyone can CREATE, but only admins can DELETE
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sUserPodAuthorization
+metadata:
+  name: delete-restricted-ns
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "delete-protected-ns"
+  parameters:
+    # Only admins can DELETE pods
+    allowedUsers:
+      - "admin@example.com"
+    allowedGroups:
+      - "platform-admins"
+    deniedUsers: []
+    # ONLY restrict DELETE operation - CREATE/UPDATE are not checked
+    restrictedOperations:
+      - "DELETE"

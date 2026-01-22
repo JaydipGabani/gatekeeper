@@ -3,6 +3,7 @@
 /.tmp
 go.work
 go.work.sum
+vendor/
 
 # Binaries for programs and plugins
 *.exe

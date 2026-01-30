@@ -1,17 +1,20 @@
-# Namespace where kubernetes-admin CAN create pods
 apiVersion: v1
 kind: Namespace
 metadata:
   name: allowed-ns
   labels:
-    authz-test: "true"
-    access-level: "allowed"
+    environment: development
 ---
-# Namespace where kubernetes-admin CANNOT create pods
 apiVersion: v1
 kind: Namespace
 metadata:
   name: restricted-ns
   labels:
-    authz-test: "true"
-    access-level: "restricted"
+    environment: production
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: delete-protected-ns
+  labels:
+    environment: protected

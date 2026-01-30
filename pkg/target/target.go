@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/open-policy-agent/frameworks/constraint/pkg/apis/authorization"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/core/constraints"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/handler"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/match"
@@ -79,6 +80,15 @@ func (h *K8sValidationTarget) ProcessData(obj interface{}) (bool, []string, inte
 }
 
 func (h *K8sValidationTarget) HandleReview(obj interface{}) (bool, interface{}, error) {
+	// Handle authorization reviews directly - this allows admission constraints
+	// to also evaluate authorization requests
+	switch data := obj.(type) {
+	case authorization.Review:
+		return true, &authzReview{Review: &data}, nil
+	case *authorization.Review:
+		return true, &authzReview{Review: data}, nil
+	}
+	// For all other types, use the internal handler
 	return h.handleReview(obj)
 }
 

@@ -58,8 +58,8 @@ func TestProvider_buildDataAction(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
-		req     *AuthzRequest
+		name     string
+		req      *AuthzRequest
 		wantKind string
 	}{
 		{

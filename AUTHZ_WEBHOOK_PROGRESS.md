@@ -394,3 +394,111 @@ This implementation enables Gatekeeper to make authorization decisions using OPA
 ---
 
 *Have a great trip! The tests are passing and the implementation is stable. 🚀*
+
+---
+
+## Update: January 28, 2026
+
+### High Priority Tasks Completed
+
+#### 1. ✅ Wired Authorization Webhook Endpoint in main.go
+
+**Changes to `main.go`:**
+
+```go
+// New flag added
+enableAuthorizationWebhook = flag.Bool("enable-authorization-webhook", false, 
+    "Enable the Kubernetes authorization webhook endpoint...")
+
+// New import
+"github.com/open-policy-agent/gatekeeper/v3/pkg/webhook/authzwebhook"
+
+// Webhook registration (after admission webhooks)
+if *enableAuthorizationWebhook {
+    setupLog.Info("setting up authorization webhook")
+    if err := authzwebhook.AddAuthorizationWebhook(mgr, client); err != nil {
+        setupLog.Error(err, "unable to register authorization webhook")
+        return err
+    }
+}
+```
+
+**Usage:**
+```bash
+# Enable authorization webhook
+--enable-authorization-webhook=true
+```
+
+#### 2. ✅ Created AuthorizationWebhookConfiguration
+
+**File:** `config/authorization/authorization-webhook-configuration.yaml`
+
+This is the kubeconfig-style file that the API server uses to contact Gatekeeper for authorization decisions.
+
+```yaml
+apiVersion: v1
+kind: Config
+clusters:
+  - name: gatekeeper-authorization
+    cluster:
+      server: https://gatekeeper-webhook-service.gatekeeper-system.svc:443/v1/authorize
+# ...
+```
+
+**API Server Configuration:**
+```bash
+kube-apiserver \
+  --authorization-mode=Node,Webhook,RBAC \
+  --authorization-webhook-config-file=/path/to/authorization-webhook-configuration.yaml \
+  --authorization-webhook-cache-authorized-ttl=30s \
+  --authorization-webhook-cache-unauthorized-ttl=5s
+```
+
+#### 3. ✅ Created End-to-End Test Setup
+
+**Files created:**
+- `config/authorization/kind-config-authz.yaml` - Kind cluster configuration
+- `config/authorization/e2e-test.sh` - Full E2E test script
+
+**To run E2E tests:**
+```bash
+cd /mount/d/go/src/github.com/open-policy-agent/gatekeeper-authz-webhook
+./config/authorization/e2e-test.sh
+```
+
+---
+
+## Current Status: Ready for E2E Testing
+
+### All High Priority Tasks: ✅ COMPLETE
+
+| Task | Status | Description |
+|------|--------|-------------|
+| Wire Authorization Webhook Endpoint | ✅ Done | `/v1/authorize` endpoint registered via `--enable-authorization-webhook` flag |
+| Create AuthorizationWebhookConfiguration | ✅ Done | `config/authorization/authorization-webhook-configuration.yaml` |
+| End-to-End Testing Setup | ✅ Done | `config/authorization/e2e-test.sh` with Kind cluster config |
+
+### Next Steps (Medium Priority)
+
+1. Add Prometheus metrics for authorization decisions
+2. Add audit logging for authorization
+3. Write user documentation
+4. Add CEL support for authorization policies
+
+---
+
+## File Locations (Updated)
+
+```
+/mount/d/go/src/github.com/open-policy-agent/gatekeeper-authz-webhook/
+├── main.go                               # Updated with --enable-authorization-webhook flag
+├── config/
+│   └── authorization/
+│       ├── authorization-webhook-configuration.yaml  # API server config
+│       ├── kind-config-authz.yaml                    # Kind cluster config
+│       └── e2e-test.sh                               # E2E test script
+└── pkg/
+    ├── authztarget/                      # Authorization target handler
+    ├── webhook/authzwebhook/             # Authorization webhook HTTP handler
+    └── externaldata/azurerbac/           # Azure RBAC provider (optional)
+```

@@ -178,7 +178,7 @@ func (p *Provider) buildCheckAccessRequest(req *AuthzRequest) (*CheckAccessReque
 }
 
 // buildDataAction builds the data action for Azure RBAC in the V2 format.
-// Format: Microsoft.KubernetesAuthorization/resources/<group>/<resource>/<subresource>/<verb>/action
+// Format: Microsoft.KubernetesAuthorization/resources/<group>/<resource>/<subresource>/<verb>/action.
 func (p *Provider) buildDataAction(req *AuthzRequest) AuthorizationActionInfo {
 	var actionPath string
 	var attributes map[string]string

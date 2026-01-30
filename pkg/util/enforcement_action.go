@@ -34,11 +34,14 @@ const (
 	// VAP enforcement point for ValidatingAdmissionPolicy.
 	VAPEnforcementPoint = "vap.k8s.io"
 
+	// AuthorizationEnforcementPoint is the enforcement point for authorization webhook.
+	AuthorizationEnforcementPoint = "authorization.k8s.gatekeeper.sh"
+
 	// AllEnforcementPoints indicates all enforcement points.
 	AllEnforcementPoints = "*"
 )
 
-var supportedEnforcementPoints = []string{WebhookEnforcementPoint, AuditEnforcementPoint, GatorEnforcementPoint, VAPEnforcementPoint}
+var supportedEnforcementPoints = []string{WebhookEnforcementPoint, AuditEnforcementPoint, GatorEnforcementPoint, VAPEnforcementPoint, AuthorizationEnforcementPoint}
 
 var supportedEnforcementActions = []EnforcementAction{Deny, Dryrun, Warn, Scoped}
 

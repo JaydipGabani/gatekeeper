@@ -1,0 +1,16 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPodExecPolicy
+metadata:
+  name: restrict-exec-by-namespace
+spec:
+  enforcementAction: deny
+  parameters:
+    # Users this policy applies to
+    users:
+      - "exec-user"
+    # Namespaces where exec is explicitly allowed
+    allowedNamespaces:
+      - "a"
+    # Namespaces where exec is explicitly denied
+    deniedNamespaces:
+      - "b"

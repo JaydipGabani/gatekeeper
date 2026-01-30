@@ -15,13 +15,14 @@ type Operation string
 
 // All defined Operations.
 const (
-	Audit              = Operation("audit")
-	MutationController = Operation("mutation-controller")
-	MutationStatus     = Operation("mutation-status")
-	MutationWebhook    = Operation("mutation-webhook")
-	Status             = Operation("status")
-	Webhook            = Operation("webhook")
-	Generate           = Operation("generate")
+	Audit                = Operation("audit")
+	MutationController   = Operation("mutation-controller")
+	MutationStatus       = Operation("mutation-status")
+	MutationWebhook      = Operation("mutation-webhook")
+	Status               = Operation("status")
+	Webhook              = Operation("webhook")
+	Generate             = Operation("generate")
+	AuthorizationWebhook = Operation("authorization-webhook")
 )
 
 var (
@@ -33,6 +34,7 @@ var (
 		MutationController,
 		MutationStatus,
 		MutationWebhook,
+		AuthorizationWebhook,
 		Status,
 		Webhook,
 	}

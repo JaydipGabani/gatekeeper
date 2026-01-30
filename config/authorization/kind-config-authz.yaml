@@ -1,0 +1,30 @@
+# Kind cluster configuration for testing Gatekeeper Authorization Webhook
+#
+# This configuration enables the authorization webhook in the Kind cluster.
+# Usage: kind create cluster --name authz-test --config kind-config-authz.yaml
+
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: ClusterConfiguration
+        apiServer:
+          extraArgs:
+            # Enable authorization webhook
+            authorization-mode: Node,Webhook,RBAC
+            authorization-webhook-config-file: /etc/kubernetes/authz-webhook/authz-webhook-config.yaml
+            # Caching settings
+            authorization-webhook-cache-authorized-ttl: 30s
+            authorization-webhook-cache-unauthorized-ttl: 5s
+          extraVolumes:
+            - name: authz-webhook-config
+              hostPath: /etc/kubernetes/authz-webhook
+              mountPath: /etc/kubernetes/authz-webhook
+              readOnly: true
+    extraMounts:
+      # Mount the authorization webhook config from host
+      - hostPath: ./authz-webhook-config
+        containerPath: /etc/kubernetes/authz-webhook
+        readOnly: true

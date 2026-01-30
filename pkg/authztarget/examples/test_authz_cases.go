@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	authorizationv1 "k8s.io/api/authorization/v1"
-
 	"github.com/open-policy-agent/frameworks/constraint/pkg/apis/authorization"
+	authorizationv1 "k8s.io/api/authorization/v1"
 )
 
-// TestCase represents a single authorization test case
+// TestCase represents a single authorization test case.
 type TestCase struct {
 	Name           string
 	User           string
@@ -126,10 +125,10 @@ func main() {
 
 		// Convert to Review using the authorization package
 		review := authorization.NewReview(sar.Spec)
-		
+
 		// Get Rego input
 		input := review.ToRegoInput()
-		
+
 		// Simulate policy evaluation by checking the input against policy rules
 		allowed, reason := evaluatePolicy(input, params)
 
@@ -154,16 +153,16 @@ func main() {
 	}
 }
 
-// evaluatePolicy simulates the Rego policy evaluation
+// evaluatePolicy simulates the Rego policy evaluation.
 func evaluatePolicy(input map[string]interface{}, params map[string]interface{}) (bool, string) {
 	user := input["user"].(string)
 	groups := input["groups"].([]string)
-	
+
 	resourceAttrs, ok := input["resourceAttributes"].(map[string]interface{})
 	if !ok {
 		return true, "No resource attributes"
 	}
-	
+
 	ns := ""
 	if v, ok := resourceAttrs["namespace"]; ok && v != nil {
 		ns = v.(string)

@@ -25,6 +25,7 @@ import (
 	constraintclient "github.com/open-policy-agent/frameworks/constraint/pkg/client"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/reviews"
 	rtypes "github.com/open-policy-agent/frameworks/constraint/pkg/types"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	authorizationv1 "k8s.io/api/authorization/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -42,9 +43,6 @@ var (
 func init() {
 	_ = authorizationv1.AddToScheme(runtimeScheme)
 }
-
-// AuthorizationEnforcementPoint is the enforcement point name for authorization.
-const AuthorizationEnforcementPoint = "authorization.k8s.gatekeeper.sh"
 
 // Handler handles SubjectAccessReview requests.
 type Handler struct {
@@ -127,7 +125,7 @@ func (h *Handler) authorize(ctx context.Context, sar *authorizationv1.SubjectAcc
 
 	// Evaluate constraints
 	resp, err := h.client.Review(ctx, review,
-		reviews.EnforcementPoint(AuthorizationEnforcementPoint),
+		reviews.EnforcementPoint(util.AuthorizationEnforcementPoint),
 		reviews.Tracing(false),
 	)
 	if err != nil {

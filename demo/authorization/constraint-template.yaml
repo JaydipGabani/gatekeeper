@@ -1,0 +1,52 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sauthorizationpolicy
+  annotations:
+    metadata.gatekeeper.sh/title: "Authorization Policy"
+    metadata.gatekeeper.sh/version: 1.0.0
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sAuthorizationPolicy
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            deniedGroups:
+              type: array
+              items:
+                type: string
+              description: Groups that are denied access
+            deniedUsers:
+              type: array
+              items:
+                type: string
+              description: Users that are denied access
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sauthorizationpolicy
+
+        # This policy checks authorization requests
+        violation[{"msg": msg}] {
+          # Access user and groups from input.review
+          user := input.review.user
+          groups := input.review.groups
+
+          # Check if any group is denied
+          denied_group := input.parameters.deniedGroups[_]
+          groups[_] == denied_group
+
+          msg := sprintf("Access denied for group '%v'", [denied_group])
+        }
+
+        violation[{"msg": msg}] {
+          # Check if user is denied
+          user := input.review.user
+          denied_user := input.parameters.deniedUsers[_]
+          user == denied_user
+
+          msg := sprintf("Access denied for user '%v'", [denied_user])
+        }

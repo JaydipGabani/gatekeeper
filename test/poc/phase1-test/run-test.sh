@@ -93,18 +93,44 @@ else
 fi
 echo ""
 
-# Step 8: Summary
+# Step 8: Test impersonation
+echo -e "${YELLOW}Step 8: Testing with impersonated users${NC}"
+echo "----------------------------------------"
+
+echo "Test: specific-admin@example.com in restricted-ns (should SUCCEED)"
+if kubectl apply -f test-pod.yaml -n restricted-ns --as=specific-admin@example.com --as-group=system:masters --dry-run=server 2>&1; then
+    echo -e "${GREEN}✅ PASS${NC}"
+    TEST3_RESULT="PASS"
+else
+    echo -e "${RED}❌ FAIL${NC}"
+    TEST3_RESULT="FAIL"
+fi
+echo ""
+
+echo "Test: random-user in delete-protected-ns CREATE (should SUCCEED)"
+if kubectl apply -f test-pod.yaml -n delete-protected-ns --as=random-user --as-group=system:masters --dry-run=server 2>&1; then
+    echo -e "${GREEN}✅ PASS${NC}"
+    TEST4_RESULT="PASS"
+else
+    echo -e "${RED}❌ FAIL${NC}"
+    TEST4_RESULT="FAIL"
+fi
+echo ""
+
+# Step 9: Summary
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║                      Test Summary                            ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "Current User: $(kubectl auth whoami 2>/dev/null | grep Username | awk '{print $2}')"
 echo ""
-echo -e "Test 1 - Pod in 'allowed-ns':    ${TEST1_RESULT}"
-echo -e "Test 2 - Pod in 'restricted-ns': ${TEST2_RESULT}"
+echo -e "Test 1 - Pod in 'allowed-ns':                  ${TEST1_RESULT}"
+echo -e "Test 2 - Pod in 'restricted-ns':               ${TEST2_RESULT}"
+echo -e "Test 3 - specific-admin in 'restricted-ns':    ${TEST3_RESULT}"
+echo -e "Test 4 - random-user CREATE in protected:      ${TEST4_RESULT}"
 echo ""
 
-if [[ "$TEST1_RESULT" == "PASS" && "$TEST2_RESULT" == "PASS" ]]; then
+if [[ "$TEST1_RESULT" == "PASS" && "$TEST2_RESULT" == "PASS" && "$TEST3_RESULT" == "PASS" && "$TEST4_RESULT" == "PASS" ]]; then
     echo -e "${GREEN}🎉 All tests PASSED! Phase 1 POC is working correctly.${NC}"
     exit 0
 else

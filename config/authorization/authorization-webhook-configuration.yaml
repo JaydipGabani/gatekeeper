@@ -1,0 +1,32 @@
+# Authorization Webhook Configuration for Gatekeeper
+#
+# This file configures the Kubernetes API server to use Gatekeeper as an
+# authorization webhook. Place this file on the API server and reference it
+# with --authorization-webhook-config-file flag.
+#
+# IMPORTANT: This is NOT a Kubernetes resource. It's an API server configuration file.
+
+apiVersion: v1
+kind: Config
+clusters:
+  - name: gatekeeper-authorization
+    cluster:
+      # For production, use the CA certificate from the Gatekeeper secret
+      # certificate-authority: /etc/kubernetes/pki/gatekeeper/ca.crt
+      # For testing with insecure connection:
+      insecure-skip-tls-verify: true
+      server: https://gatekeeper-webhook-service.gatekeeper-system.svc:443/v1/authorize
+users:
+  - name: gatekeeper-authorization
+    user:
+      # For mTLS, specify client certificate and key
+      # client-certificate: /etc/kubernetes/pki/gatekeeper/client.crt
+      # client-key: /etc/kubernetes/pki/gatekeeper/client.key
+      # Or use a token
+      # token: <token>
+contexts:
+  - name: gatekeeper
+    context:
+      cluster: gatekeeper-authorization
+      user: gatekeeper-authorization
+current-context: gatekeeper

@@ -45,6 +45,7 @@ import (
 	mutationsv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/mutations/v1beta1"
 	statusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/audit"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/authztarget"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/cachemanager"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
@@ -59,13 +60,13 @@ import (
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness/pruner"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/syncutil"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/authztarget"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/target"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/upgrade"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/version"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/watch"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/webhook"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/webhook/authzwebhook"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -122,6 +123,7 @@ var (
 	externaldataProviderResponseCacheTTL = flag.Duration("external-data-provider-response-cache-ttl", 3*time.Minute, "TTL for the external data provider response cache. Specify the duration in 'h', 'm', or 's' for hours, minutes, or seconds respectively. Defaults to 3 minutes if unspecified. Setting the TTL to 0 disables the cache.")
 	enableReferential                    = flag.Bool("enable-referential-rules", true, "Enable referential rules. This flag defaults to true. Set this value to false if you want to disallow referential constraints. Because referential constraints read objects other than the object-under-test, they may be subject to race conditions. Users concerned about this may want to disable referential rules")
 	shutdownDelay                        = flag.Int("shutdown-delay", 10, "Time in seconds the controller runtime shutdown gets delayed after receiving a pod termination event. Prevents failing webhooks on pod shutdown. default: 10")
+	enableAuthorizationWebhook           = flag.Bool("enable-authorization-webhook", false, "Enable the Kubernetes authorization webhook endpoint. When enabled, Gatekeeper can act as an authorization webhook for the API server to make policy-based authorization decisions.")
 )
 
 func init() {
@@ -458,6 +460,9 @@ func setupControllers(ctx context.Context, mgr ctrl.Manager, tracker *readiness.
 	if operations.IsAssigned(operations.Webhook) {
 		eps = append(eps, util.WebhookEnforcementPoint)
 	}
+	if *enableAuthorizationWebhook || operations.IsAssigned(operations.AuthorizationWebhook) {
+		eps = append(eps, util.AuthorizationEnforcementPoint)
+	}
 
 	cfArgs = append(cfArgs, constraintclient.EnforcementPoints(eps...))
 
@@ -566,6 +571,15 @@ func setupControllers(ctx context.Context, mgr ctrl.Manager, tracker *readiness.
 		if err := webhook.AddToManager(mgr, webhookDeps); err != nil {
 			setupLog.Error(err, "unable to register webhooks with the manager")
 			return err
+		}
+
+		// Setup authorization webhook if enabled
+		if *enableAuthorizationWebhook {
+			setupLog.Info("setting up authorization webhook")
+			if err := authzwebhook.AddAuthorizationWebhook(mgr, client); err != nil {
+				setupLog.Error(err, "unable to register authorization webhook with the manager")
+				return err
+			}
 		}
 	}
 

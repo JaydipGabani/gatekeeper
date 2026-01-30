@@ -1,0 +1,26 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAuthorizationPolicy
+metadata:
+  name: deny-kube-system-access
+spec:
+  enforcementAction: deny
+  scopedEnforcementActions:
+    - action: deny
+      enforcementPoints:
+        - name: "authorization.k8s.gatekeeper.sh"
+  parameters:
+    deniedGroups:
+      - "developers"
+      - "viewers"
+    deniedUsers: []
+    deniedVerbs:
+      - "*"  # All verbs
+    deniedResources:
+      - "*"  # All resources
+    deniedNamespaces:
+      - "kube-system"
+    exemptUsers:
+      - "admin"
+    exemptGroups:
+      - "system:masters"
+      - "cluster-admins"

@@ -5,9 +5,9 @@ on:
       - 'v*'
 
 env:
-  IMAGE_REPO: openpolicyagent/gatekeeper
-  CRD_IMAGE_REPO: openpolicyagent/gatekeeper-crds
-  GATOR_IMAGE_REPO: openpolicyagent/gator
+  IMAGE_REPO: jaydipgabani/gatekeeper
+  CRD_IMAGE_REPO: jaydipgabani/gatekeeper-crds
+  GATOR_IMAGE_REPO: jaydipgabani/gator
 
 permissions: read-all
 
@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'open-policy-agent/gatekeeper'
+    if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'jaydipgabani/gatekeeper'
     timeout-minutes: 45
     steps:
       - name: Cleanup disk

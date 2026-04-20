@@ -3,6 +3,11 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Which version are we creating a release?"
+        required: true
 
 env:
   IMAGE_REPO: jaydipgabani/gatekeeper

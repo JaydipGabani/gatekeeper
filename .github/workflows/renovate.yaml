@@ -26,7 +26,8 @@ concurrency:
 jobs:
   renovate:
     name: Renovate
-    if: github.repository == 'open-policy-agent/gatekeeper' && vars.RENOVATE_APP_ID != ''
+    # Fork-only test guard; do not merge this value upstream.
+    if: github.repository == 'JaydipGabani/gatekeeper' && vars.RENOVATE_APP_ID != ''
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:

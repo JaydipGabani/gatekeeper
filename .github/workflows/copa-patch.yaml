@@ -132,7 +132,8 @@ jobs:
             echo "::error::target=canonical is only allowed on open-policy-agent/gatekeeper (here: ${REPO})"; exit 1
           fi
           # Staging/intermediate writes are pinned to the owner's dedicated copa-staging namespace.
-          staging="ghcr.io/${{ github.repository_owner }}/copa-staging"
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          staging="ghcr.io/${owner}/copa-staging"
           intermediate_repo="${staging}/${IMAGE}"
           source_ref="${SOURCE_REGISTRY}/${IMAGE}:${RELEASE}"
           if [[ "${mode}" == "canonical" ]]; then primary_repo="${SOURCE_REGISTRY}/${IMAGE}"; else primary_repo="${intermediate_repo}"; fi

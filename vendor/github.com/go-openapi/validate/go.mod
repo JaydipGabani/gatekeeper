@@ -11,10 +11,9 @@ require (
 	github.com/go-openapi/strfmt v0.19.3
 	github.com/go-openapi/swag v0.19.5
 	github.com/mailru/easyjson v0.7.0 // indirect
-	github.com/stretchr/testify v1.4.0
-	github.com/vektah/gqlparser v1.1.2
+	github.com/stretchr/testify v1.4.0 // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
 
 go 1.13

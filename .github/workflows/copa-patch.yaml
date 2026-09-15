@@ -1,4 +1,5 @@
 name: copa-patch
+run-name: PR 4756 validation / ${{ inputs.target || 'canonical' }} / ${{ inputs.release_tag || 'auto' }}
 
 # Recurring Copa image-patching workflow.
 #
@@ -49,6 +50,7 @@ env:
 jobs:
   resolve-releases:
     name: Resolve target releases
+    if: github.repository == 'JaydipGabani/gatekeeper'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     outputs:
@@ -143,7 +145,8 @@ jobs:
             echo "::error::target=canonical is only allowed on open-policy-agent/gatekeeper (here: ${REPO})"; exit 1
           fi
           # Staging/intermediate writes are pinned to the owner's dedicated copa-staging namespace.
-          staging="ghcr.io/${{ github.repository_owner }}/copa-staging"
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          staging="ghcr.io/${owner}/copa-staging/pr-4756-20260915"
           intermediate_repo="${staging}/${IMAGE}"
           source_ref="${SOURCE_REGISTRY}/${IMAGE}:${RELEASE}"
           if [[ "${mode}" == "canonical" ]]; then primary_repo="${SOURCE_REGISTRY}/${IMAGE}"; else primary_repo="${intermediate_repo}"; fi
@@ -154,6 +157,13 @@ jobs:
             echo "primary_repo=${primary_repo}"
           } >> "$GITHUB_OUTPUT"
           echo "mode=${mode} | source=${source_ref} | intermediate=${intermediate_repo} | primary=${primary_repo}"
+
+      - name: Check out validation harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          sparse-checkout: test/workflow-validation
+          path: validation-harness
 
       # Register QEMU for non-amd64 emulated patching.
       - name: Set up QEMU
@@ -209,6 +219,14 @@ jobs:
           tar zxf "${tarball}" crane
           echo "${dir}" >> "$GITHUB_PATH"
           popd
+
+      - name: Capture validation baseline
+        id: validation-baseline
+        env:
+          SOURCE_REF: ${{ steps.cfg.outputs.source_ref }}
+          PRIMARY_REPO: ${{ steps.cfg.outputs.primary_repo }}
+          MODE: ${{ steps.cfg.outputs.mode }}
+        run: python3 validation-harness/test/workflow-validation/copa_validation.py capture before
 
       - name: Download Trivy DB
         run: |
@@ -657,3 +675,31 @@ jobs:
           echo "Dry-run: OCI layout written locally; nothing pushed. Platforms present:"
           jq -r '.manifests[] | select(.platform != null) | "\(.platform.os)/\(.platform.architecture)"' \
             ./patched-oci/index.json || true
+
+      - name: Capture validation result
+        if: always() && steps.validation-baseline.outcome == 'success'
+        env:
+          SOURCE_REF: ${{ steps.cfg.outputs.source_ref }}
+          PRIMARY_REPO: ${{ steps.cfg.outputs.primary_repo }}
+          MODE: ${{ steps.cfg.outputs.mode }}
+          PATCHED_REF: ${{ steps.patch.outputs.patched_ref }}
+          REV: ${{ steps.rev.outputs.rev }}
+          HAS_FIXES: ${{ steps.gate.outputs.has_fixes }}
+          PUBLISH: ${{ steps.verify.outputs.publish }}
+          REPORT_DIR: ${{ steps.gate.outputs.report_dir }}
+        run: python3 validation-harness/test/workflow-validation/copa_validation.py capture after
+
+      - name: Upload validation evidence
+        if: always() && steps.validation-baseline.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: copa-${{ matrix.image }}-${{ matrix.release }}-${{ inputs.target || 'canonical' }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            validation-evidence/
+            copa-reports/
+            copa-reports-patched/
+            scan-after-*.json
+            norm-*.json
+            *.keys

@@ -50,7 +50,7 @@ def save_oci_metadata(layout, destination):
         shutil.copyfile(layout / relative, destination / relative)
         if "manifests" in document:
             pending.extend(document["manifests"])
-        elif "config" in document:
+        elif document.get("schemaVersion") == 2 and "config" in document:
             pending.append(document["config"])
 
 

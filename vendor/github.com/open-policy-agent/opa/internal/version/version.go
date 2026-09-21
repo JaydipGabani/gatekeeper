@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/open-policy-agent/opa/storage"
-	"github.com/open-policy-agent/opa/version"
+	"github.com/open-policy-agent/opa/v1/storage"
+	"github.com/open-policy-agent/opa/v1/version"
 )
 
 var versionPath = storage.MustParsePath("/system/version")
@@ -24,16 +24,12 @@ func Write(ctx context.Context, store storage.Store, txn storage.Transaction) er
 		return err
 	}
 
-	if err := store.Write(ctx, txn, storage.AddOp, versionPath, map[string]interface{}{
+	return store.Write(ctx, txn, storage.AddOp, versionPath, map[string]interface{}{
 		"version":         version.Version,
 		"build_commit":    version.Vcs,
 		"build_timestamp": version.Timestamp,
 		"build_hostname":  version.Hostname,
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 // UserAgent defines the current OPA instances User-Agent default header value.

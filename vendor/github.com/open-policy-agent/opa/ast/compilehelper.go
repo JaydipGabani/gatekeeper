@@ -4,36 +4,42 @@
 
 package ast
 
+import v1 "github.com/open-policy-agent/opa/v1/ast"
+
 // CompileModules takes a set of Rego modules represented as strings and
 // compiles them for evaluation. The keys of the map are used as filenames.
 func CompileModules(modules map[string]string) (*Compiler, error) {
+	return CompileModulesWithOpt(modules, CompileOpts{
+		ParserOptions: ParserOptions{
+			RegoVersion: DefaultRegoVersion,
+		},
+	})
+}
 
-	parsed := make(map[string]*Module, len(modules))
+// CompileOpts defines a set of options for the compiler.
+type CompileOpts = v1.CompileOpts
 
-	for f, module := range modules {
-		var pm *Module
-		var err error
-		if pm, err = ParseModule(f, module); err != nil {
-			return nil, err
-		}
-		parsed[f] = pm
+// CompileModulesWithOpt takes a set of Rego modules represented as strings and
+// compiles them for evaluation. The keys of the map are used as filenames.
+func CompileModulesWithOpt(modules map[string]string, opts CompileOpts) (*Compiler, error) {
+	if opts.ParserOptions.RegoVersion == RegoUndefined {
+		opts.ParserOptions.RegoVersion = DefaultRegoVersion
 	}
 
-	compiler := NewCompiler()
-	compiler.Compile(parsed)
-
-	if compiler.Failed() {
-		return nil, compiler.Errors
-	}
-
-	return compiler, nil
+	return v1.CompileModulesWithOpt(modules, opts)
 }
 
 // MustCompileModules compiles a set of Rego modules represented as strings. If
 // the compilation process fails, this function panics.
 func MustCompileModules(modules map[string]string) *Compiler {
+	return MustCompileModulesWithOpts(modules, CompileOpts{})
+}
 
-	compiler, err := CompileModules(modules)
+// MustCompileModulesWithOpts compiles a set of Rego modules represented as strings. If
+// the compilation process fails, this function panics.
+func MustCompileModulesWithOpts(modules map[string]string, opts CompileOpts) *Compiler {
+
+	compiler, err := CompileModulesWithOpt(modules, opts)
 	if err != nil {
 		panic(err)
 	}

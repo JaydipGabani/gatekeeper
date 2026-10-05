@@ -5,215 +5,82 @@
 package storage
 
 import (
-	"context"
-
-	"github.com/open-policy-agent/opa/ast"
+	v1 "github.com/open-policy-agent/opa/v1/storage"
 )
 
 // Transaction defines the interface that identifies a consistent snapshot over
 // the policy engine's storage layer.
-type Transaction interface {
-	ID() uint64
-}
+type Transaction = v1.Transaction
 
 // Store defines the interface for the storage layer's backend.
-type Store interface {
-	Trigger
-	Policy
-	Indexing
+type Store = v1.Store
 
-	// NewTransaction is called create a new transaction in the store.
-	NewTransaction(ctx context.Context, params ...TransactionParams) (Transaction, error)
-
-	// Read is called to fetch a document referred to by path.
-	Read(ctx context.Context, txn Transaction, path Path) (interface{}, error)
-
-	// Write is called to modify a document referred to by path.
-	Write(ctx context.Context, txn Transaction, op PatchOp, path Path, value interface{}) error
-
-	// Commit is called to finish the transaction. If Commit returns an error, the
-	// transaction must be automatically aborted by the Store implementation.
-	Commit(ctx context.Context, txn Transaction) error
-
-	// Abort is called to cancel the transaction.
-	Abort(ctx context.Context, txn Transaction)
-}
+// MakeDirer defines the interface a Store could realize to override the
+// generic MakeDir functionality in storage.MakeDir
+type MakeDirer = v1.MakeDirer
 
 // TransactionParams describes a new transaction.
-type TransactionParams struct {
-
-	// Write indicates if this transaction will perform any write operations.
-	Write bool
-
-	// Context contains key/value pairs passed to triggers.
-	Context *Context
-}
+type TransactionParams = v1.TransactionParams
 
 // Context is a simple container for key/value pairs.
-type Context struct {
-	values map[interface{}]interface{}
-}
+type Context = v1.Context
 
 // NewContext returns a new context object.
 func NewContext() *Context {
-	return &Context{
-		values: map[interface{}]interface{}{},
-	}
-}
-
-// Get returns the key value in the context.
-func (ctx *Context) Get(key interface{}) interface{} {
-	if ctx == nil {
-		return nil
-	}
-	return ctx.values[key]
-}
-
-// Put adds a key/value pair to the context.
-func (ctx *Context) Put(key, value interface{}) {
-	ctx.values[key] = value
+	return v1.NewContext()
 }
 
 // WriteParams specifies the TransactionParams for a write transaction.
-var WriteParams = TransactionParams{
-	Write: true,
-}
+var WriteParams = v1.WriteParams
 
 // PatchOp is the enumeration of supposed modifications.
-type PatchOp int
+type PatchOp = v1.PatchOp
 
 // Patch supports add, remove, and replace operations.
 const (
-	AddOp     PatchOp = iota
-	RemoveOp          = iota
-	ReplaceOp         = iota
+	AddOp     = v1.AddOp
+	RemoveOp  = v1.RemoveOp
+	ReplaceOp = v1.ReplaceOp
 )
 
 // WritesNotSupported provides a default implementation of the write
 // interface which may be used if the backend does not support writes.
-type WritesNotSupported struct{}
-
-func (WritesNotSupported) Write(ctx context.Context, txn Transaction, op PatchOp, path Path, value interface{}) error {
-	return writesNotSupportedError()
-}
+type WritesNotSupported = v1.WritesNotSupported
 
 // Policy defines the interface for policy module storage.
-type Policy interface {
-	ListPolicies(context.Context, Transaction) ([]string, error)
-	GetPolicy(context.Context, Transaction, string) ([]byte, error)
-	UpsertPolicy(context.Context, Transaction, string, []byte) error
-	DeletePolicy(context.Context, Transaction, string) error
-}
+type Policy = v1.Policy
 
 // PolicyNotSupported provides a default implementation of the policy interface
 // which may be used if the backend does not support policy storage.
-type PolicyNotSupported struct{}
-
-// ListPolicies always returns a PolicyNotSupportedErr.
-func (PolicyNotSupported) ListPolicies(context.Context, Transaction) ([]string, error) {
-	return nil, policyNotSupportedError()
-}
-
-// GetPolicy always returns a PolicyNotSupportedErr.
-func (PolicyNotSupported) GetPolicy(context.Context, Transaction, string) ([]byte, error) {
-	return nil, policyNotSupportedError()
-}
-
-// UpsertPolicy always returns a PolicyNotSupportedErr.
-func (PolicyNotSupported) UpsertPolicy(context.Context, Transaction, string, []byte) error {
-	return policyNotSupportedError()
-}
-
-// DeletePolicy always returns a PolicyNotSupportedErr.
-func (PolicyNotSupported) DeletePolicy(context.Context, Transaction, string) error {
-	return policyNotSupportedError()
-}
+type PolicyNotSupported = v1.PolicyNotSupported
 
 // PolicyEvent describes a change to a policy.
-type PolicyEvent struct {
-	ID      string
-	Data    []byte
-	Removed bool
-}
+type PolicyEvent = v1.PolicyEvent
 
 // DataEvent describes a change to a base data document.
-type DataEvent struct {
-	Path    Path
-	Data    interface{}
-	Removed bool
-}
+type DataEvent = v1.DataEvent
 
 // TriggerEvent describes the changes that caused the trigger to be invoked.
-type TriggerEvent struct {
-	Policy  []PolicyEvent
-	Data    []DataEvent
-	Context *Context
-}
-
-// IsZero returns true if the TriggerEvent indicates no changes occurred. This
-// function is primarily for test purposes.
-func (e TriggerEvent) IsZero() bool {
-	return !e.PolicyChanged() && !e.DataChanged()
-}
-
-// PolicyChanged returns true if the trigger was caused by a policy change.
-func (e TriggerEvent) PolicyChanged() bool {
-	return len(e.Policy) > 0
-}
-
-// DataChanged returns true if the trigger was caused by a data change.
-func (e TriggerEvent) DataChanged() bool {
-	return len(e.Data) > 0
-}
+type TriggerEvent = v1.TriggerEvent
 
 // TriggerConfig contains the trigger registration configuration.
-type TriggerConfig struct {
-
-	// OnCommit is invoked when a transaction is successfully committed. The
-	// callback is invoked with a handle to the write transaction that
-	// successfully committed before other clients see the changes.
-	OnCommit func(ctx context.Context, txn Transaction, event TriggerEvent)
-}
+type TriggerConfig = v1.TriggerConfig
 
 // Trigger defines the interface that stores implement to register for change
 // notifications when the store is changed.
-type Trigger interface {
-	Register(ctx context.Context, txn Transaction, config TriggerConfig) (TriggerHandle, error)
-}
+type Trigger = v1.Trigger
 
 // TriggersNotSupported provides default implementations of the Trigger
 // interface which may be used if the backend does not support triggers.
-type TriggersNotSupported struct{}
-
-// Register always returns an error indicating triggers are not supported.
-func (TriggersNotSupported) Register(context.Context, Transaction, TriggerConfig) (TriggerHandle, error) {
-	return nil, triggersNotSupportedError()
-}
+type TriggersNotSupported = v1.TriggersNotSupported
 
 // TriggerHandle defines the interface that can be used to unregister triggers that have
 // been registered on a Store.
-type TriggerHandle interface {
-	Unregister(ctx context.Context, txn Transaction)
-}
+type TriggerHandle = v1.TriggerHandle
 
-// IndexIterator defines the interface for iterating over index results.
-type IndexIterator func(*ast.ValueMap) error
+// Iterator defines the interface that can be used to read files from a directory starting with
+// files at the base of the directory, then sub-directories etc.
+type Iterator = v1.Iterator
 
-// Indexing defines the interface for building an index.
-type Indexing interface {
-	Build(ctx context.Context, txn Transaction, ref ast.Ref) (Index, error)
-}
-
-// Index defines the interface for searching a pre-built index.
-type Index interface {
-	Lookup(ctx context.Context, txn Transaction, value interface{}, iter IndexIterator) error
-}
-
-// IndexingNotSupported provides default implementations of the Indexing
-// interface which may be used if the backend does not support indexing.
-type IndexingNotSupported struct{}
-
-// Build always returns an error indicating indexing is not supported.
-func (IndexingNotSupported) Build(context.Context, Transaction, ast.Ref) (Index, error) {
-	return nil, indexingNotSupportedError()
-}
+// Update contains information about a file
+type Update = v1.Update

@@ -1,4 +1,5 @@
 name: copa-patch
+run-name: PR4756 20261014 / ${{ inputs.target || 'scheduled' }} / ${{ inputs.release_tag || 'auto' }}
 
 # Recurring Copa image-patching workflow.
 #
@@ -157,7 +158,9 @@ jobs:
             echo "::error::target=production is only allowed from the default branch (refs/heads/master), not ${REF}"; exit 1
           fi
           # Staging/intermediate writes are pinned to the owner's dedicated copa-staging namespace.
-          staging="ghcr.io/${{ github.repository_owner }}/copa-staging"
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          [[ "${REPO}" == "JaydipGabani/gatekeeper" ]] || { echo "::error::fork validation only"; exit 1; }
+          staging="ghcr.io/${owner}/copa-staging/pr4756-20261014"
           intermediate_repo="${staging}/${IMAGE}"
           source_ref="${SOURCE_REGISTRY}/${IMAGE}:${RELEASE}"
           if [[ "${mode}" == "production" ]]; then primary_repo="${SOURCE_REGISTRY}/${IMAGE}"; else primary_repo="${intermediate_repo}"; fi
@@ -168,6 +171,14 @@ jobs:
             echo "primary_repo=${primary_repo}"
           } >> "$GITHUB_OUTPUT"
           echo "mode=${mode} | source=${source_ref} | intermediate=${intermediate_repo} | primary=${primary_repo}"
+
+      - name: Check out validation collector
+        id: validation-checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          sparse-checkout: test/workflow-validation
+          path: validation-harness
 
       # Register QEMU for non-amd64 emulated patching.
       - name: Set up QEMU
@@ -236,6 +247,15 @@ jobs:
           echo "ghcr=${ghcr}" >> "$GITHUB_OUTPUT"
           echo "source_ref=${SOURCE_TAG}@${ghcr}" >> "$GITHUB_OUTPUT"
           echo "Base release digest — ghcr:${ghcr}"
+
+      - name: Capture validation baseline
+        id: validation-before
+        env:
+          MODE: ${{ steps.cfg.outputs.mode }}
+          SOURCE_TAG: ${{ steps.cfg.outputs.source_ref }}
+          SOURCE_PINNED: ${{ steps.base.outputs.source_ref }}
+          PRIMARY_REPO: ${{ steps.cfg.outputs.primary_repo }}
+        run: python3 validation-harness/test/workflow-validation/collect.py before
 
       # Scan the release source per arch. The reports Copa consumes live in copa-reports/
       # (one per platform => Copa patches exactly those arches).
@@ -735,6 +755,38 @@ jobs:
           echo "Dry-run: OCI layout written locally; nothing pushed. Platforms present:"
           jq -r '.manifests[] | select(.platform != null) | "\(.platform.os)/\(.platform.architecture)"' \
             ./patched-oci/index.json || true
+
+      - name: Capture validation outcome
+        if: always() && steps.validation-before.outcome == 'success'
+        env:
+          MODE: ${{ steps.cfg.outputs.mode }}
+          SOURCE_TAG: ${{ steps.cfg.outputs.source_ref }}
+          SOURCE_PINNED: ${{ steps.base.outputs.source_ref }}
+          PRIMARY_REPO: ${{ steps.cfg.outputs.primary_repo }}
+          CANDIDATE_TAG: ${{ steps.patch.outputs.patched_ref }}
+          CANDIDATE_PINNED: ${{ steps.patch.outputs.verification_ref }}
+          RC_TAG: ${{ steps.rewrap.outputs.rc_tag }}
+          RC_PINNED: ${{ steps.rewrap.outputs.rc_ref }}
+          REV: ${{ steps.rev.outputs.rev }}
+          HAS_FIXES: ${{ steps.gate.outputs.has_fixes }}
+          PUBLISH: ${{ steps.verify.outputs.publish }}
+          BASELINE_DIGEST: ${{ steps.gate.outputs.baseline_digest }}
+        run: python3 validation-harness/test/workflow-validation/collect.py after
+
+      - name: Upload validation evidence
+        if: always() && steps.validation-before.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: copa-${{ matrix.image }}-${{ matrix.release }}-${{ needs.resolve-releases.outputs.mode }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            validation-evidence/
+            copa-reports/
+            copa-reports-patched/
+            scan-after-*.json
+            norm-*.json
+            *.keys
 
   patch-publish:
     name: Patch ${{ matrix.image }}:${{ matrix.release }}

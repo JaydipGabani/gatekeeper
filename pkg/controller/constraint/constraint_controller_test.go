@@ -18,6 +18,7 @@ import (
 	regoSchema "github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers/rego/schema"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/core/templates"
 	constraintstatusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/agentpolicy"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/drivers/k8scel"
 	celSchema "github.com/open-policy-agent/gatekeeper/v3/pkg/drivers/k8scel/schema"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/drivers/k8scel/transform"
@@ -924,11 +925,13 @@ func newConstraintUnitReconciler(t *testing.T, ct *templates.ConstraintTemplate,
 		t.Fatal(err)
 	}
 	runtimeDriver := runtimepolicy.NewOfflineDriver()
+	agentDriver := agentpolicy.NewOfflineDriver()
 	cfClient, err := constraintclient.NewClient(
-		constraintclient.Targets(&target.K8sValidationTarget{}, runtimepolicy.NewTarget(runtimeDriver)),
+		constraintclient.Targets(&target.K8sValidationTarget{}, runtimepolicy.NewTarget(runtimeDriver), agentpolicy.NewTarget(agentDriver)),
 		constraintclient.Driver(regoDriver),
 		constraintclient.Driver(celDriver),
 		constraintclient.Driver(runtimeDriver),
+		constraintclient.Driver(agentDriver),
 		constraintclient.EnforcementPoints(util.AuditEnforcementPoint),
 	)
 	if err != nil {

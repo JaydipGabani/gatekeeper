@@ -30,6 +30,7 @@ import (
 	constraintclient "github.com/open-policy-agent/frameworks/constraint/pkg/client"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/core/templates"
 	constraintstatusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/agentpolicy"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraintstatus"
 	celSchema "github.com/open-policy-agent/gatekeeper/v3/pkg/drivers/k8scel/schema"
@@ -146,6 +147,7 @@ type Adder struct {
 	// controller
 	IfWatching       func(schema.GroupVersionKind, func() error) (bool, error)
 	RuntimeProjector runtimepolicy.Projector
+	AgentProjector   agentpolicy.Projector
 }
 
 func (a *Adder) InjectCFClient(c *constraintclient.Client) {
@@ -164,6 +166,10 @@ func (a *Adder) InjectRuntimeProjector(projector runtimepolicy.Projector) {
 	a.RuntimeProjector = projector
 }
 
+func (a *Adder) InjectAgentProjector(projector agentpolicy.Projector) {
+	a.AgentProjector = projector
+}
+
 // Add creates a new Constraint Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func (a *Adder) Add(mgr manager.Manager) error {
@@ -178,13 +184,14 @@ func (a *Adder) Add(mgr manager.Manager) error {
 
 	r := newReconciler(mgr, a.CFClient, reporter, a.ConstraintsCache, a.Tracker)
 	r.runtimeProjector = a.RuntimeProjector
+	r.agentProjector = a.AgentProjector
 	if a.GetPod != nil {
 		r.getPod = a.GetPod
 	}
 	if a.IfWatching != nil {
 		r.ifWatching = a.IfWatching
 	}
-	return add(mgr, r, a.Events, a.RuntimeProjector)
+	return add(mgr, r, a.Events, a.RuntimeProjector, a.AgentProjector)
 }
 
 type ConstraintsCache struct {
@@ -225,7 +232,7 @@ func newReconciler(
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler.
-func add(mgr manager.Manager, r reconcile.Reconciler, events <-chan event.GenericEvent, runtimeProjector runtimepolicy.Projector) error {
+func add(mgr manager.Manager, r reconcile.Reconciler, events <-chan event.GenericEvent, runtimeProjector runtimepolicy.Projector, agentProjector agentpolicy.Projector) error {
 	// Create a new controller
 	c, err := controller.New("constraint-controller", mgr, controller.Options{Reconciler: r})
 	if err != nil {
@@ -262,6 +269,13 @@ func add(mgr manager.Manager, r reconcile.Reconciler, events <-chan event.Generi
 	if runtimeProjector != nil {
 		if err = c.Watch(source.Kind(mgr.GetCache(), runtimeProjector.RuntimePolicyWatchObject(), handler.TypedEnqueueRequestsFromMapFunc(eventPackerMapFuncFromOwnerRefs()))); err != nil {
 			return err
+		}
+	}
+	if agentProjector != nil {
+		for _, obj := range agentProjector.WatchObjects() {
+			if err = c.Watch(source.Kind(mgr.GetCache(), obj, handler.TypedEnqueueRequestsFromMapFunc(eventPackerMapFuncFromOwnerRefs()))); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -304,6 +318,7 @@ type ReconcileConstraint struct {
 	// whether the reconciler should infer the object has been deleted
 	ifWatching       func(schema.GroupVersionKind, func() error) (bool, error)
 	runtimeProjector runtimepolicy.Projector
+	agentProjector   agentpolicy.Projector
 }
 
 // +kubebuilder:rbac:groups=constraints.gatekeeper.sh,resources=*,verbs=get;list;watch;create;update;patch;delete
@@ -387,15 +402,17 @@ func (r *ReconcileConstraint) Reconcile(ctx context.Context, request reconcile.R
 			if persistErr := r.persistPodStatus(ctx, status, oldStatus); persistErr != nil {
 				baseStatusChanged := statusBeforeVAPB != nil && !apiequality.Semantic.DeepEqual(*statusBeforeVAPB, *oldStatus)
 				switch {
-				case baseStatusChanged:
-					result = reconcile.Result{Requeue: true}
-					reconcileErr = nil
 				case reported:
 					log.Error(persistErr, reportedErr.message, "error", "could not update constraint status")
 					reconcileErr = &combinedStatusError{
 						message: fmt.Sprintf("%s, could not update constraint status: %s: %s", reportedErr.message, persistErr, reportedErr.err),
 						errs:    []error{reportedErr.err, persistErr},
 					}
+				case reconcileErr != nil:
+					reconcileErr = errors.Join(reconcileErr, persistErr)
+				case baseStatusChanged:
+					result = reconcile.Result{Requeue: true}
+					reconcileErr = nil
 				default:
 					reconcileErr = persistErr
 				}
@@ -428,11 +445,9 @@ func (r *ReconcileConstraint) Reconcile(ctx context.Context, request reconcile.R
 		}
 
 		// Enforced is Gatekeeper's legacy cache-acceptance bit. It does not mean
-		// every enforcement point has completed its work. Runtime projection is
-		// reported separately below, where Projected means only that Gatekeeper
-		// wrote the RuntimePolicy authoring handoff.
+		// every enforcement point has completed its work. Projection is reported
+		// separately below; Projected means only an authoring handoff was written.
 		status.Status.Enforced = true
-		statusBeforeVAPB = status.Status.DeepCopy()
 
 		// adding constraint to cache and sending metrics
 		r.constraintsCache.addConstraintKey(constraintKey, tags{
@@ -440,36 +455,51 @@ func (r *ReconcileConstraint) Reconcile(ctx context.Context, request reconcile.R
 			status:            metrics.ActiveStatus,
 		})
 		reportMetrics = true
-		var runtimeProjectionErr error
+		var projectionErrs []error
+		agentProjectionPending := false
 		if r.runtimeProjector != nil {
 			projection, handled, err := r.runtimeProjector.ReconcileConstraint(ctx, instance)
 			switch {
 			case err != nil:
 				updateEnforcementPointStatus(status, runtimepolicy.EnforcementPoint, runtimepolicy.ProjectionError, err.Error(), instance.GetGeneration())
 				status.Status.Errors = append(status.Status.Errors, constraintstatusv1beta1.Error{Message: fmt.Sprintf("could not project runtime constraint: %s", err)})
-				runtimeProjectionErr = err
+				projectionErrs = append(projectionErrs, fmt.Errorf("could not project runtime constraint: %w", err))
 			case handled:
 				updateEnforcementPointStatus(status, runtimepolicy.EnforcementPoint, projection.State, projection.Message, instance.GetGeneration())
 			default:
 				cleanEnforcementPointStatus(status, runtimepolicy.EnforcementPoint)
 			}
 		}
-		requeueAfter, err := r.manageVAPB(ctx, enforcementAction, instance, status)
-		if err != nil {
-			if runtimeProjectionErr != nil {
-				combinedErr := &combinedStatusError{
-					message: fmt.Sprintf("could not project runtime constraint: %s; ValidatingAdmissionPolicyBinding reconciliation failed: %s", runtimeProjectionErr, err),
-					errs:    []error{runtimeProjectionErr, err},
-				}
-				return reconcile.Result{RequeueAfter: requeueAfter}, &reportedStatusError{
-					err:     combinedErr,
-					message: "could not reconcile runtime projection and ValidatingAdmissionPolicyBinding",
-				}
+		if r.agentProjector != nil {
+			projection, handled, err := r.agentProjector.ReconcileConstraint(ctx, instance)
+			switch {
+			case err != nil:
+				updateEnforcementPointStatus(status, agentpolicy.EnforcementPoint, agentpolicy.ProjectionError, err.Error(), instance.GetGeneration())
+				status.Status.Errors = append(status.Status.Errors, constraintstatusv1beta1.Error{Message: fmt.Sprintf("could not project agent constraint: %s", err)})
+				projectionErrs = append(projectionErrs, fmt.Errorf("could not project agent constraint: %w", err))
+			case handled:
+				updateEnforcementPointStatus(status, agentpolicy.EnforcementPoint, projection.State, projection.Message, instance.GetGeneration())
+				agentProjectionPending = projection.State == agentpolicy.ProjectionPending
+			default:
+				cleanEnforcementPointStatus(status, agentpolicy.EnforcementPoint)
 			}
-			return reconcile.Result{RequeueAfter: requeueAfter}, err
 		}
-		if runtimeProjectionErr != nil {
-			return reconcile.Result{RequeueAfter: requeueAfter}, &reportedStatusError{err: runtimeProjectionErr, message: "could not project runtime constraint"}
+		statusBeforeVAPB = status.Status.DeepCopy()
+		requeueAfter, err := r.manageVAPB(ctx, enforcementAction, instance, status)
+		if agentProjectionPending && (requeueAfter == 0 || requeueAfter > 5*time.Second) {
+			requeueAfter = 5 * time.Second
+		}
+		if len(projectionErrs) != 0 {
+			if err != nil {
+				projectionErrs = append(projectionErrs, fmt.Errorf("ValidatingAdmissionPolicyBinding reconciliation failed: %w", err))
+			}
+			return reconcile.Result{RequeueAfter: requeueAfter}, &reportedStatusError{
+				err:     errors.Join(projectionErrs...),
+				message: "could not reconcile policy projections",
+			}
+		}
+		if err != nil {
+			return reconcile.Result{RequeueAfter: requeueAfter}, err
 		}
 		if requeueAfter != time.Duration(0) {
 			log.Info("requeueing after", "requeueAfter", requeueAfter)
@@ -480,7 +510,7 @@ func (r *ReconcileConstraint) Reconcile(ctx context.Context, request reconcile.R
 		r.reporter.DeleteVAPBStatus(types.NamespacedName{Name: transform.GetVAPBindingName(instance.GetKind(), instance.GetName())})
 		r.reporter.DeleteVAPBStatus(types.NamespacedName{Name: transform.LegacyVAPBindingName(instance.GetName())})
 		if _, err := r.cfClient.RemoveConstraint(ctx, instance); err != nil {
-			if errors.Is(err, constraintclient.ErrMissingConstraint) {
+			if !errors.Is(err, constraintclient.ErrMissingConstraint) {
 				return reconcile.Result{}, err
 			}
 		}
@@ -707,7 +737,7 @@ func (r *ReconcileConstraint) manageVAPB(ctx context.Context, enforcementAction 
 		hasVAP, err := ShouldGenerateVAP(unversionedCT)
 		switch {
 		case errors.Is(err, celSchema.ErrCELEngineMissing):
-			if runtimepolicy.IsRuntimeTemplate(unversionedCT) && len(unversionedCT.Spec.Targets) == 1 {
+			if (runtimepolicy.IsRuntimeTemplate(unversionedCT) || agentpolicy.IsAgentTemplate(unversionedCT)) && len(unversionedCT.Spec.Targets) == 1 {
 				cleanEnforcementPointStatus(status, util.VAPEnforcementPoint)
 				r.reporter.DeleteVAPBStatus(vapBindingKey)
 			} else {

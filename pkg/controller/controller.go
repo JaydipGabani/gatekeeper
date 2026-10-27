@@ -24,6 +24,7 @@ import (
 
 	constraintclient "github.com/open-policy-agent/frameworks/constraint/pkg/client"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/externaldata"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/agentpolicy"
 	cm "github.com/open-policy-agent/gatekeeper/v3/pkg/cachemanager"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
 	syncc "github.com/open-policy-agent/gatekeeper/v3/pkg/controller/sync"
@@ -111,6 +112,10 @@ type RuntimeProjectorInjector interface {
 	InjectRuntimeProjector(runtimepolicy.Projector)
 }
 
+type AgentProjectorInjector interface {
+	InjectAgentProjector(agentpolicy.Projector)
+}
+
 type RuntimeExportEnabledInjector interface {
 	InjectRuntimeExportEnabled(bool)
 }
@@ -138,6 +143,7 @@ type Dependencies struct {
 	CtEvents             chan event.GenericEvent
 	WebhookConfigCache   *webhookconfigcache.WebhookConfigCache
 	RuntimeProjector     runtimepolicy.Projector
+	AgentProjector       agentpolicy.Projector
 	RuntimeExportEnabled bool
 }
 
@@ -292,6 +298,9 @@ func AddToManager(m manager.Manager, deps *Dependencies) error {
 		}
 		if a2, ok := a.(RuntimeProjectorInjector); ok {
 			a2.InjectRuntimeProjector(deps.RuntimeProjector)
+		}
+		if a2, ok := a.(AgentProjectorInjector); ok {
+			a2.InjectAgentProjector(deps.AgentProjector)
 		}
 		if a2, ok := a.(RuntimeExportEnabledInjector); ok {
 			a2.InjectRuntimeExportEnabled(deps.RuntimeExportEnabled)

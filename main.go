@@ -45,6 +45,7 @@ import (
 	mutationsv1alpha1 "github.com/open-policy-agent/gatekeeper/v3/apis/mutations/v1alpha1"
 	mutationsv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/mutations/v1beta1"
 	statusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/agentpolicy"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/audit"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/cachemanager"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller"
@@ -71,6 +72,7 @@ import (
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/webhook"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -129,6 +131,7 @@ var (
 	externaldataProviderResponseCacheTTL = flag.Duration("external-data-provider-response-cache-ttl", 3*time.Minute, "TTL for the external data provider response cache. Specify the duration in 'h', 'm', or 's' for hours, minutes, or seconds respectively. Defaults to 3 minutes if unspecified. Setting the TTL to 0 disables the cache.")
 	enableReferential                    = flag.Bool("enable-referential-rules", true, "Enable referential rules. This flag defaults to true. Set this value to false if you want to disallow referential constraints. Because referential constraints read objects other than the object-under-test, they may be subject to race conditions. Users concerned about this may want to disable referential rules")
 	enableRuntimeTarget                  = flag.Bool("enable-runtime-target", false, "Enable the runtime.gatekeeper.sh ConstraintTemplate target and RuntimePolicy projection. Requires the Gatekeeper Runtime CRDs and separate runtime controller/agent installation.")
+	enableAgentPolicyTarget              = flag.Bool("enable-agent-policy-target", false, "Enable the agent.gatekeeper.sh ConstraintTemplate target and native policy projection. Requires preinstalled AgentgatewayPolicy and AgentAuthzPolicy CRDs and separate native enforcement.")
 	shutdownDelay                        = flag.Int("shutdown-delay", 10, "Time in seconds the controller runtime shutdown gets delayed after receiving a pod termination event. Prevents failing webhooks on pod shutdown. default: 10")
 )
 
@@ -420,6 +423,27 @@ blockingLoop:
 	return 0
 }
 
+func agentPolicyClientOptions(enabled bool, writer client.Client, reader client.Reader, mapper meta.RESTMapper, targets []frameworkshandler.TargetHandler) ([]constraintclient.Opt, *agentpolicy.Driver, error) {
+	if !enabled {
+		return []constraintclient.Opt{constraintclient.Targets(targets...)}, nil, nil
+	}
+
+	driver := agentpolicy.NewDriver(writer, reader)
+	// These are fixed startup watches, not dynamically discovered APIs. Fail
+	// before registering controllers rather than promise late CRD recovery.
+	for _, obj := range driver.WatchObjects() {
+		gvk := obj.GetObjectKind().GroupVersionKind()
+		if _, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version); err != nil {
+			return nil, nil, fmt.Errorf("--enable-agent-policy-target requires preinstalled %s CRD: %w", gvk, err)
+		}
+	}
+	targets = append(targets, agentpolicy.NewTarget(driver))
+	return []constraintclient.Opt{
+		constraintclient.Targets(targets...),
+		constraintclient.Driver(driver),
+	}, driver, nil
+}
+
 func setupControllers(ctx context.Context, mgr ctrl.Manager, tracker *readiness.Tracker, setupFinished chan struct{}) error {
 	// Block until the setup (certificate generation) finishes.
 	<-setupFinished
@@ -475,7 +499,10 @@ func setupControllers(ctx context.Context, mgr ctrl.Manager, tracker *readiness.
 		})
 		targets = append(targets, runtimepolicy.NewTarget(runtimeDriver))
 	}
-	cfArgs := []constraintclient.Opt{constraintclient.Targets(targets...)}
+	cfArgs, agentDriver, err := agentPolicyClientOptions(*enableAgentPolicyTarget, mgr.GetClient(), mgr.GetAPIReader(), mgr.GetRESTMapper(), targets)
+	if err != nil {
+		return err
+	}
 
 	var client *constraintclient.Client
 
@@ -605,8 +632,13 @@ func setupControllers(ctx context.Context, mgr ctrl.Manager, tracker *readiness.
 		ExpansionSystem:      expansionSystem,
 		ProviderCache:        providerCache,
 		ExportSystem:         exportSystem,
-		RuntimeProjector:     runtimeDriver,
 		RuntimeExportEnabled: runtimeDriver != nil && operations.IsAssigned(operations.Webhook),
+	}
+	if runtimeDriver != nil {
+		opts.RuntimeProjector = runtimeDriver
+	}
+	if agentDriver != nil {
+		opts.AgentProjector = agentDriver
 	}
 
 	if operations.IsAssigned(operations.Generate) {

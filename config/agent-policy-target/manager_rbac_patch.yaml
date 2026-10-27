@@ -1,0 +1,29 @@
+# Get/list/watch for ownership and drift; create/update/delete for projection.
+- op: add
+  path: /rules/-
+  value:
+    apiGroups:
+    - agentgateway.dev
+    resources:
+    - agentgatewaypolicies
+    verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - delete
+- op: add
+  path: /rules/-
+  value:
+    apiGroups:
+    - agentauthz.azure.com
+    resources:
+    - agentauthzpolicies
+    verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - delete

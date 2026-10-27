@@ -36,6 +36,7 @@ import (
 	"github.com/open-policy-agent/gatekeeper/v3/apis"
 	expansionunversioned "github.com/open-policy-agent/gatekeeper/v3/apis/expansion/unversioned"
 	mutationsunversioned "github.com/open-policy-agent/gatekeeper/v3/apis/mutations/unversioned"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/agentpolicy"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/expansion"
 	exportutil "github.com/open-policy-agent/gatekeeper/v3/pkg/export/util"
@@ -589,6 +590,9 @@ func (h *validationHandler) validateTemplate(ctx context.Context, req *admission
 		}
 	}
 	if _, err := runtimepolicy.ValidateTemplate(unversioned); err != nil {
+		return true, err
+	}
+	if _, err := agentpolicy.ValidateTemplate(unversioned); err != nil {
 		return true, err
 	}
 

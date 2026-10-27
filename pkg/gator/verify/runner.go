@@ -12,6 +12,7 @@ import (
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/reviews"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/types"
 	"github.com/open-policy-agent/gatekeeper/v3/apis"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/agentpolicy"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/expansion"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator/expand"
@@ -271,6 +272,9 @@ func (r *Runner) addTemplate(suiteDir, templatePath string, client gator.Client)
 	_, err = client.AddTemplate(context.Background(), template)
 	if err != nil {
 		return fmt.Errorf("%w: %w", gator.ErrAddingTemplate, err)
+	}
+	if agentpolicy.IsAgentTemplate(template) {
+		return fmt.Errorf("%w: %s supports offline authoring validation with gator test, not gator verify request assertions; native enforcement must be tested separately", gator.ErrInvalidSuite, agentpolicy.TargetName)
 	}
 
 	return nil

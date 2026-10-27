@@ -28,6 +28,7 @@ import (
 	constraintclient "github.com/open-policy-agent/frameworks/constraint/pkg/client"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/core/templates"
 	statusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/agentpolicy"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraint"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraintstatus"
@@ -91,6 +92,7 @@ type Adder struct {
 	WebhookConfigCache *webhookconfigcache.WebhookConfigCache
 	CtEvents           <-chan event.GenericEvent
 	RuntimeProjector   runtimepolicy.Projector
+	AgentProjector     agentpolicy.Projector
 }
 
 // Add creates a new ConstraintTemplate Controller and adds it to the Manager with default RBAC. The Manager will set fields on the Controller
@@ -101,7 +103,7 @@ func (a *Adder) Add(mgr manager.Manager) error {
 	}
 	// constraintEvents will be used to receive events from dynamic watches registered for constraint controller
 	constraintEvents := make(chan event.GenericEvent, 1024)
-	r, err := newReconciler(mgr, a.CFClient, a.WatchManager, a.Tracker, constraintEvents, constraintEvents, a.GetPod, a.WebhookConfigCache, a.ProcessExcluder, a.RuntimeProjector)
+	r, err := newReconciler(mgr, a.CFClient, a.WatchManager, a.Tracker, constraintEvents, constraintEvents, a.GetPod, a.WebhookConfigCache, a.ProcessExcluder, a.RuntimeProjector, a.AgentProjector)
 	if err != nil {
 		return err
 	}
@@ -140,11 +142,15 @@ func (a *Adder) InjectRuntimeProjector(projector runtimepolicy.Projector) {
 	a.RuntimeProjector = projector
 }
 
+func (a *Adder) InjectAgentProjector(projector agentpolicy.Projector) {
+	a.AgentProjector = projector
+}
+
 // newReconciler returns a new reconcile.Reconciler
 // cstrEvents is the channel from which constraint controller will receive the events
 // regEvents is the channel registered by Registrar to put the events in
 // cstrEvents and regEvents point to same event channel except for testing.
-func newReconciler(mgr manager.Manager, cfClient *constraintclient.Client, wm *watch.Manager, tracker *readiness.Tracker, cstrEvents chan event.GenericEvent, regEvents chan<- event.GenericEvent, getPod func(context.Context) (*corev1.Pod, error), webhookCache *webhookconfigcache.WebhookConfigCache, processExcluder *process.Excluder, runtimeProjector runtimepolicy.Projector) (*ReconcileConstraintTemplate, error) {
+func newReconciler(mgr manager.Manager, cfClient *constraintclient.Client, wm *watch.Manager, tracker *readiness.Tracker, cstrEvents chan event.GenericEvent, regEvents chan<- event.GenericEvent, getPod func(context.Context) (*corev1.Pod, error), webhookCache *webhookconfigcache.WebhookConfigCache, processExcluder *process.Excluder, runtimeProjector runtimepolicy.Projector, agentProjector agentpolicy.Projector) (*ReconcileConstraintTemplate, error) {
 	// constraintsCache contains total number of constraints and shared mutex and vap label
 	constraintsCache := constraint.NewConstraintsCache()
 
@@ -168,6 +174,7 @@ func newReconciler(mgr manager.Manager, cfClient *constraintclient.Client, wm *w
 		GetPod:           getPod,
 		IfWatching:       w.IfWatching,
 		RuntimeProjector: runtimeProjector,
+		AgentProjector:   agentProjector,
 	}
 	// Create subordinate controller - we will feed it events dynamically via watch
 	if err := constraintAdder.Add(mgr); err != nil {
@@ -436,6 +443,16 @@ func (r *ReconcileConstraintTemplate) Reconcile(ctx context.Context, request rec
 	status.Status.Errors = nil
 	if _, err := runtimepolicy.ValidateTemplate(unversionedCT); err != nil {
 		logger.Error(err, "runtime template validation error")
+		r.tracker.TryCancelTemplate(unversionedCT)
+		r.metrics.registry.add(request.NamespacedName, metrics.ErrorStatus)
+		status.Status.Errors = append(status.Status.Errors, &v1beta1.CreateCRDError{Code: ErrCreateCode, Message: err.Error()})
+		persistStatus = true
+		persistErrorMessage = "update status error"
+		logError(request.Name)
+		return reconcile.Result{}, nil
+	}
+	if _, err := agentpolicy.ValidateTemplate(unversionedCT); err != nil {
+		logger.Error(err, "agent template validation error")
 		r.tracker.TryCancelTemplate(unversionedCT)
 		r.metrics.registry.add(request.NamespacedName, metrics.ErrorStatus)
 		status.Status.Errors = append(status.Status.Errors, &v1beta1.CreateCRDError{Code: ErrCreateCode, Message: err.Error()})

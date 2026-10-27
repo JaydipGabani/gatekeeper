@@ -76,6 +76,20 @@ func TestValidateEnforcementAction(t *testing.T) {
 			},
 		},
 		{
+			name:   "agent enforcement point is recognized",
+			action: Scoped,
+			constraint: map[string]interface{}{
+				"spec": map[string]interface{}{
+					"scopedEnforcementActions": []apiconstraints.ScopedEnforcementAction{{
+						Action: string(Deny),
+						EnforcementPoints: []apiconstraints.EnforcementPoint{{
+							Name: AgentEnforcementPoint,
+						}},
+					}},
+				},
+			},
+		},
+		{
 			name:   "Empty enforcement point",
 			action: Scoped,
 			constraint: map[string]interface{}{

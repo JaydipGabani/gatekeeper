@@ -52,6 +52,32 @@ const (
   - create
 {{- end }}
 `
+	agentPolicyRBAC = `{{- if .Values.enableAgentPolicyTarget }}
+# Get/list/watch for ownership and drift; create/update/delete for projection.
+- apiGroups:
+  - agentgateway.dev
+  resources:
+  - agentgatewaypolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - agentauthz.azure.com
+  resources:
+  - agentauthzpolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+{{- end }}
+`
 )
 
 func isRbacKind(str string) bool {
@@ -204,7 +230,7 @@ func (ks *kindSet) Write() error {
 				obj = strings.Replace(obj, "- gatekeeper-validating-webhook-configuration\n", "- {{ .Values.validatingWebhookName }}\n  {{- range $additionalValidatingWebhookConfig := .Values.additionalValidatingWebhookConfigsToRotateCerts }}\n  - {{ $additionalValidatingWebhookConfig }}\n  {{- end }}\n", 1)
 				obj = strings.Replace(obj, "- gatekeeper-mutating-webhook-configuration\n", "- {{ .Values.mutatingWebhookName }}\n  {{- range $additionalMutatingWebhookConfig := .Values.additionalMutatingWebhookConfigsToRotateCerts }}\n  - {{ $additionalMutatingWebhookConfig }}\n  {{- end }}\n", 1)
 				if strings.HasSuffix(obj, end+"\n") {
-					obj = strings.TrimSuffix(obj, end+"\n") + runtimePolicyRBAC + end + "\n"
+					obj = strings.TrimSuffix(obj, end+"\n") + runtimePolicyRBAC + agentPolicyRBAC + end + "\n"
 				}
 			}
 

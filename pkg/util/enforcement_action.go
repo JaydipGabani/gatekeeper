@@ -34,11 +34,14 @@ const (
 	// VAP enforcement point for ValidatingAdmissionPolicy.
 	VAPEnforcementPoint = "vap.k8s.io"
 
+	// AgentEnforcementPoint reports native agent-policy projection, not admission evaluation.
+	AgentEnforcementPoint = "agent"
+
 	// AllEnforcementPoints indicates all enforcement points.
 	AllEnforcementPoints = "*"
 )
 
-var supportedEnforcementPoints = []string{WebhookEnforcementPoint, AuditEnforcementPoint, GatorEnforcementPoint, VAPEnforcementPoint}
+var supportedEnforcementPoints = []string{WebhookEnforcementPoint, AuditEnforcementPoint, GatorEnforcementPoint, VAPEnforcementPoint, AgentEnforcementPoint}
 
 var supportedEnforcementActions = []EnforcementAction{Deny, Dryrun, Warn, Scoped}
 
@@ -91,7 +94,7 @@ func ValidateScopedEnforcementAction(item map[string]interface{}) error {
 		}
 		for _, enforcementPoint := range scopedEnforcementAction.EnforcementPoints {
 			switch enforcementPoint.Name {
-			case WebhookEnforcementPoint, AuditEnforcementPoint, GatorEnforcementPoint, VAPEnforcementPoint, AllEnforcementPoints:
+			case WebhookEnforcementPoint, AuditEnforcementPoint, GatorEnforcementPoint, VAPEnforcementPoint, AgentEnforcementPoint, AllEnforcementPoints:
 			default:
 				unrecognizedEnforcementPoints = append(unrecognizedEnforcementPoints, enforcementPoint.Name)
 			}

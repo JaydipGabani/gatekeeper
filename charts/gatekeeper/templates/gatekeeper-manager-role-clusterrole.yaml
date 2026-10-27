@@ -202,4 +202,29 @@ rules:
   verbs:
   - create
 {{- end }}
+{{- if .Values.enableAgentPolicyTarget }}
+# Get/list/watch for ownership and drift; create/update/delete for projection.
+- apiGroups:
+  - agentgateway.dev
+  resources:
+  - agentgatewaypolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - agentauthz.azure.com
+  resources:
+  - agentauthzpolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+{{- end }}
 {{- end }}

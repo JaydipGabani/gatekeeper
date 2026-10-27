@@ -8,6 +8,7 @@ import (
 	constraintclient "github.com/open-policy-agent/frameworks/constraint/pkg/client"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers/rego"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/reviews"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/agentpolicy"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/drivers/k8scel"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/expansion"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator"
@@ -33,9 +34,11 @@ func init() {
 
 func Test(objs []*unstructured.Unstructured, opts ...gator.Opt) (*GatorResponses, error) {
 	runtimeDriver := runtimepolicy.NewOfflineDriver()
+	agentDriver := agentpolicy.NewOfflineDriver()
 	args := []constraintclient.Opt{
-		constraintclient.Targets(&target.K8sValidationTarget{}, runtimepolicy.NewTarget(runtimeDriver)),
+		constraintclient.Targets(&target.K8sValidationTarget{}, runtimepolicy.NewTarget(runtimeDriver), agentpolicy.NewTarget(agentDriver)),
 		constraintclient.Driver(runtimeDriver),
+		constraintclient.Driver(agentDriver),
 	}
 
 	driverArgs := []rego.Arg{}
@@ -74,6 +77,9 @@ func Test(objs []*unstructured.Unstructured, opts ...gator.Opt) (*GatorResponses
 			return nil, fmt.Errorf("converting unstructured %q to template: %w", obj.GetName(), err)
 		}
 		if _, err := runtimepolicy.ValidateTemplate(templ); err != nil {
+			return nil, fmt.Errorf("validating template %q: %w", templ.GetName(), err)
+		}
+		if _, err := agentpolicy.ValidateTemplate(templ); err != nil {
 			return nil, fmt.Errorf("validating template %q: %w", templ.GetName(), err)
 		}
 
